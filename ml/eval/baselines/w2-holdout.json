@@ -1,0 +1,5 @@
+{
+ "schema": "inspector-mutation-baseline/1",
+ "about": "Базовая линия QA-07 отложенного набора W2 (T-195, OS-INSP-6.5.68). Пустая заготовка: профиль появляется после первого прогона конвейера на наборе командой `python -m eval.w2_holdout.score … --baseline eval/baselines/w2-holdout.json --profile full --write-baseline`. Профиль: {dataset_version, registry_sha256, categories: {<срез>: {n_pos, n_neg, recall, fpr, precision}}}; срезы — op:, pair:, target: с положительными группами, ctl: с отрицательными, all. Пока профиля нет, гейт падает с причиной «базовой линии нет».",
+ "profiles": {}
+}

@@ -1,0 +1,15 @@
+# Входной фильтр хоста (T-185, OWASP-0195). Ставится в /etc/systemd/system/host-filter.service, файл правил —
+# /etc/nftables-host-filter.nft (копия deploy/gpu-stand/host/host-filter.nft).
+[Unit]
+Description=Inspector GPU host input filter (22/80/443 only)
+Wants=network-pre.target
+Before=network-pre.target docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/nftables-host-filter.nft
+ExecStop=/usr/sbin/nft delete table inet host_filter
+
+[Install]
+WantedBy=multi-user.target

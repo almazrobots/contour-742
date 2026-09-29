@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/styles.css"
+        ],
+        "createdAt": "2026-09-24T21:08:48.230Z",
+        "reason": "Claude triage: L148 .queue .item.on — 3px inset marks the selected row in the verification queue list (selection state, not a decorative card border); present since b28dc4a"
+      }
+    ]
+  }
+}

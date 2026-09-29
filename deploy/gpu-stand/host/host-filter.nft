@@ -1,0 +1,27 @@
+#!/usr/sbin/nft -f
+# Входной фильтр хоста GPU-сервера 158.255.3.179 (T-185, OWASP-0195): снаружи — только 22, 80, 443 (tcp и udp/HTTP-3).
+# Своя таблица inet host_filter, а не ufw и не /etc/nftables.conf (там `flush ruleset` снёс бы правила Docker).
+# Docker (iptables-nft) хук input не трогает; пакет проходит все базовые цепочки хука, поэтому drop здесь действует
+# независимо от ACCEPT в таблице Docker. FORWARD (контейнеры ↔ интернет) не затрагивается.
+# Контейнеры (docker0, br-*) ходят к хосту свободно: API стенда → ML 172.17.0.1:48811, контейнеры W1.
+# Установка: /etc/nftables-host-filter.nft + host-filter.service (в этой же папке). Откат: nft delete table inet host_filter.
+table inet host_filter
+delete table inet host_filter
+
+table inet host_filter {
+	chain input {
+		type filter hook input priority filter + 10; policy drop;
+		iif "lo" accept
+		ct state established,related accept
+		ct state invalid drop
+		iifname "docker0" accept
+		iifname "br-*" accept
+		meta l4proto icmp accept
+		meta l4proto ipv6-icmp accept
+		tcp dport { 22, 80, 443 } accept
+		udp dport 443 accept
+		# DHCP-клиент: адрес 158.255.3.179 выдаётся по DHCP (netplan dhcp4: true) — без этого потеряем адрес при продлении
+		udp dport { 68, 546 } accept
+		counter comment "host_filter: сброшено"
+	}
+}

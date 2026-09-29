@@ -1,0 +1,39 @@
+# ТЗ 13.5: сбор метрик API; алерты — ТЗ 13.7
+# NFR-TLS (ТЗ 12.3): API слушает только HTTPS (TLS 1.3) — Prometheus ходит по https и проверяет сертификат.
+# ca.crt монтируется из ${TLS_DIR} (compose.yml); сертификат API обязан содержать SAN DNS:api.
+global:
+  scrape_interval: 15s
+# NFR-SLA (ТЗ 11-12): правила записи и алерты по сгоранию бюджета 99,9 % — rules/slo.yml
+rule_files: [/etc/prometheus/alerts.yml, /etc/prometheus/rules/slo.yml]
+# ТЗ 13.7: алерты доставляются — почта и Telegram через Alertmanager (T-085); без этого блока правила считаются впустую
+alerting:
+  alertmanagers:
+    - static_configs: [{ targets: ["alertmanager:9093"] }]
+scrape_configs:
+  - job_name: inspector-api
+    scheme: https
+    metrics_path: /metrics
+    tls_config:
+      ca_file: /etc/prometheus/tls/ca.crt
+      server_name: api
+      min_version: TLS13
+    static_configs: [{ targets: ["api:8810"] }]
+  # NFR-SLA (ТЗ 11-12): проба доступности каждые 15 с — готовность API (/ready: БД и ML) и интерфейс web.
+  # Цель пробы уходит параметром target, instance — её адрес; модуль — из метки module (blackbox.yml).
+  # Сам blackbox-exporter — по http внутри сети internal, как alertmanager:9093; до целей он ходит по https с проверкой CA.
+  - job_name: blackbox
+    metrics_path: /probe
+    static_configs:
+      - targets: ["https://api:8810/ready"]
+        labels: { module: http_ready }
+      - targets: ["https://web:8443/"]
+        labels: { module: http_web }
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [module]
+        target_label: __param_module
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

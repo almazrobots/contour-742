@@ -1,0 +1,59 @@
+# ТЗ 13.7: алерты при превышении порогов — CPU > 80 %, ответ > 500 мс; плюс рост ошибок 5xx и очередь разбора
+groups:
+  - name: inspector
+    rules:
+      - alert: InspectorCpuHigh
+        expr: rate(process_cpu_user_seconds_total{job="inspector-api"}[5m]) > 0.8
+        for: 5m
+        labels: { severity: warning }
+        annotations: { summary: "CPU API выше 80 % пять минут подряд" }
+      - alert: InspectorSlowResponses
+        # среднее за 5 минут, а не с момента старта процесса: накопительное среднее не замечает свежий всплеск (T-085)
+        expr: rate(inspector_http_latency_ms_sum[5m]) / rate(inspector_http_requests_total[5m]) > 500
+        for: 5m
+        labels: { severity: warning }
+        annotations: { summary: "Среднее время ответа API за 5 минут больше 500 мс" }
+      - alert: InspectorErrors5xx
+        expr: increase(inspector_http_errors_5xx_total[5m]) > 0
+        for: 1m
+        labels: { severity: critical }
+        annotations: { summary: "API отвечает ошибками 5xx" }
+      - alert: InspectorParseQueueStuck
+        expr: inspector_queue_size > 50
+        for: 15m
+        labels: { severity: warning }
+        annotations: { summary: "Очередь разбора не убывает 15 минут" }
+      # NFR-PERF-RUNTIME (T-138): пределы ТЗ §11 в эксплуатации — p95 за 15 минут по гистограммам API.
+      # Граница корзины совпадает с пределом (services/slo-metrics.ts): p95 на пределе не интерполируется.
+      - alert: InspectorMlParamSlow
+        expr: histogram_quantile(0.95, sum by (le) (rate(inspector_ml_param_seconds_bucket[15m]))) > 0.5
+        for: 15m
+        labels: { severity: warning }
+        annotations: { summary: "ML-анализ параметра: p95 за 15 минут больше 500 мс (ТЗ 11, TZA-11-07)" }
+      - alert: InspectorCvSheetSlow
+        expr: histogram_quantile(0.95, sum by (le) (rate(inspector_cv_sheet_seconds_bucket[15m]))) > 30
+        for: 15m
+        labels: { severity: warning }
+        annotations: { summary: "CV-анализ листа чертежа: p95 за 15 минут больше 30 с (ТЗ 11, TZA-11-08)" }
+      - alert: InspectorRinDeliverySlow
+        expr: histogram_quantile(0.95, sum by (le) (rate(inspector_rin_delivery_seconds_bucket[15m]))) > 30
+        for: 15m
+        labels: { severity: warning }
+        annotations: { summary: "Доставка протокола в ИАИС «РиН»: p95 за 15 минут больше 30 с (ТЗ 11, TZA-11-06)" }
+      # NFR-IDS (ТЗ 12.9, T-138): детектор атак заблокировал адрес; всплеск отказов по лимиту — признак DDoS
+      - alert: InspectorIdsBlock
+        expr: increase(inspector_ids_blocks_total[5m]) > 0
+        for: 0m
+        labels: { severity: warning }
+        annotations: { summary: "Система защиты заблокировала адрес: подробности — журнал аудита IDS_BLOCK и /api/v1/admin/security/blocks" }
+      - alert: InspectorRateLimitSurge
+        expr: rate(inspector_rate_limited_total[5m]) > 5
+        for: 5m
+        labels: { severity: critical }
+        annotations: { summary: "Больше 5 отказов по лимиту запросов в секунду пять минут подряд — возможна DDoS-атака" }
+      # R2 T-138 (E1-M1): межсайтовые запросы не блокируются — всплеск сигнатур атак виден алертом, даже без блокировки
+      - alert: InspectorIdsSignatures
+        expr: sum(increase(inspector_ids_events_total{kind=~"path_traversal|sql_injection|xss|sensitive_file|jndi|scanner"}[5m])) > 20
+        for: 0m
+        labels: { severity: warning }
+        annotations: { summary: "Больше 20 сигнатур атак за 5 минут (в том числе без блокировки адреса) — журнал inspector-security" }

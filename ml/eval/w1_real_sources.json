@@ -1,0 +1,9 @@
+{
+  "schema": "inspector-w1-real-sources/1",
+  "about": "Public export: real-corpus object mappings, gold facts and labels removed. Authorized private fixtures are required for real quality benchmarks; no replacement labels supplied.",
+  "objects": {
+    "organizer": {},
+    "corpus": {}
+  },
+  "params": {}
+}

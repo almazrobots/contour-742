@@ -1,0 +1,217 @@
+{
+ "_about": "Синтетика по контракту GeomMention (ADR-0010) для тестов T-193; координаты — мм в осях здания (bld) или мм листа (sheet). Не корпус (ADR-0002). Двери путей эвакуации, ширина в свету, м.",
+ "PD": [
+  {
+   "entity": "ENT-10",
+   "measure": "length",
+   "value": 0.9,
+   "unit": "м",
+   "by": "both",
+   "label_value": 0.9,
+   "measured_value": 0.905,
+   "key": "Д1",
+   "at": [
+    1000,
+    2000
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "Д1 900",
+   "kind": "door",
+   "system": null
+  },
+  {
+   "entity": "ENT-10",
+   "measure": "length",
+   "value": 1.2,
+   "unit": "м",
+   "by": "both",
+   "label_value": 1.2,
+   "measured_value": 1.2,
+   "key": "Д2",
+   "at": [
+    5000,
+    2000
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "Д2 1200",
+   "kind": "door",
+   "system": null
+  },
+  {
+   "entity": "ENT-10",
+   "measure": "length",
+   "value": 0.9,
+   "unit": "м",
+   "by": "both",
+   "label_value": 0.9,
+   "measured_value": 0.9,
+   "key": "Д3",
+   "at": [
+    9000,
+    2000
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "Д3 900",
+   "kind": "door",
+   "system": null
+  },
+  {
+   "entity": "ENT-10",
+   "measure": "length",
+   "value": 1.5,
+   "unit": "м",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": 1.5,
+   "key": "ОК1",
+   "at": [
+    3000,
+    0
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "ОК1",
+   "kind": "window",
+   "system": null
+  }
+ ],
+ "RD": [
+  {
+   "entity": "ENT-10",
+   "measure": "length",
+   "value": 0.9,
+   "unit": "м",
+   "by": "both",
+   "label_value": 0.9,
+   "measured_value": 0.9,
+   "key": "Д1",
+   "at": [
+    1010,
+    2000
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 3,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "Д1 900",
+   "kind": "door",
+   "system": null
+  },
+  {
+   "entity": "ENT-10",
+   "measure": "length",
+   "value": 1.2,
+   "unit": "м",
+   "by": "both",
+   "label_value": 1.2,
+   "measured_value": 1.3,
+   "key": "Д2",
+   "at": [
+    5000,
+    2000
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 3,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "Д2 1200",
+   "kind": "door",
+   "system": null
+  },
+  {
+   "entity": "ENT-10",
+   "measure": "length",
+   "value": 0.7,
+   "unit": "м",
+   "by": "both",
+   "label_value": 0.7,
+   "measured_value": 0.7,
+   "key": "Д3",
+   "at": [
+    9000,
+    2000
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 3,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "Д3 700",
+   "kind": "door",
+   "system": null
+  }
+ ]
+}

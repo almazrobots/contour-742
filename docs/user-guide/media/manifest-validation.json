@@ -1,0 +1,11 @@
+{
+  "validated": true,
+  "metadata": {
+    "doc_stage": "PD",
+    "revision": "1",
+    "approval_status": "APPROVED",
+    "revision_role": "CURRENT"
+  },
+  "synthetic": true,
+  "production_writes": 0
+}

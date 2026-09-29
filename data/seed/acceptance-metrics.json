@@ -1,0 +1,58 @@
+[
+ {
+  "contour": "OCR",
+  "metric": "Character Accuracy",
+  "rule": "1 − ΣLevenshtein / Σсимволов; отдельно CER, WER и coverage",
+  "threshold": "≥ 0,95",
+  "condition": "Скрытая фиксированная выборка печатного текста ≥300 dpi"
+ },
+ {
+  "contour": "Ключевые поля",
+  "metric": "Exact Match",
+  "rule": "Точное совпадение шифра, стадии, редакции, листа/страницы и номера помещения/элемента после заданной нормализации",
+  "threshold": "≥ 0,90",
+  "condition": "Знаки в шифрах и редакциях не удаляются"
+ },
+ {
+  "contour": "Связка документов",
+  "metric": "Exact linkage",
+  "rule": "Точный object_id + стадия + шифр + актуальная редакция",
+  "threshold": "≥ 0,95",
+  "condition": "Случаи с конфликтом редакций входят в hidden test"
+ },
+ {
+  "contour": "Доказательства",
+  "metric": "Localization completeness",
+  "rule": "file_id и страница совпадают; bbox/polygon IoU ≥ 0,50 после учёта CropBox/MediaBox/Rotate",
+  "threshold": "≥ 0,95 evidence_group",
+  "condition": "Без полного доказательства finding не засчитывается"
+ },
+ {
+  "contour": "Нарушения",
+  "metric": "Precision / Recall / F1",
+  "rule": "По evidence_group; правильный параметр/тип расхождения + корректное доказательство",
+  "threshold": "P ≥ 0,90; R ≥ 0,80; F1 ≥ 0,85",
+  "condition": "Отдельно по разделам и типам нарушения"
+ },
+ {
+  "contour": "Отрицательные группы",
+  "metric": "False Positive Rate",
+  "rule": "FP / (FP + TN) на NEGATIVE_VERIFIED и устаревших редакциях",
+  "threshold": "≤ 0,10",
+  "condition": "Ключевой контроль ложных нарушений"
+ },
+ {
+  "contour": "Разбиение",
+  "metric": "Object-level split",
+  "rule": "Все файлы и редакции одного object_id только в одном наборе",
+  "threshold": "Обязательно",
+  "condition": "Запрещает утечку между версиями одной стройки"
+ },
+ {
+  "contour": "Публикация модели",
+  "metric": "Regression gate",
+  "rule": "Recall по обязательной категории и FPR против предыдущей модели",
+  "threshold": "ухудшение не более 2 п.п.",
+  "condition": "Требуется подписанное решение; автоматическая публикация запрещена"
+ }
+]

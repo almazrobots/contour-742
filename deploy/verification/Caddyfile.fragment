@@ -1,0 +1,13 @@
+# T244-BEGIN
+redir /verification /verification/ 308
+handle /verification/* {
+  reverse_proxy https://127.0.0.1:48845 {
+    transport http {
+      tls_trusted_ca_certs /etc/caddy/stand-ca.crt
+      tls_server_name web
+      read_timeout 5m
+      write_timeout 5m
+    }
+  }
+}
+# T244-END

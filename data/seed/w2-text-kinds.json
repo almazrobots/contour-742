@@ -1,0 +1,263 @@
+{
+ "_about": "Текстовый путь W2 (T-191): какая часть проверки параметра возможна на видах паспорта, которые уже есть (value.kind quantity / ordinal, extractor quantity_mentions / class_mentions), а какой нужен вид W1/W3, которого ещё нет. ready_ops — операторы, по которым паспорт сравнивает сейчас; pending_ops — ждут вида, pending_owner — оператор → задача-владелец вида (docs/ops/WAVES.md). Паспорт количества есть ровно у параметров с непустым ready_ops и лежит в data/seed/passports/draft/ (passport: \"draft\") до цифр отложенного набора T-195/T-179 (P ≥ 0,90, FPR ≤ 0,10): загрузчик его не читает, параметр идёт лексическим путём. M-041, M-105, M-117 (CMP-06 по норме) — у T-193. Правила — OS-INSP-2.2.100–2.2.103, 3.1.100–3.1.103. Паспорта параметров, ждущих вида presence (CMP-09, W3 T-212), написаны заранее в data/seed/passports-pending (passport: \"pending\", passport_file) и переносятся в data/seed/passports после влития T-212.",
+ "task": "T-191",
+ "owners": {
+  "CMP-04": "T-172",
+  "CMP-05": "T-176",
+  "CMP-07": "T-175",
+  "CMP-08": "T-175",
+  "CMP-09": "T-212",
+  "CMP-18": "T-173",
+  "CMP-26": "T-172",
+  "CMP-32": "не назначен",
+  "CMP-03": "T-173"
+ },
+ "params": [
+  {
+   "param": "M-024",
+   "ready_ops": [
+    "CMP-02"
+   ],
+   "pending_ops": [],
+   "pending_owner": {},
+   "passport": "draft",
+   "note": "Паспорт — объём выемки; объём насыпи (второй показатель) — вид aspects T-173.",
+   "passport_file": "data/seed/passports/draft/M-024.json",
+   "passport_kind": "quantity"
+  },
+  {
+   "param": "M-029",
+   "ready_ops": [],
+   "pending_ops": [
+    "CMP-05",
+    "CMP-07",
+    "CMP-08",
+    "CMP-26"
+   ],
+   "pending_owner": {
+    "CMP-05": "T-176",
+    "CMP-07": "T-175",
+    "CMP-08": "T-175",
+    "CMP-26": "T-172"
+   },
+   "passport": false,
+   "note": "Спецификация МАФ — состав и счёт позиций, подмена аналогом: чисел одного показателя нет.",
+   "passport_file": null,
+   "passport_kind": null
+  },
+  {
+   "param": "M-045",
+   "ready_ops": [
+    "CMP-18"
+   ],
+   "pending_ops": [
+    "CMP-07"
+   ],
+   "pending_owner": {
+    "CMP-07": "T-175",
+    "CMP-18": "T-173"
+   },
+   "passport": "draft",
+   "note": "CMP-18 — уклон кровли в %, только уменьшение. Уклон в градусах и промилле отсеивается до таблицы единиц T-173 (NRM-02); число воронок — CMP-07 T-175.",
+   "passport_file": "data/seed/passports/draft/M-045.json",
+   "passport_kind": "quantity"
+  },
+  {
+   "param": "M-052",
+   "ready_ops": [],
+   "pending_ops": [
+    "CMP-05"
+   ],
+   "pending_owner": {
+    "CMP-05": "T-176"
+   },
+   "passport": false,
+   "note": "Цвет RAL и артикул облицовки — категория, не число и не шкала.",
+   "passport_file": null,
+   "passport_kind": null
+  },
+  {
+   "param": "M-066",
+   "ready_ops": [],
+   "pending_ops": [
+    "CMP-04",
+    "CMP-05"
+   ],
+   "pending_owner": {
+    "CMP-04": "T-172",
+    "CMP-05": "T-176"
+   },
+   "passport": false,
+   "note": "Предел огнестойкости R/REI — шкала не на «С»: class_mentions в main нормализует только классы С0–С3 (normalize_class), свёртка написаний и scales.json — T-172.",
+   "passport_file": null,
+   "passport_kind": null
+  },
+  {
+   "param": "M-086",
+   "ready_ops": [
+    "CMP-03"
+   ],
+   "pending_ops": [],
+   "pending_owner": {
+    "CMP-03": "T-173"
+   },
+   "passport": "draft",
+   "note": "Хуже — рост. До вида direction = increase (T-173) паспорт считает кандидатом изменение больше допуска в любую сторону.",
+   "passport_file": "data/seed/passports/draft/M-086.json",
+   "passport_kind": "quantity"
+  },
+  {
+   "param": "M-088",
+   "ready_ops": [
+    "CMP-03"
+   ],
+   "pending_ops": [
+    "CMP-32"
+   ],
+   "pending_owner": {
+    "CMP-03": "T-173",
+    "CMP-32": "не назначен"
+   },
+   "passport": "draft",
+   "note": "Паспорт — электрическая мощность временного электроснабжения, кВт; вода, м³ — aspects T-173. Хуже — рост: до direction = increase (T-173) — любое изменение. Баланс потребителей против лимита (CMP-32) требует итога CMP-10 (T-175) и лимита — владельца нет.",
+   "passport_file": "data/seed/passports/draft/M-088.json",
+   "passport_kind": "quantity"
+  },
+  {
+   "param": "M-093",
+   "ready_ops": [
+    "CMP-02"
+   ],
+   "pending_ops": [],
+   "pending_owner": {},
+   "passport": "draft",
+   "note": "Сравнивается общий объём; объёмы по типам конструкций — CMP-08/CMP-10 T-175.",
+   "passport_file": "data/seed/passports/draft/M-093.json",
+   "passport_kind": "quantity"
+  },
+  {
+   "param": "M-094",
+   "ready_ops": [
+    "CMP-03"
+   ],
+   "pending_ops": [
+    "CMP-04"
+   ],
+   "pending_owner": {
+    "CMP-03": "T-173",
+    "CMP-04": "T-172"
+   },
+   "passport": "draft",
+   "note": "Паспорт — общая масса отходов, т. Класс опасности I–V — шкала не на «С», T-172; второй показатель в одном паспорте — aspects T-173. Хуже — рост: до direction = increase — любое изменение.",
+   "passport_file": "data/seed/passports/draft/M-094.json",
+   "passport_kind": "quantity"
+  },
+  {
+   "param": "M-110",
+   "ready_ops": [],
+   "pending_ops": [
+    "CMP-07",
+    "CMP-09"
+   ],
+   "pending_owner": {
+    "CMP-07": "T-175",
+    "CMP-09": "T-212"
+   },
+   "passport": "pending",
+   "note": "Число оповещателей — CMP-07; табло «Выход» — наличие.",
+   "passport_file": "data/seed/passports-pending/M-110.json",
+   "passport_kind": "presence"
+  },
+  {
+   "param": "M-115",
+   "ready_ops": [],
+   "pending_ops": [
+    "CMP-05",
+    "CMP-09"
+   ],
+   "pending_owner": {
+    "CMP-05": "T-176",
+    "CMP-09": "T-212"
+   },
+   "passport": "pending",
+   "note": "Наличие подъёмника и модель — наличие и подмена.",
+   "passport_file": "data/seed/passports-pending/M-115.json",
+   "passport_kind": "presence"
+  },
+  {
+   "param": "M-120",
+   "ready_ops": [],
+   "pending_ops": [
+    "CMP-07",
+    "CMP-09"
+   ],
+   "pending_owner": {
+    "CMP-07": "T-175",
+    "CMP-09": "T-212"
+   },
+   "passport": "pending",
+   "note": "Поручни — счёт позиций и наличие в санузлах МГН.",
+   "passport_file": "data/seed/passports-pending/M-120.json",
+   "passport_kind": "presence"
+  },
+  {
+   "param": "M-123",
+   "ready_ops": [],
+   "pending_ops": [
+    "CMP-09"
+   ],
+   "pending_owner": {
+    "CMP-09": "T-212"
+   },
+   "passport": "pending",
+   "note": "Кнопки вызова и двухсторонняя связь — только наличие.",
+   "passport_file": "data/seed/passports-pending/M-123.json",
+   "passport_kind": "presence"
+  },
+  {
+   "param": "M-126",
+   "ready_ops": [
+    "CMP-03"
+   ],
+   "pending_ops": [
+    "CMP-05"
+   ],
+   "pending_owner": {
+    "CMP-03": "T-173",
+    "CMP-05": "T-176"
+   },
+   "passport": "draft",
+   "note": "λ утеплителя, хуже — рост; до direction = increase (T-173) — любое изменение. Замена марки утеплителя — CMP-05 T-176. λА и λБ (условия эксплуатации) не различаются — риск ложного расхождения.",
+   "passport_file": "data/seed/passports/draft/M-126.json",
+   "passport_kind": "quantity"
+  },
+  {
+   "param": "M-127",
+   "ready_ops": [
+    "CMP-03"
+   ],
+   "pending_ops": [],
+   "pending_owner": {},
+   "passport": "draft",
+   "note": "Приведённое сопротивление теплопередаче окон, хуже — уменьшение (direction = decrease).",
+   "passport_file": "data/seed/passports/draft/M-127.json",
+   "passport_kind": "quantity"
+  },
+  {
+   "param": "M-129",
+   "ready_ops": [],
+   "pending_ops": [
+    "CMP-07",
+    "CMP-09"
+   ],
+   "pending_owner": {
+    "CMP-07": "T-175",
+    "CMP-09": "T-212"
+   },
+   "passport": "pending",
+   "note": "Приборы учёта — наличие по видам ресурса и счёт.",
+   "passport_file": "data/seed/passports-pending/M-129.json",
+   "passport_kind": "presence"
+  }
+ ]
+}

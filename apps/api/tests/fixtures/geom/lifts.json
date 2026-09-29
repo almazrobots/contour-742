@@ -1,0 +1,127 @@
+{
+ "_about": "Синтетика по контракту GeomMention (ADR-0010) для тестов T-193; координаты — мм в осях здания (bld) или мм листа (sheet). Не корпус (ADR-0002). Лифтовые шахты: центр в осях здания, остаток регистрации.",
+ "PD": [
+  {
+   "entity": "ENT-12",
+   "measure": "position",
+   "value": null,
+   "unit": "мм",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "Л1",
+   "at": [
+    12000,
+    6000
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 4.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": "lift",
+   "system": null
+  },
+  {
+   "entity": "ENT-12",
+   "measure": "position",
+   "value": null,
+   "unit": "мм",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "Л2",
+   "at": [
+    18000,
+    6000
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 4.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": "lift",
+   "system": null
+  }
+ ],
+ "RD": [
+  {
+   "entity": "ENT-12",
+   "measure": "position",
+   "value": null,
+   "unit": "мм",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "Л1",
+   "at": [
+    12010,
+    6005
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 6.0,
+   "page": 4,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": "lift",
+   "system": null
+  },
+  {
+   "entity": "ENT-12",
+   "measure": "position",
+   "value": null,
+   "unit": "мм",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "Л2",
+   "at": [
+    18300,
+    6000
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 6.0,
+   "page": 4,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": "lift",
+   "system": null
+  }
+ ]
+}

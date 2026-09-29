@@ -1,0 +1,9 @@
+{
+  "source": "CPU read-only platform candidate (port 45901), no production data modified",
+  "date": "2026-09-29",
+  "screens": [
+    "login.png",
+    "matrix.png"
+  ],
+  "contains_corpus": false
+}

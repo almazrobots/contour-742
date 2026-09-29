@@ -1,0 +1,252 @@
+{
+  "schema": "docs-scenario.v1",
+  "scenario_id": "gold-ranking-gate-audit",
+  "api_revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+  "source_web_image": "e1c9dc4f61d29e71212dda8ad5fa69f9b1cda68a",
+  "ui_source_parity": "not claimed: deployed overlay",
+  "ui_asset_hashes": [
+    {
+      "path": "/assets/index-D77tWavi.css",
+      "sha256": "28d1bf35c3007319799ffa5ecd56d25b626802f1ee9fabe2eeeb11d5274630b0"
+    },
+    {
+      "path": "/assets/index-JNMiEqrR.js",
+      "sha256": "5719a6eee9744d568afd917dc286e99dfb35cb4cae6cd67331c536cbab0cfefa"
+    }
+  ],
+  "roles": [
+    "curator",
+    "ml_engineer",
+    "admin"
+  ],
+  "fixture_id": "retrain-route-test-80-synthetic-objects",
+  "data": "Precomputed synthetic expert decisions; no OCR, GPU or LLM training",
+  "production_api_calls": 0,
+  "production_writes": 0,
+  "fixture_api_calls": 40,
+  "release": {
+    "dataset_version": "gold-2026-09-29-v1",
+    "items": 160,
+    "hashes": {
+      "train": "200ca9ae27040a2156675ee8e8ea3e8b237451381527a8b2559f14c52d5e5b8f",
+      "validation": "55464f4606f94652f97d5c82cb94a1bc86a942e73ea48855b267070483abefd0",
+      "test": "c981e1cf70fe43a701f534d6466a66c96a270205519e6543f74039f9dce33e58"
+    },
+    "excluded_hidden": 0
+  },
+  "training": {
+    "model_version": "rank-2026-09-29-v1",
+    "approval_status": "AWAITING_APPROVAL",
+    "weights_hash": "82aedbc3874bfbb4d745bc20206be2379d72b19b9c256f712c0d9a6e765504fc",
+    "gate": {
+      "ok": true,
+      "reasons": []
+    },
+    "metrics": {
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "false_positive_rate": 0,
+      "recall_by_category": {
+        "ПЗ": 1
+      },
+      "per_category": {
+        "ПЗ": {
+          "n": 20,
+          "positives": 10,
+          "recall": 1,
+          "false_positive_rate": 0
+        }
+      },
+      "roc_auc": 1,
+      "brier": 0.0181,
+      "threshold": 0.465,
+      "confusion": {
+        "tp": 10,
+        "fp": 0,
+        "tn": 10,
+        "fn": 0
+      },
+      "ci95": {
+        "precision": [
+          0.7225,
+          1
+        ],
+        "recall": [
+          0.7225,
+          1
+        ],
+        "false_positive_rate": [
+          0,
+          0.2775
+        ]
+      },
+      "validation": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "sizes": {
+        "train": {
+          "n": 124,
+          "positives": 62,
+          "negatives": 62
+        },
+        "validation": {
+          "n": 16,
+          "positives": 8,
+          "negatives": 8
+        },
+        "test": {
+          "n": 20,
+          "positives": 10,
+          "negatives": 10
+        }
+      }
+    },
+    "previous_model": "dev-anchors-0.1"
+  },
+  "smoke": {
+    "passed": true,
+    "dataset_items": 160,
+    "train_status": 201,
+    "gate": {
+      "ok": true,
+      "reasons": []
+    },
+    "metrics": {
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "false_positive_rate": 0,
+      "recall_by_category": {
+        "ПЗ": 1
+      },
+      "per_category": {
+        "ПЗ": {
+          "n": 20,
+          "positives": 10,
+          "recall": 1,
+          "false_positive_rate": 0
+        }
+      },
+      "roc_auc": 1,
+      "brier": 0.0181,
+      "threshold": 0.465,
+      "confusion": {
+        "tp": 10,
+        "fp": 0,
+        "tn": 10,
+        "fn": 0
+      },
+      "ci95": {
+        "precision": [
+          0.7225,
+          1
+        ],
+        "recall": [
+          0.7225,
+          1
+        ],
+        "false_positive_rate": [
+          0,
+          0.2775
+        ]
+      },
+      "validation": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "sizes": {
+        "train": {
+          "n": 124,
+          "positives": 62,
+          "negatives": 62
+        },
+        "validation": {
+          "n": 16,
+          "positives": 8,
+          "negatives": 8
+        },
+        "test": {
+          "n": 20,
+          "positives": 10,
+          "negatives": 10
+        }
+      }
+    },
+    "curator_train_status": 403
+  },
+  "validated": [
+    "release_real_API",
+    "CPU_train_real_API",
+    "actual_gate",
+    "audit_DATASET_RELEASED",
+    "audit_MODEL_TRAINED",
+    "publication_real_API",
+    "audit_MODEL_PUBLISHED"
+  ],
+  "duration_seconds": 20.12,
+  "chapters": [
+    {
+      "seconds": 0.518,
+      "title": "Куратор: GOLD из заранее подготовленных синтетических решений; OCR не демонстрируется"
+    },
+    {
+      "seconds": 3.796,
+      "title": "Версия GOLD выпущена настоящим API; сохранены 160 учебных меток"
+    },
+    {
+      "seconds": 7.294,
+      "title": "ML-инженер: Дообучить запускает CPU-ранжирование, не обучение LLM"
+    },
+    {
+      "seconds": 10.397,
+      "title": "CPU-модель рассчитала метрики учебной выборки и прошла ворота; публикация отдельно"
+    },
+    {
+      "seconds": 13.975,
+      "title": "Администратор подписал публикацию только в отдельной учебной базе"
+    },
+    {
+      "seconds": 17.167,
+      "title": "Журнал: реальное событие выпуска GOLD, его автор и версия"
+    }
+  ],
+  "video_review": {
+    "playback": "complete without decoder error",
+    "decoded_frames": [
+      {
+        "seconds": 1.518,
+        "file": "decoded-0.png"
+      },
+      {
+        "seconds": 4.795999999999999,
+        "file": "decoded-1.png"
+      },
+      {
+        "seconds": 8.294,
+        "file": "decoded-2.png"
+      },
+      {
+        "seconds": 11.397,
+        "file": "decoded-3.png"
+      },
+      {
+        "seconds": 14.975,
+        "file": "decoded-4.png"
+      },
+      {
+        "seconds": 18.167,
+        "file": "decoded-5.png"
+      }
+    ]
+  },
+  "page_errors": [],
+  "recorded_at": "2026-09-29T16:21:01.668Z",
+  "final_model_status": "PUBLISHED",
+  "metrics_scope": "Synthetic 80-object fixture; test split 20 examples (10 positive/10 negative); not corpus or OCR/LLM accuracy",
+  "gate_refusal_captured": false,
+  "audit_UI_filter": "DATASET_RELEASED; MODEL_TRAINED/MODEL_PUBLISHED checked in DB"
+}

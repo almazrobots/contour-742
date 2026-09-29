@@ -1,0 +1,18 @@
+# A code release over the measured, explicitly pinned GPU dependency image.
+# No downloads, dependency installation or mutable source bind mounts.
+ARG GPU_BASE
+FROM ${GPU_BASE}
+ARG REVISION
+ARG GPU_BASE_ID
+WORKDIR /app
+COPY --chown=0:0 ml/inspector_ml ml/inspector_ml
+COPY --chown=0:0 ml/serve.py ml/serve.py
+COPY --chown=0:0 ml/models.yaml ml/models.yaml
+COPY --chown=0:0 data/seed data/seed
+COPY --chown=0:0 assets/fonts assets/fonts
+LABEL org.opencontainers.image.revision=${REVISION} \
+      org.opencontainers.image.title="inspector-ml-gpu-code-release" \
+      inspector.gpu.dependency-base=${GPU_BASE_ID}
+ENV INSPECTOR_REVISION=${REVISION}
+USER 10001
+WORKDIR /app/ml

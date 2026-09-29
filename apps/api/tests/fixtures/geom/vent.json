@@ -1,0 +1,158 @@
+{
+ "_about": "Синтетика по контракту GeomMention (ADR-0010) для тестов T-193; координаты — мм в осях здания (bld) или мм листа (sheet). Не корпус (ADR-0002). Подграфы системы П: узлы (вид, марка), рёбра «подключено к».",
+ "PD": [
+  {
+   "entity": "ENT-09",
+   "measure": "topology",
+   "value": null,
+   "unit": "шт",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "П",
+   "at": null,
+   "polygon": null,
+   "graph": {
+    "nodes": [
+     {
+      "id": "a",
+      "kind": "unit",
+      "mark": "П2"
+     },
+     {
+      "id": "b",
+      "kind": "unit",
+      "mark": "П3"
+     },
+     {
+      "id": "c",
+      "kind": "riser",
+      "mark": "Т12"
+     },
+     {
+      "id": "d",
+      "kind": "riser",
+      "mark": "Т22"
+     }
+    ],
+    "edges": [
+     [
+      "a",
+      "c"
+     ],
+     [
+      "b",
+      "c"
+     ],
+     [
+      "b",
+      "d"
+     ]
+    ]
+   },
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": null,
+   "system": "П"
+  }
+ ],
+ "RD": [
+  {
+   "entity": "ENT-09",
+   "measure": "topology",
+   "value": null,
+   "unit": "шт",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "П",
+   "at": null,
+   "polygon": null,
+   "graph": {
+    "nodes": [
+     {
+      "id": "1",
+      "kind": "unit",
+      "mark": "П2"
+     },
+     {
+      "id": "2",
+      "kind": "unit",
+      "mark": "П3"
+     },
+     {
+      "id": "3",
+      "kind": "riser",
+      "mark": "Т12"
+     },
+     {
+      "id": "4",
+      "kind": "riser",
+      "mark": "Т22"
+     },
+     {
+      "id": "5",
+      "kind": "bend",
+      "mark": null
+     },
+     {
+      "id": "6",
+      "kind": "grille",
+      "mark": null
+     },
+     {
+      "id": "7",
+      "kind": "grille",
+      "mark": "Р1"
+     }
+    ],
+    "edges": [
+     [
+      "1",
+      "5"
+     ],
+     [
+      "5",
+      "3"
+     ],
+     [
+      "2",
+      "4"
+     ],
+     [
+      "4",
+      "6"
+     ],
+     [
+      "3",
+      "7"
+     ]
+    ]
+   },
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 3,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": null,
+   "system": "П"
+  }
+ ]
+}

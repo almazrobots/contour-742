@@ -1,0 +1,14 @@
+diff --git a/.github/workflows/ci-gate.yml b/.github/workflows/ci-gate.yml
+index 53928d5..1211fb1 100644
+--- a/.github/workflows/ci-gate.yml
++++ b/.github/workflows/ci-gate.yml
+@@ -131,6 +131,9 @@ jobs:
+           wait_health https://127.0.0.1:18443/health "$SHA" || { docker logs smoke-web | tail -40; exit 1; }
+           curl -sk -D - -o /dev/null https://127.0.0.1:18443/ | grep -qi "content-security-policy: .*frame-ancestors 'none'" \
+             || { echo "::error::web без CSP"; exit 1; }
++          # NFR-IDS (T-158): лимиты периметра — живыми запросами к этому же web (429 всплеска и входа, 413 тела, limit_conn)
++          PERIMETER_URL=https://127.0.0.1:18443 PERIMETER_CA=smoke-tls/ca.crt node --test scripts/perimeter-live.test.mjs \
++            || { docker logs smoke-web | tail -40; exit 1; }
+           echo "smoke ok"
+ 
+       - name: smoke down

@@ -1,0 +1,66 @@
+{
+  "schema": "docs-scenario.v1",
+  "scenario_id": "find-material-current-plan",
+  "publication": {
+    "published_at": "2026-09-27T20:23:22.735Z",
+    "source": "MacBook Air M4 — стенд Docker и модели на маке",
+    "source_host": "MacBook-Air-Almaz.local",
+    "revision": "cfb0ebc6b73d58b4c45c59aed5d2f9b588a07602",
+    "site_revision": "6408d9dd9c986d7e71ddeb044b52c172b79c20b8",
+    "inspections": 2,
+    "files": 64,
+    "dump_sha256": "19376b3ae06a0153edd0baaa956925d6cc81ea3735060f8456929540b54759be",
+    "docs_published_at": "2026-09-29T17:09:16.855Z",
+    "trace_revision": "25e36eb3c0f8e141fbdb84eb54bbeff1e576c6d2"
+  },
+  "chapters": [
+    {
+      "seconds": 1.163,
+      "title": "Выберите задачу в руководстве; поиск доступен в левой панели"
+    },
+    {
+      "seconds": 5.303,
+      "title": "Найдите каталог материалов по названию"
+    },
+    {
+      "seconds": 9.179,
+      "title": "Проверьте назначение и актуальность: прошлый отчёт не подтверждает новый выпуск"
+    },
+    {
+      "seconds": 12.891,
+      "title": "Откройте действующий план: текущий выпуск и незавершённые работы указаны отдельно"
+    }
+  ],
+  "production_writes": 0,
+  "scope": "Published documentation only; no app actions",
+  "errors": [],
+  "duration_seconds": 18.28,
+  "video_review": {
+    "duration": 18.28,
+    "width": 1440,
+    "height": 1000,
+    "playback": "complete without decoder error",
+    "frames": [
+      {
+        "seconds": 2.1630000000000003,
+        "file": "decoded-0.png",
+        "sha256": "f1225c38597b90050f40d43460880a74dbb09ca86a592a444a6e65396feccd9f"
+      },
+      {
+        "seconds": 6.303,
+        "file": "decoded-1.png",
+        "sha256": "d977ba5b6cdf00f698ebdf3e1226fd59a76f4602f755dc8a69885e4db48391af"
+      },
+      {
+        "seconds": 10.179,
+        "file": "decoded-2.png",
+        "sha256": "77cde7af054772e268de3eb7c056e3b5410d87fadf91a89b3d6c70c297602c05"
+      },
+      {
+        "seconds": 13.891,
+        "file": "decoded-3.png",
+        "sha256": "1b3751faf2e4e4e5afec77c0319a71c611e7966c25f6112f566bdc8c8ee81bf9"
+      }
+    ]
+  }
+}

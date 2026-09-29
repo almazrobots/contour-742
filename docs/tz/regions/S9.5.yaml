@@ -1,0 +1,21 @@
+# Области ТЗ для «Детальной трассы» — поля описаны в docs/tz/regions/README.md.
+id: "S9.5"
+title: "9.5. Модуль свободного поиска гипотез"
+scope: [{page: 24, y: [200, 9999]}, {page: 25, y: [0, 223]}]
+regions:
+  - {page: 24, from: "9.5. Модуль свободного поиска гипотез", head: TZ-9.5}
+  - {page: 24, from: "Назначение: автоматическое формирование", to: "вне Матрицы.", model: [BO-INSP-3.2]}
+  - {page: 24, from: "Результат имеет статус SUSPICION", to: "решения инспектора.", atoms: [TZA-7.5-02], note: "То же правило разложено в п. 7.5"}
+  - {page: 24, from: "4 подхода к выявлению:", none: "Вводная фраза таблицы"}
+  - {page: 24, band: true, from: "Подход", none: "Шапка таблицы"}
+  - {page: 24, band: true, from: "Логический", to: "анализ", atoms: [TZA-9.5-01]}
+  - {page: 24, band: true, from: "Семантический", to: "диссонанс", atoms: [TZA-9.5-02]}
+  - {page: 24, band: true, from: "Нормативный", to: "анализ", atoms: [TZA-9.5-03]}
+  - {page: 24, band: true, from: "ML-паттерн-", to: "анализ", atoms: [TZA-9.5-04]}
+  - {page: 24, from: "Структура подозрения (Suspicion):", to: "json", none: "Подпись к образцу JSON"}
+  - {page: 24, from: "{", to: '"review_priority": "HIGH",', atoms: [TZA-9.5-05]}
+  - {page: 25, from: '"normative_base":', to: "}", atoms: [TZA-9.5-05], note: "В образце два статуса: finding_status (SUSPICION) и inspector_status (PENDING)"}
+  - {page: 25, from: "Дедупликация подозрений:", to: "сопоставимых редакций.", atoms: [TZA-9.5-06]}
+  - {page: 25, from: "SUSPICION не считается нарушением,", to: "положительная учебная метка.", atoms: [TZA-7.5-02], note: "То же правило разложено в п. 7.5"}
+  - {page: 25, from: "Для перевода в CANDIDATE", to: "координаты доказательств;", atoms: [TZA-9.5-07]}
+  - {page: 25, from: "для CONFIRMED_VIOLATION —", to: "решение инспектора.", atoms: [TZA-9.3.2-01]}

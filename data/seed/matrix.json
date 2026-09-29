@@ -1,0 +1,3236 @@
+[
+ {
+  "id": 1,
+  "code": "M-001",
+  "section": "ПЗ",
+  "parameter_name": "Площадь застройки",
+  "unit": "м²",
+  "source_pd": "Раздел ПЗУ: Таблица ТЭП",
+  "source_rd": "Раздел ПП (ГП): Лист \"Общие данные\", Таблица ТЭП",
+  "source_id": "Технический план БТИ; Акт выноса осей",
+  "trigger_logic": "Расхождение контуров здания на генплане с данными БТИ или РД > 0.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "delta_pct",
+   "tolerance": 0.0
+  },
+  "anchors": [
+   "Площадь застройки"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 2,
+  "code": "M-002",
+  "section": "ПЗ",
+  "parameter_name": "Общая площадь здания",
+  "unit": "м²",
+  "source_pd": "Раздел ПЗ: Таблица ТЭП (текстовая часть)",
+  "source_rd": "Раздел АР: Лист \"Общие данные\", Сводная экспликация",
+  "source_id": "Технический план БТИ; ЗОС",
+  "trigger_logic": "Дельта общей площади между ПД и РД (или ИД) > 1%.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "delta_pct",
+   "tolerance": 1.0
+  },
+  "anchors": [
+   "Общая площадь здания",
+   "Общая площадь"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 3,
+  "code": "M-003",
+  "section": "ПЗ",
+  "parameter_name": "Полезная / Расчетная площадь",
+  "unit": "м²",
+  "source_pd": "Раздел ПЗ: Таблица ТЭП",
+  "source_rd": "Раздел АР: Сводная экспликация помещений",
+  "source_id": "Технический план БТИ",
+  "trigger_logic": "Сокращение полезной площади в РД в пользу технических зон.",
+  "review_priority": "MEDIUM",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Полезная / Расчетная площадь"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 4,
+  "code": "M-004",
+  "section": "ПЗ",
+  "parameter_name": "Строительный объем (Общий)",
+  "unit": "м³",
+  "source_pd": "Раздел ПЗ: Таблица ТЭП",
+  "source_rd": "Раздел АР/КР: Лист \"Общие данные\", Таблица ТЭП",
+  "source_id": "Технический план БТИ; ЗОС",
+  "trigger_logic": "Изменение внешних объемных габаритов здания в РД без корректировки ПД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Строительный объем",
+   "Строительный объём"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 5,
+  "code": "M-005",
+  "section": "ПЗ",
+  "parameter_name": "Строительный объем (Подземный)",
+  "unit": "м³",
+  "source_pd": "Раздел ПЗ: Таблица ТЭП",
+  "source_rd": "Раздел КК/АР: ТЭП подземной части",
+  "source_id": "Технический план БТИ",
+  "trigger_logic": "Изменение глубины заложения или объема паркинга/подвала в РД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Строительный объем (Подземный)"
+  ],
+  "applicability": "underground"
+ },
+ {
+  "id": 6,
+  "code": "M-006",
+  "section": "ПЗ",
+  "parameter_name": "Строительный объем (Надземный)",
+  "unit": "м³",
+  "source_pd": "Раздел ПЗ: Таблица ТЭП",
+  "source_rd": "Раздел АР/КР: Чертежи фасадов и разрезов",
+  "source_id": "Разрешение на ввод; ЗОС",
+  "trigger_logic": "Изменение общего числа этажей (включая технический) в РД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Строительный объем (Надземный)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 7,
+  "code": "M-007",
+  "section": "ПЗ",
+  "parameter_name": "Этажность (надземная)",
+  "unit": "ед.",
+  "source_pd": "Раздел ПЗ: Таблица ТЭП",
+  "source_rd": "Раздел АР: Заглавные листы, чертежи фасадов",
+  "source_id": "Разрешение на ввод; Технический план БТИ",
+  "trigger_logic": "Несовпадение количества надземных этажей в РД с утвержденной ПД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Этажность",
+   "Количество надземных этажей"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 8,
+  "code": "M-008",
+  "section": "ПЗ",
+  "parameter_name": "Высота здания",
+  "unit": "м",
+  "source_pd": "Раздел ПЗ: Таблица ТЭП (высотная отметка)",
+  "source_rd": "Раздел АР: Чертежи фасадов, разрезы",
+  "source_id": "Исполнительная геодезическая съемка фасада",
+  "trigger_logic": "Увеличение высоты здания в РД (риск нарушения ограничений приаэродромных зон).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "increase"
+  },
+  "anchors": [
+   "Высота здания"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 9,
+  "code": "M-009",
+  "section": "ПЗ",
+  "parameter_name": "Абсолютная отметка 0.000",
+  "unit": "м",
+  "source_pd": "Раздел ПЗ: Текст (геоподоснова)",
+  "source_rd": "Раздел АР/КР: Чертежи (отметка на разрезах)",
+  "source_id": "Исполнительная геодезическая схема",
+  "trigger_logic": "Несоответствие абсолютной отметки нуля на чертежах РД геоподоснове ПД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Абсолютная отметка 0.000"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 10,
+  "code": "M-010",
+  "section": "ПЗ",
+  "parameter_name": "Количество квартир",
+  "unit": "шт.",
+  "source_pd": "Раздел ПЗ: Таблица ТЭП; Текст \"Жилищная часть\"",
+  "source_rd": "Раздел АР: Сводная экспликация квартир",
+  "source_id": "Технический план БТИ (план помещений)",
+  "trigger_logic": "Изменение общего количества жилых единиц (перепланировка в РД).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Количество квартир"
+  ],
+  "applicability": "residential"
+ },
+ {
+  "id": 11,
+  "code": "M-011",
+  "section": "ПЗ",
+  "parameter_name": "Квартирография",
+  "unit": "шт.",
+  "source_pd": "Раздел ПЗ: Текст (состав квартир)",
+  "source_rd": "Раздел АР: Сводная экспликация квартир",
+  "source_id": "Технический план БТИ",
+  "trigger_logic": "Изменение пропорций (например, замена 3-комнатной на две студии).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Квартирография"
+  ],
+  "applicability": "residential"
+ },
+ {
+  "id": 12,
+  "code": "M-012",
+  "section": "ПЗ",
+  "parameter_name": "Количество машино-мест (подземных)",
+  "unit": "шт.",
+  "source_pd": "Раздел ПЗ: Таблица ТЭП (паркинг)",
+  "source_rd": "Раздел АР: План расстановки авто в паркинге",
+  "source_id": "Исполнительная схема разметки паркинга; Техплан БТИ",
+  "trigger_logic": "Сокращение количества машино-мест в РД (нарушение местных нормативов).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Количество машино-мест",
+   "машино-мест"
+  ],
+  "applicability": "underground"
+ },
+ {
+  "id": 13,
+  "code": "M-013",
+  "section": "ПЗ",
+  "parameter_name": "Технологическая мощность / Вместимость",
+  "unit": "ед.",
+  "source_pd": "Раздел ПЗ: Текст (ТХ)",
+  "source_rd": "Раздел ТХ: Лист \"Общие данные\"; Спецификация оборудования",
+  "source_id": "Акт приемки оборудования; Акт ПНР",
+  "trigger_logic": "Снижение мощности (выпуск продукции в год) или вместимости (школа/детсад).",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Технологическая мощность / Вместимость"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 14,
+  "code": "M-014",
+  "section": "ПЗ",
+  "parameter_name": "Расчетная электрическая мощность",
+  "unit": "кВт",
+  "source_pd": "Раздел ПЗ: Текст (ТУ); Таблица нагрузок",
+  "source_rd": "Раздел ЭОМ: Лист \"Общие данные\", Расчетные таблицы",
+  "source_id": "Акт техприсоединения; Акт допуска Ростехнадзора",
+  "trigger_logic": "Превышение расчетной мощности в РД над лимитом ТУ, выданным в ПД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "increase"
+  },
+  "anchors": [
+   "Расчетная электрическая мощность",
+   "Расчётная мощность"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 15,
+  "code": "M-015",
+  "section": "ПЗ",
+  "parameter_name": "Категория надежности электроснабжения",
+  "unit": "Кат.",
+  "source_pd": "Раздел ПЗ: Текст (Требования к надежности)",
+  "source_rd": "Раздел ЭОМ: Принципиальная схема ВРУ/ГРЩ",
+  "source_id": "Акт допуска Ростехнадзора",
+  "trigger_logic": "Снижение категории (например, перевод ИТП с 1-й на 2-ю категорию).",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Категория надежности электроснабжения"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 16,
+  "code": "M-016",
+  "section": "ПЗ",
+  "parameter_name": "Суточный расход водопотребления",
+  "unit": "м³/сут",
+  "source_pd": "Раздел ПЗ: Баланс водопотребления",
+  "source_rd": "Раздел ВК: Лист \"Общие данные\", Таблица расходов",
+  "source_id": "Договор ХВС/ГВС (лимиты)",
+  "trigger_logic": "Выход расчетного расхода в РД за объемы, утвержденные экспертизой в ПД.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Суточный расход водопотребления"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 17,
+  "code": "M-017",
+  "section": "ПЗ",
+  "parameter_name": "Суммарная тепловая нагрузка",
+  "unit": "Гкал/ч",
+  "source_pd": "Раздел ПЗ: Текст (ТУ теплосети)",
+  "source_rd": "Раздел ОВ: Лист \"Общие данные\", Таблица нагрузок",
+  "source_id": "Акт готовности систем; Договор теплоснабжения",
+  "trigger_logic": "Превышение суммарной тепловой нагрузки в спецификациях и таблицах РД.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "increase"
+  },
+  "anchors": [
+   "Суммарная тепловая нагрузка"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 18,
+  "code": "M-018",
+  "section": "ПЗ",
+  "parameter_name": "Максимальный часовой расход газа",
+  "unit": "м³/ч",
+  "source_pd": "Раздел ПЗ: Текст (ТУ газа)",
+  "source_rd": "Раздел ГСВ: Лист \"Общие данные\"; Схема ГРП/Ш",
+  "source_id": "Акт приемки газопровода; Договор поставки газа",
+  "trigger_logic": "Увеличение потребления газа в РД выше лимита, одобренного в ПД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "increase"
+  },
+  "anchors": [
+   "Максимальный часовой расход газа"
+  ],
+  "applicability": "gas"
+ },
+ {
+  "id": 19,
+  "code": "M-019",
+  "section": "ПЗ",
+  "parameter_name": "Коэффициент застройки (КЗ)",
+  "unit": "%",
+  "source_pd": "Раздел ПЗ: Таблица ТЭП земельного участка",
+  "source_rd": "Раздел ПП (ГП): Лист \"Общие данные\", Таблица ТЭП",
+  "source_id": "Справка о ТЭП для ввода в эксплуатацию",
+  "trigger_logic": "Превышение КЗ над предельным значением, утвержденным в ПД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "increase"
+  },
+  "anchors": [
+   "Коэффициент застройки (КЗ)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 20,
+  "code": "M-020",
+  "section": "ПЗ",
+  "parameter_name": "Коэффициент использования территории (КИТ)",
+  "unit": "%",
+  "source_pd": "Раздел ПЗ: Таблица ТЭП земельного участка",
+  "source_rd": "Раздел ПП (ГП): Лист \"Общие данные\", Таблица ТЭП",
+  "source_id": "Справка о ТЭП для ввода в эксплуатацию",
+  "trigger_logic": "Выход за нормативные рамки плотности, утвержденные в ПД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Коэффициент использования территории (КИТ)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 21,
+  "code": "M-021",
+  "section": "ПЗ",
+  "parameter_name": "Класс энергетической эффективности",
+  "unit": "Буква",
+  "source_pd": "Раздел ПЗ: Текст \"Энергоэффективность\"",
+  "source_rd": "Раздел АР/ОВ: Требования в \"Общих данных\"",
+  "source_id": "Энергетический паспорт (фактический по замерам)",
+  "trigger_logic": "Снижение класса энергоэффективности в РД/ИД относительно ПД.",
+  "review_priority": "HIGH",
+  "data_type": "enum",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": "\\b(A\\+\\+|A\\+|A|B|C|D|E)\\b",
+  "is_active": true,
+  "value_scale": [
+   "E",
+   "D",
+   "C",
+   "B",
+   "A",
+   "A+",
+   "A++"
+  ],
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Класс энергетической эффективности",
+   "Класс энергоэффективности"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 22,
+  "code": "M-022",
+  "section": "ПЗ",
+  "parameter_name": "Степень огнестойкости здания",
+  "unit": "Степень",
+  "source_pd": "Раздел ПЗ: Противопожарные характеристики",
+  "source_rd": "Раздел АР/КР: Лист \"Общие данные\" (маркировка)",
+  "source_id": "Заключение ГПН (МЧС)",
+  "trigger_logic": "Снижение степени огнестойкости (например, с I на II) в РД.",
+  "review_priority": "HIGH",
+  "data_type": "enum",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": "\\b(V|IV|III|II|I)\\b",
+  "is_active": true,
+  "value_scale": [
+   "V",
+   "IV",
+   "III",
+   "II",
+   "I"
+  ],
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Степень огнестойкости"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 23,
+  "code": "M-023",
+  "section": "ПЗ",
+  "parameter_name": "Класс конструктивной пожарной опасности",
+  "unit": "Класс (С0–С3)",
+  "source_pd": "Раздел ПЗ: Противопожарные характеристики",
+  "source_rd": "Раздел АР/КР: Лист \"Общие данные\" (маркировка)",
+  "source_id": "Заключение ГПН (МЧС)",
+  "trigger_logic": "Снижение класса пожарной опасности (например, с С0 на С1) в РД.",
+  "review_priority": "HIGH",
+  "data_type": "enum",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Класс конструктивной пожарной опасности"
+  ],
+  "applicability": null,
+  "value_scale": [
+   "С3",
+   "С2",
+   "С1",
+   "С0"
+  ]
+ },
+ {
+  "id": 24,
+  "code": "M-024",
+  "section": "СПЗУ",
+  "parameter_name": "Объем грунта (выемка/насыпь)",
+  "unit": "м³",
+  "source_pd": "Ведомость объемов работ (СПЗУ)",
+  "source_rd": "Раздел ПП: План земляных масс; Ведомость выемки",
+  "source_id": "Журнал учета транспорта; Накладные на вывоз/завоз",
+  "trigger_logic": "Дельта объемов выемки и обратной засыпки между стадиями > 5%.",
+  "review_priority": "MEDIUM",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "delta_pct",
+   "tolerance": 5.0
+  },
+  "anchors": [
+   "Объем грунта (выемка/насыпь)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 25,
+  "code": "M-025",
+  "section": "СПЗУ",
+  "parameter_name": "Площадь асфальтобетонного покрытия",
+  "unit": "м²",
+  "source_pd": "Ведомость проездов, тротуаров и площадок (СПЗУ)",
+  "source_rd": "План благоустройства; Ведомость покрытий (ПП)",
+  "source_id": "Исполнительная схема покрытий; Акты АОСР",
+  "trigger_logic": "Увеличение или уменьшение площади твердых покрытий > 5%.",
+  "review_priority": "MEDIUM",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "delta_pct",
+   "tolerance": 5.0
+  },
+  "anchors": [
+   "Площадь асфальтобетонного покрытия"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 26,
+  "code": "M-026",
+  "section": "СПЗУ",
+  "parameter_name": "Площадь тротуарного плиточного покрытия",
+  "unit": "м²",
+  "source_pd": "Ведомость проездов, тротуаров и площадок (СПЗУ)",
+  "source_rd": "План благоустройства; Ведомость покрытий (ПП)",
+  "source_id": "Исполнительная схема покрытий; Акты АОСР",
+  "trigger_logic": "Изменение объемов мощения без согласования заказчика.",
+  "review_priority": "MEDIUM",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Площадь тротуарного плиточного покрытия"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 27,
+  "code": "M-027",
+  "section": "СПЗУ",
+  "parameter_name": "Площадь озеленения и газонов",
+  "unit": "м²",
+  "source_pd": "Ведомость проездов, тротуаров и площадок (СПЗУ)",
+  "source_rd": "План благоустройства; Ведомость озеленения (ПП)",
+  "source_id": "Исполнительная схема благоустройства; Акты приемки",
+  "trigger_logic": "Сокращение площади озеленения в РД/ИД ниже минимальных требований ГПЗУ.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Площадь озеленения и газонов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 28,
+  "code": "M-028",
+  "section": "СПЗУ",
+  "parameter_name": "Площадь детских и спортивных площадок",
+  "unit": "м²",
+  "source_pd": "Текст СПЗУ; Схема благоустройства",
+  "source_rd": "План благоустройства; Спецификация МАФ (ПП)",
+  "source_id": "Исполнительная схема благоустройства",
+  "trigger_logic": "Уменьшение нормативной площади площадок отдыха/спорта в РД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Площадь детских и спортивных площадок"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 29,
+  "code": "M-029",
+  "section": "СПЗУ",
+  "parameter_name": "Спецификация МАФ",
+  "unit": "шт. / компл.",
+  "source_pd": "Ведомость МАФ (СПЗУ)",
+  "source_rd": "Спецификация оборудования благоустройства (ПП)",
+  "source_id": "Паспорта качества; Сертификаты на установленные МАФ",
+  "trigger_logic": "Сокращение позиций МАФ; подмена на аналоги низкого качества.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Спецификация МАФ"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 30,
+  "code": "M-030",
+  "section": "СПЗУ",
+  "parameter_name": "Ширина внутриплощадочных дорог и проездов",
+  "unit": "м",
+  "source_pd": "План проездов; Линейные размеры (СПЗУ)",
+  "source_rd": "План благоустройства; Полосы проезжей части (ПП)",
+  "source_id": "Исполнительная схема покрытий (фактические обмеры)",
+  "trigger_logic": "Ширина пожарного проезда в РД или в натуре (ИД) менее 4.2 м.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Ширина внутриплощадочных дорог и проездов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 31,
+  "code": "M-031",
+  "section": "СПЗУ",
+  "parameter_name": "Радиусы поворота дорог и пожарных проездов",
+  "unit": "м",
+  "source_pd": "План проездов; Радиусы закруглений (СПЗУ)",
+  "source_rd": "Разбивочный план проездов (ПП)",
+  "source_id": "Исполнительная геодезическая схема",
+  "trigger_logic": "Уменьшение радиуса поворота пожарной техники < 10-12 м (норматив).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Радиусы поворота дорог и пожарных проездов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 32,
+  "code": "M-032",
+  "section": "СПЗУ",
+  "parameter_name": "Конструкция дорожной одежды",
+  "unit": "мм (слои)",
+  "source_pd": "Текст СПЗУ; Типовые поперечные разрезы",
+  "source_rd": "Детальные разрезы и узлы; Спецификация (ПП)",
+  "source_id": "Акты АОСР на устройство слоев (песок, щебень, асфальт)",
+  "trigger_logic": "Исключение слоев или уменьшение толщины асфальта/щебня в РД и ИД.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Конструкция дорожной одежды"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 33,
+  "code": "M-033",
+  "section": "СПЗУ",
+  "parameter_name": "Уклоны дорог и проездов",
+  "unit": "‰",
+  "source_pd": "План организации рельефа (СПЗУ)",
+  "source_rd": "План организации рельефа; Проектные уклоны (ПП)",
+  "source_id": "Исполнительная геодезическая схема (высотные отметки)",
+  "trigger_logic": "Нарушение уклонов, ведущее к застою воды или превышению крутизны.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Уклоны дорог и проездов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 34,
+  "code": "M-034",
+  "section": "СПЗУ",
+  "parameter_name": "Точки и координаты подключения внешних сетей",
+  "unit": "Коорд.",
+  "source_pd": "Сводный план инженерных сетей (СПЗУ)",
+  "source_rd": "Наружные сети (НВК/НТС); Разбивочные чертежи",
+  "source_id": "Исполнительная геодезическая схема до точки врезки",
+  "trigger_logic": "Смещение точки подключения наружной сети относительно ТУ и ПД > 0.5 м.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "delta_pct",
+   "tolerance": 0.0
+  },
+  "anchors": [
+   "Точки и координаты подключения внешних сетей"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 35,
+  "code": "M-035",
+  "section": "СПЗУ",
+  "parameter_name": "Охранные зоны существующих коммуникаций",
+  "unit": "—",
+  "source_pd": "Ситуационный план; Сводный план с границами (СПЗУ)",
+  "source_rd": "Планы прокладки трасс; Посадка зданий (ПП)",
+  "source_id": "Исполнительная разбивка осей зданий и сетей",
+  "trigger_logic": "Посадка временных зданий, кранов или сетей в охранную зону.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Охранные зоны существующих коммуникаций"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 36,
+  "code": "M-036",
+  "section": "СПЗУ",
+  "parameter_name": "Тип и высотные параметры ограждения территории",
+  "unit": "м",
+  "source_pd": "Текст СПЗУ; Чертежи элементов ограждения",
+  "source_rd": "Рабочие чертежи заборов/ворот; Спецификация (АР/ПП)",
+  "source_id": "Акты АОСР на монтаж; Паспорта конструкций",
+  "trigger_logic": "Замена типа ограждения (например, шумозащита на сетку); занижение высоты.",
+  "review_priority": "MEDIUM",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Тип и высотные параметры ограждения территории"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 37,
+  "code": "M-037",
+  "section": "СПЗУ",
+  "parameter_name": "Количество и разметка парковочных мест на участке",
+  "unit": "шт.",
+  "source_pd": "Схема планировочной организации (СПЗУ)",
+  "source_rd": "План благоустройства; Разметка автостоянок (ПП)",
+  "source_id": "Исполнительная схема дорожной разметки",
+  "trigger_logic": "Сокращение количества наземных парковочных мест в РД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Количество и разметка парковочных мест на участке"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 38,
+  "code": "M-038",
+  "section": "СПЗУ",
+  "parameter_name": "Количество парковочных мест для МГН на участке",
+  "unit": "шт.",
+  "source_pd": "Схема парковочных зон (СПЗУ/ОДИ)",
+  "source_rd": "План благоустройства; Знаки и разметка (ПП)",
+  "source_id": "Исполнительная схема разметки; Акты установки знаков",
+  "trigger_logic": "Отсутствие или уменьшение доли мест для МГН (< 10% от общего числа).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Количество парковочных мест для МГН на участке"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 39,
+  "code": "M-039",
+  "section": "СПЗУ",
+  "parameter_name": "Мероприятия по инженерной подготовке (дренажи)",
+  "unit": "—",
+  "source_pd": "Схема инженерной подготовки (СПЗУ)",
+  "source_rd": "Схемы дождевой канализации; Дренажные системы (НВК)",
+  "source_id": "Акты АОСР на устройство дренажа; Исполнительные схемы",
+  "trigger_logic": "Исключение из РД открытых лотков или закрытых систем пристенного дренажа.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Мероприятия по инженерной подготовке (дренажи)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 40,
+  "code": "M-040",
+  "section": "АР",
+  "parameter_name": "Ширина магистральных эвакуационных коридоров",
+  "unit": "м",
+  "source_pd": "Планы этажей; Схемы путей эвакуации (АР)",
+  "source_rd": "Кладочные планы; Линейные размеры (АР)",
+  "source_id": "Исполнительная схема поэтажных планов (обмеры после отделки)",
+  "trigger_logic": "Снижение ширины коридора в РД/ИД менее 1.2 м (СП 1.13130).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Ширина эвакуационного коридора",
+   "Ширина коридора"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 41,
+  "code": "M-041",
+  "section": "АР",
+  "parameter_name": "Ширина эвакуационных выходов (дверей)",
+  "unit": "м",
+  "source_pd": "Ведомость заполнения проемов (АР)",
+  "source_rd": "Спецификация дверей (ГОСТ 21.101); Детальные узлы (АР)",
+  "source_id": "Паспорта на двери; Акты АОСР (фактический замер)",
+  "trigger_logic": "Ширина дверного полотна на путях эвакуации в РД/ИД < 0.9 м.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": 0.9,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "min",
+   "min": 0.9
+  },
+  "anchors": [
+   "Ширина эвакуационного выхода",
+   "Ширина двери эвакуационного выхода"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 42,
+  "code": "M-042",
+  "section": "АР",
+  "parameter_name": "Высота путей эвакуации и проемов",
+  "unit": "м",
+  "source_pd": "Разрезы здания; Высотные отметки (АР)",
+  "source_rd": "Рабочие размеры; Чертежи лестничных клеток (АР)",
+  "source_id": "Исполнительная геодезическая схема (высоты интерьеров)",
+  "trigger_logic": "Высота коридоров < 2.0 м или дверей < 1.9 м (СП 1.13130).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": 2.0,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "min",
+   "min": 2.0
+  },
+  "anchors": [
+   "Высота путей эвакуации и проемов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 43,
+  "code": "M-043",
+  "section": "АР",
+  "parameter_name": "Направление открывания эвакуационных дверей",
+  "unit": "—",
+  "source_pd": "Планы этажей; Схемы эвакуации (АР)",
+  "source_rd": "Рабочие планы; Графические схемы (АР)",
+  "source_id": "Акты проверки систем ПЗ; Фотофиксация",
+  "trigger_logic": "Дверь открывается внутрь помещения или блокирует смежный поток эвакуации.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Направление открывания эвакуационных дверей"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 44,
+  "code": "M-044",
+  "section": "АР",
+  "parameter_name": "Послойный состав пирога кровли",
+  "unit": "мм (слои)",
+  "source_pd": "Узлы кровли; Разрезы; Спецификация (АР)",
+  "source_rd": "План кровли; Детальные чертежи; Спецификация (АР)",
+  "source_id": "Акты АОСР на устройство кровли",
+  "trigger_logic": "Замена кровельной мембраны на класс ниже; исключение пароизоляционного слоя.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Послойный состав пирога кровли"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 45,
+  "code": "M-045",
+  "section": "АР",
+  "parameter_name": "Уклоны кровли и система водостока",
+  "unit": "% / °",
+  "source_pd": "План кровли; Стрелки уклонов (АР)",
+  "source_rd": "Рабочий план кровли; Спецификация (АР)",
+  "source_id": "Исполнительная схема кровли (нивелировка уклонов и воронок)",
+  "trigger_logic": "Уменьшение уклона кровли ниже проектного; сокращение количества воронок.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Уклоны кровли и система водостока"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 46,
+  "code": "M-046",
+  "section": "АР",
+  "parameter_name": "Общее количество и габариты оконных блоков",
+  "unit": "шт. / м²",
+  "source_pd": "Ведомость заполнения проемов (АР)",
+  "source_rd": "Спецификация окон; Рабочие фасады (АР)",
+  "source_id": "Сертификаты на окна; Акты приемки конструкций",
+  "trigger_logic": "Сокращение количества окон; уменьшение площади остекления (риск КЕО).",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Общее количество и габариты оконных блоков"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 47,
+  "code": "M-047",
+  "section": "АР",
+  "parameter_name": "Габариты и глубина тамбуров входных групп",
+  "unit": "м",
+  "source_pd": "Планы 1 этажа; Входные группы (АР)",
+  "source_rd": "Детальные чертежи крылец; Спецификация дверей (АР)",
+  "source_id": "Исполнительная схема входных групп (фактические обмеры)",
+  "trigger_logic": "Глубина тамбура в РД/ИД менее 1.5-1.8 м (невозможность проезда коляски).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Габариты и глубина тамбуров входных групп"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 48,
+  "code": "M-048",
+  "section": "АР",
+  "parameter_name": "Количество и параметры лестничных маршей и ступеней",
+  "unit": "шт. / мм",
+  "source_pd": "Разрезы лестничных клеток; Планы этажей (АР)",
+  "source_rd": "Детальные чертежи лестниц; Спецификация (АР)",
+  "source_id": "Исполнительная схема лестниц (фактические промеры)",
+  "trigger_logic": "Изменение количества ступеней; высота подступенка > 150 мм или проступь < 300 мм.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": 300.0,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "min",
+   "min": 300.0
+  },
+  "anchors": [
+   "Количество и параметры лестничных маршей и ступеней"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 49,
+  "code": "M-049",
+  "section": "АР",
+  "parameter_name": "Высота и тип ограждений лестниц, балкона, кровли",
+  "unit": "м",
+  "source_pd": "Фасады; Разрезы; Узлы ограждений (АР)",
+  "source_rd": "Детальные рабочие чертежи; Спецификация (АР)",
+  "source_id": "Акты АОСР на монтаж; Замеры высоты (ИД)",
+  "trigger_logic": "Снижение высоты ограждения < 1.2 м для кровли/балкона (СП 54.13330).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": 1.2,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "min",
+   "min": 1.2
+  },
+  "anchors": [
+   "Высота и тип ограждений лестниц, балкона, кровли"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 50,
+  "code": "M-050",
+  "section": "АР",
+  "parameter_name": "Спецификация и типы внутренней отделки помещений",
+  "unit": "Класс (КМ)",
+  "source_pd": "Ведомость отделки (ГОСТ 21.501) (АР)",
+  "source_rd": "Ведомость отделки; Спецификация ЛКМ/плитки (АР)",
+  "source_id": "Сертификаты; Пожарные декларации на материалы",
+  "trigger_logic": "Подмена негорючей отделки (КМ0/КМ1) на горючую (КМ3) на путях эвакуации.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Спецификация и типы внутренней отделки помещений"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 51,
+  "code": "M-051",
+  "section": "АР",
+  "parameter_name": "Параметры естественного освещения (КЕО)",
+  "unit": "%",
+  "source_pd": "Расчет КЕО (АР)",
+  "source_rd": "Спецификация окон; Планы этажей (АР)",
+  "source_id": "Заключение экспертизы; Лабораторные замеры КЕО",
+  "trigger_logic": "Изменение конфигурации оконных переплетов в РД, снижающее светопропускание.",
+  "review_priority": "MEDIUM",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Параметры естественного освещения (КЕО)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 52,
+  "code": "M-052",
+  "section": "АР",
+  "parameter_name": "Цветовое решение и материалы облицовки фасадов",
+  "unit": "RAL / Артикул",
+  "source_pd": "Чертежи фасадов в цвете (Паспорт фасадов)",
+  "source_rd": "Рабочие чертежи фасадов; Раскладка плитки (АР)",
+  "source_id": "Паспорта качества на фасадные панели; Акты АОСР",
+  "trigger_logic": "Изменение колористического решения фасада в РД без согласования.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Цветовое решение и материалы облицовки фасадов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 53,
+  "code": "M-053",
+  "section": "АР",
+  "parameter_name": "Конструктивные мероприятия по защите от шума",
+  "unit": "—",
+  "source_pd": "Текст АР: Звукоизоляция перегородок",
+  "source_rd": "Чертежи деформационных швов; Прокладки (АР)",
+  "source_id": "Акты АОСР на устройство прокладок",
+  "trigger_logic": "Отсутствие в РД демпферных лент в местах сопряжения перегородок и перекрытий.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Конструктивные мероприятия по защите от шума"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 54,
+  "code": "M-054",
+  "section": "КР",
+  "parameter_name": "Шаг и привязка координационных осей несущего каркаса",
+  "unit": "мм",
+  "source_pd": "Схема расположения осей (КР)",
+  "source_rd": "Разбивочные планы фундаментов; Стен (КЖ/КМ)",
+  "source_id": "Исполнительная геодезическая схема осей",
+  "trigger_logic": "Самовольное изменение шага колонн или сдвиг осей в РД/ИД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Шаг и привязка координационных осей несущего каркаса"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 55,
+  "code": "M-055",
+  "section": "КР",
+  "parameter_name": "Класс прочности бетона монолитных конструкций",
+  "unit": "Марка (B)",
+  "source_pd": "Общие данные; Спецификация материалов (КР)",
+  "source_rd": "Общие указания; Спецификация элементов (КЖ)",
+  "source_id": "Журнал бетонных работ; Паспорта на БСГ; Протоколы испытаний",
+  "trigger_logic": "Понижение класса бетона несущих элементов (например, B35 на B30) в РД/ИД.",
+  "review_priority": "HIGH",
+  "data_type": "enum",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": "B\\s?\\d{1,2}(?:[.,]5)?",
+  "is_active": true,
+  "value_scale": "numeric_suffix",
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Класс бетона",
+   "бетон класса"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 56,
+  "code": "M-056",
+  "section": "КР",
+  "parameter_name": "Марка стали и класс прочности металлопроката",
+  "unit": "Марка (С)",
+  "source_pd": "Текст КР; Спецификация металлопроката",
+  "source_rd": "Ведомости материалов; Спецификация (КМ/КМД)",
+  "source_id": "Журнал сварочных работ; Сертификаты на металл",
+  "trigger_logic": "Подмена марки стали на менее прочную (например, С345 на С245).",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Марка стали и класс прочности металлопроката"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 57,
+  "code": "M-057",
+  "section": "КР",
+  "parameter_name": "Марка и класс прочности рабочей арматуры",
+  "unit": "Класс (А)",
+  "source_pd": "Общие указания; Спецификация (КР)",
+  "source_rd": "Общие указания; Ведомость расхода стали (КЖ)",
+  "source_id": "Акты АОСР на армирование; Сертификаты на сталь",
+  "trigger_logic": "Замена класса арматуры на менее пластичный (например, А500С на А400).",
+  "review_priority": "HIGH",
+  "data_type": "enum",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": "A\\s?\\d{3}[CС]?",
+  "is_active": true,
+  "value_scale": "numeric_suffix",
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Класс арматуры",
+   "арматура класса"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 58,
+  "code": "M-058",
+  "section": "КР",
+  "parameter_name": "Толщина монолитной фундаментной плиты / ростверка",
+  "unit": "мм",
+  "source_pd": "Опалубочный чертеж фундамента (КР)",
+  "source_rd": "Опалубочные чертежи плиты; Разрезы (КЖ)",
+  "source_id": "Исполнительная геодезическая схема нивелировки верха/низа плиты",
+  "trigger_logic": "Уменьшение проектной толщины плиты в РД или по факту заливки (ИД).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Толщина фундаментной плиты"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 59,
+  "code": "M-059",
+  "section": "КР",
+  "parameter_name": "Толщина монолитных плит перекрытий и покрытия",
+  "unit": "мм",
+  "source_pd": "Опалубочные схемы перекрытий (КР)",
+  "source_rd": "Опалубочные чертежи; Разрезы (КЖ)",
+  "source_id": "Исполнительная геодезическая схема нивелировки поверхности плит",
+  "trigger_logic": "Уменьшение конструктивной толщины диска перекрытия (риск деформаций).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Толщина плиты перекрытия"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 60,
+  "code": "M-060",
+  "section": "КР",
+  "parameter_name": "Геометрические сечения несущих колонн и пилонов",
+  "unit": "мм²",
+  "source_pd": "Схемы расположения; Сечения (КР)",
+  "source_rd": "Опалубочные чертежи колонн; Ведомости (КЖ)",
+  "source_id": "Исполнительная схема колонн (промеры сечений)",
+  "trigger_logic": "Уменьшение площади поперечного сечения несущей вертикальной конструкции.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Геометрические сечения несущих колонн и пилонов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 61,
+  "code": "M-061",
+  "section": "КР",
+  "parameter_name": "Толщина несущих монолитных стен (ядра жесткости)",
+  "unit": "мм",
+  "source_pd": "Схемы расположения стен; Разрезы (КР)",
+  "source_rd": "Опалубочные чертежи стен; Шахт (КЖ)",
+  "source_id": "Исполнительная геодезическая схема стен (толщины)",
+  "trigger_logic": "Уменьшение толщины стен лифтовых шахт или пилонов диафрагм жесткости.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Толщина несущих монолитных стен (ядра жесткости)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 62,
+  "code": "M-062",
+  "section": "КР",
+  "parameter_name": "Диаметр продольной (рабочей) арматуры в колоннах/пилонах",
+  "unit": "мм",
+  "source_pd": "Схемы армирования (КР)",
+  "source_rd": "Спецификации армирования (КЖ)",
+  "source_id": "Акты АОСР на армирование (вертикальные элементы)",
+  "trigger_logic": "Занижение диаметра продольных арматурных стержней в спецификациях РД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Диаметр продольной (рабочей) арматуры в колоннах/пилонах"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 63,
+  "code": "M-063",
+  "section": "КР",
+  "parameter_name": "Наличие и конструктивное исполнение деформационных швов",
+  "unit": "—",
+  "source_pd": "Схема расположения швов (КР)",
+  "source_rd": "Чертежи узлов температурных швов (КЖ/КМ)",
+  "source_id": "Акты АОСР на устройство швов",
+  "trigger_logic": "Отсутствие, исключение или конструктивное искажение узла шва в РД.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Наличие и конструктивное исполнение деформационных швов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 64,
+  "code": "M-064",
+  "section": "КР",
+  "parameter_name": "Привязки и габариты лифтовых шахт",
+  "unit": "мм",
+  "source_pd": "Планы перекрытий; Отверстия (КР)",
+  "source_rd": "Чертежи лифтовых шахт; Закладные (КЖ)",
+  "source_id": "Исполнительная геодезическая схема шахт",
+  "trigger_logic": "Сужение шахты или смещение закладных элементов в РД (риск монтажа лифта).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Привязки и габариты лифтовых шахт"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 65,
+  "code": "M-065",
+  "section": "КР",
+  "parameter_name": "Схемы расположения и площади технологических проемов",
+  "unit": "м²",
+  "source_pd": "Планы перекрытий; Отверстия (КР)",
+  "source_rd": "Чертежи планов перекрытий; Закладные (КЖ)",
+  "source_id": "Исполнительная схема шахт",
+  "trigger_logic": "Самовольная заделка крупных проемов в РД без обрамляющего армирования.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Схемы расположения и площади технологических проемов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 66,
+  "code": "M-066",
+  "section": "КР",
+  "parameter_name": "Антикоррозионная и огнезащитная обработка конструкций",
+  "unit": "Марка / Толщина",
+  "source_pd": "Требования к защите (КР)",
+  "source_rd": "Спецификация; Указания по защите (КЖ/КМ)",
+  "source_id": "Акты АОСР на нанесение; Паспорта составов; Замеры слоя",
+  "trigger_logic": "Замена состава на менее огнестойкий (снижение предела REI).",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Антикоррозионная и огнезащитная обработка конструкций"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 67,
+  "code": "M-067",
+  "section": "КР",
+  "parameter_name": "Ведомости расхода материалов (бетон, сталь)",
+  "unit": "м³ / т",
+  "source_pd": "Сводные таблицы расхода (КР)",
+  "source_rd": "Ведомости расхода стали (ВРС) (КЖ/КМ)",
+  "source_id": "Общий журнал работ; Реестр накладных КС-2",
+  "trigger_logic": "Итоговое расхождение объемов материалов между ПД, РД и ИД > 2%.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "delta_pct",
+   "tolerance": 2.0
+  },
+  "anchors": [
+   "Ведомости расхода материалов (бетон, сталь)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 68,
+  "code": "M-068",
+  "section": "ИОС1",
+  "parameter_name": "Номинальная аппаратная защита ВРУ/ГРЩ",
+  "unit": "А (Ампер)",
+  "source_pd": "Принципиальные схемы сетей (ИОС1)",
+  "source_rd": "Схемы ВРУ/ГРЩ; Номиналы автоматов (ЭОМ)",
+  "source_id": "Технические паспорта щитов; Акты ПНР",
+  "trigger_logic": "Занижение или завышение токов уставки в РД (риск пожара или ложных отключений).",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Номинальная аппаратная защита ВРУ/ГРЩ"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 69,
+  "code": "M-069",
+  "section": "ИОС1",
+  "parameter_name": "Сечение жил и маркировка распределительных кабелей",
+  "unit": "мм²",
+  "source_pd": "Схемы распределительных сетей; Спецификация (ИОС1)",
+  "source_rd": "Кабельные журналы; Поэтажные планы (ЭОМ/ЭМ)",
+  "source_id": "Акты АОСР на прокладку; Протоколы изоляции",
+  "trigger_logic": "Занижение сечения кабелей или подмена негорючих марок (например, FRLS на обычный LS).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Сечение питающего кабеля"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 70,
+  "code": "M-070",
+  "section": "ИОС1",
+  "parameter_name": "Параметры и контуры заземления и молниезащиты",
+  "unit": "Ом / мм²",
+  "source_pd": "Схемы контуров заземления (ИОС1)",
+  "source_rd": "Расходные схемы; Схемы заземления (ЭГ/ЭМ)",
+  "source_id": "Акты АОСР на заземление; Протоколы сопротивления",
+  "trigger_logic": "Уменьшение количества заземлителей или исключение элементов молниезащиты в РД.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Параметры и контуры заземления и молниезащиты"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 71,
+  "code": "M-071",
+  "section": "ИОС2",
+  "parameter_name": "Диаметры стояков и разводящих трубопроводов В1/Т3",
+  "unit": "мм",
+  "source_pd": "Принципиальные схемы ХВС/ГВС (ИОС2)",
+  "source_rd": "Планы разводки; Аксонометрия; Спецификация труб (ВК)",
+  "source_id": "Исполнительные схемы В1/Т3 (с диаметрами)",
+  "trigger_logic": "Уменьшение диаметров стояков или магистралей ХВС/ГВС в РД/ИД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Диаметры стояков и разводящих трубопроводов В1/Т3"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 72,
+  "code": "M-072",
+  "section": "ИОС2",
+  "parameter_name": "Материал и класс давления напорных труб В1/Т3",
+  "unit": "Марка",
+  "source_pd": "Спецификация материалов (ИОС2)",
+  "source_rd": "Спецификация оборудования (ВК)",
+  "source_id": "Паспорта и сертификаты на трубы",
+  "trigger_logic": "Подмена оцинкованных/чугунных труб на полипропилен без перерасчета расширения.",
+  "review_priority": "MEDIUM",
+  "data_type": "enum",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "value_scale": "pressure_class",
+  "anchors": [
+   "Материал и класс давления напорных труб В1/Т3"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 73,
+  "code": "M-073",
+  "section": "ИОС2",
+  "parameter_name": "Характеристики насосных станций хоз-питьевого водоснабжения",
+  "unit": "м³/ч / м / кВт",
+  "source_pd": "Схемы насосных станций; Параметры (ИОС2)",
+  "source_rd": "Чертежи насосных станций; Спецификация (ВК)",
+  "source_id": "Технические паспорта; Акты индивидуальных испытаний",
+  "trigger_logic": "Занижение рабочих параметров закупаемого насосного оборудования в РД.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Характеристики насосных станций хоз-питьевого водоснабжения"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 74,
+  "code": "M-074",
+  "section": "ИОС3",
+  "parameter_name": "Диаметры выпусков и магистралей К1/К2",
+  "unit": "мм",
+  "source_pd": "Принципиальные схемы канализации (ИОС3)",
+  "source_rd": "Планы подвала; Аксонометрия К1/К2 (ВК)",
+  "source_id": "Исполнительные схемы К1/К2 (диаметры)",
+  "trigger_logic": "Уменьшение диаметров выпусков канализации из здания в РД (риск засоров).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Диаметры выпусков и магистралей К1/К2"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 75,
+  "code": "M-075",
+  "section": "ИОС3",
+  "parameter_name": "Материал и тип канализационных труб и фасонных частей",
+  "unit": "Марка",
+  "source_pd": "Спецификация материалов (ИОС3)",
+  "source_rd": "Спецификация оборудования (ВК/НВК)",
+  "source_id": "Сертификаты; Накладные на трубы",
+  "trigger_logic": "Самовольная замена малошумных или чугунных труб на тонкостенный ПВХ.",
+  "review_priority": "MEDIUM",
+  "data_type": "enum",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Материал и тип канализационных труб и фасонных частей"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 76,
+  "code": "M-076",
+  "section": "ИОС4",
+  "parameter_name": "Диаметры магистралей и стояков отопления (Т1, Т2)",
+  "unit": "мм",
+  "source_pd": "Принципиальные схемы отопления (ИОС4)",
+  "source_rd": "Поэтажные планы; Аксонометрия; Спецификация (ОВ)",
+  "source_id": "Исполнительные схемы отопления (диаметры)",
+  "trigger_logic": "Изменение диаметров Т1/Т2, нарушающее гидравлическую увязку системы.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Диаметры магистралей и стояков отопления (Т1, Т2)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 77,
+  "code": "M-077",
+  "section": "ИОС4",
+  "parameter_name": "Технические параметры отопительных приборов (радиаторов)",
+  "unit": "Вт / шт.",
+  "source_pd": "Спецификация оборудования; Типы радиаторов (ИОС4)",
+  "source_rd": "Спецификация оборудования (ОВ)",
+  "source_id": "Паспорта на радиаторы; Акты тепловых испытаний",
+  "trigger_logic": "Сокращение количества секций или замена на модели с меньшей теплоотдачей.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Технические параметры отопительных приборов (радиаторов)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 78,
+  "code": "M-078",
+  "section": "ИОС4",
+  "parameter_name": "Сечения и геометрия воздуховодов общеобменной вентиляции",
+  "unit": "мм²",
+  "source_pd": "Принципиальные схемы вентиляции (ИОС4)",
+  "source_rd": "Поэтажные планы; Разрезы; Спецификация (ОВ)",
+  "source_id": "Исполнительные схемы вентиляции (геометрия коробов)",
+  "trigger_logic": "Уменьшение площади сечения воздуховода в РД (падение объема воздуха, рост шума).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Сечения и геометрия воздуховодов общеобменной вентиляции"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 79,
+  "code": "M-079",
+  "section": "ИОС4",
+  "parameter_name": "Характеристики вентиляторов общеобменной вентиляции",
+  "unit": "м³/ч / Па / кВт",
+  "source_pd": "Спецификация; Мощность вентиляторов (ИОС4)",
+  "source_rd": "Таблицы систем; Спецификация (ОВ)",
+  "source_id": "Технические паспорта; Паспорта вентсистем",
+  "trigger_logic": "Подмена установок на аналоги с меньшей кратностью воздухообмена.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Характеристики вентиляторов общеобменной вентиляции"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 80,
+  "code": "M-080",
+  "section": "ИОС5",
+  "parameter_name": "Состав и емкость систем пожарной сигнализации (АПС)",
+  "unit": "шт. / зоны",
+  "source_pd": "Структурная схема АПС (ИОС5/ППМ)",
+  "source_rd": "Поэтажные планы; Схемы расстановки (СС/АПС)",
+  "source_id": "Паспорта на датчики; Исполнительные схемы шлейфов",
+  "trigger_logic": "Сокращение количества извещателей в РД или нарушение расстояний между ними.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Состав и емкость систем пожарной сигнализации (АПС)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 81,
+  "code": "M-081",
+  "section": "ПОС",
+  "parameter_name": "Границы опасных зон работы грузоподъемных кранов",
+  "unit": "м",
+  "source_pd": "Строительный генплан; Радиусы (ПОС)",
+  "source_rd": "Строительный план; Расчетные зоны (ППР)",
+  "source_id": "Общий журнал работ; Разбивка ограждений (ОКР)",
+  "trigger_logic": "Выход опасной зоны работы стрелы крана за границы участка или на жилые здания.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Границы опасных зон работы грузоподъемных кранов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 82,
+  "code": "M-082",
+  "section": "ПОС",
+  "parameter_name": "Продолжительность этапов строительства (Календарный график)",
+  "unit": "дни",
+  "source_pd": "Текст ПОС; Нормативный срок; Календарный план",
+  "source_rd": "Укрупненный график СМР (ППР)",
+  "source_id": "Общий журнал работ (даты начала/окончания этапов)",
+  "trigger_logic": "Превышение продолжительности критического этапа в графике РД > 10%.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "delta_pct",
+   "tolerance": 10.0
+  },
+  "anchors": [
+   "Продолжительность этапов строительства (Календарный график)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 83,
+  "code": "M-083",
+  "section": "ПОС",
+  "parameter_name": "Посадка и габариты временных зданий и сооружений",
+  "unit": "м",
+  "source_pd": "Экспликация временных зданий (ПОС)",
+  "source_rd": "Строительный план (ППР)",
+  "source_id": "Исполнительная геодезическая съемка (расположение)",
+  "trigger_logic": "Размещение бытовок в охранных зонах сетей или с нарушением пожарных разрывов.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Посадка и габариты временных зданий и сооружений"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 84,
+  "code": "M-084",
+  "section": "ПОС",
+  "parameter_name": "Схемы движения и ширина временных автодорог",
+  "unit": "м",
+  "source_pd": "Строительный генплан; Ширина проездов (ПОС)",
+  "source_rd": "Схемы движения транспорта (ППР)",
+  "source_id": "Исполнительная съемка дорог (фактические обмеры)",
+  "trigger_logic": "Сужение временных дорог < 3.5-4.5 м (нарушение ПОС).",
+  "review_priority": "MEDIUM",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Схемы движения и ширина временных автодорог"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 85,
+  "code": "M-085",
+  "section": "ПОС",
+  "parameter_name": "Места размещения площадок складирования материалов",
+  "unit": "—",
+  "source_pd": "Строительный генплан; Зоны складирования (ПОС)",
+  "source_rd": "Зоны складирования (ППР)",
+  "source_id": "Общий журнал работ; Фотофиксация (ОКР)",
+  "trigger_logic": "Размещение тяжелых конструкций в зоне откосов котлована или на непредусмотренных перекрытиях.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Места размещения площадок складирования материалов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 86,
+  "code": "M-086",
+  "section": "ПОС",
+  "parameter_name": "Потребность в кадрах (Максимальная численность)",
+  "unit": "чел.",
+  "source_pd": "Расчет движения рабочей силы (ПОС)",
+  "source_rd": "График движения рабочих (ППР)",
+  "source_id": "Журнал инструктажей; Данные ККУД на КПП",
+  "trigger_logic": "Превышение пиковой численности персонала в РД над вместимостью бытового городка.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "increase"
+  },
+  "anchors": [
+   "Потребность в кадрах (Максимальная численность)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 87,
+  "code": "M-087",
+  "section": "ПОС",
+  "parameter_name": "Технологическая последовательность возведения",
+  "unit": "—",
+  "source_pd": "Текст ПОС: Методы производства работ",
+  "source_rd": "Технологические карты (ППР)",
+  "source_id": "Общий журнал работ (записи о ходе работ)",
+  "trigger_logic": "Самовольное изменение критических технологий (например, монолит на сборный ЖБ).",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Технологическая последовательность возведения"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 88,
+  "code": "M-088",
+  "section": "ПОС",
+  "parameter_name": "Точки подключения и мощности временных ресурсов",
+  "unit": "кВт / м³",
+  "source_pd": "Текст и графика ПОС: Потребители ресурсов",
+  "source_rd": "Рабочие схемы временных сетей (ППР)",
+  "source_id": "Договоры на техприсоединение; Акты балансового разграничения",
+  "trigger_logic": "Превышение запрашиваемой мощности для строймашин над лимитом ПОС.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "increase"
+  },
+  "anchors": [
+   "Точки подключения и мощности временных ресурсов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 89,
+  "code": "M-089",
+  "section": "ПОС",
+  "parameter_name": "Расположение пунктов мойки колес и выездов",
+  "unit": "—",
+  "source_pd": "Строительный генплан; Посты очистки (ПОС)",
+  "source_rd": "Схемы организации выездов (ППР)",
+  "source_id": "Акты АОСР на устройство выезда; Мойки",
+  "trigger_logic": "Отсутствие или перенос пункта мойки колес в зону без оборотного водоснабжения.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Расположение пунктов мойки колес и выездов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 90,
+  "code": "M-090",
+  "section": "ПОД",
+  "parameter_name": "Границы опасных зон развала и обрушения конструкций",
+  "unit": "м",
+  "source_pd": "План сноса; Расчетные зоны (ПОД)",
+  "source_rd": "Строительный план демонтажа (ППР)",
+  "source_id": "Общий журнал работ; Разбивка ограждений (ОКР)",
+  "trigger_logic": "Выход зоны развала в ППР за границы участка или на пешеходные зоны.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Границы опасных зон развала и обрушения конструкций"
+  ],
+  "applicability": "demolition"
+ },
+ {
+  "id": 91,
+  "code": "M-091",
+  "section": "ПОД",
+  "parameter_name": "Методы и технологическая последовательность демонтажа",
+  "unit": "—",
+  "source_pd": "Текст ПОД: Описание методов",
+  "source_rd": "Технологические карты на разборку (ППР)",
+  "source_id": "Общий журнал работ (фактические технологии)",
+  "trigger_logic": "Самовольное изменение метода (например, с плазменного на обрушение экскаватором).",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Методы и технологическая последовательность демонтажа"
+  ],
+  "applicability": "demolition"
+ },
+ {
+  "id": 92,
+  "code": "M-092",
+  "section": "ПОД",
+  "parameter_name": "Мероприятия по защите действующих коммуникаций",
+  "unit": "—",
+  "source_pd": "Схемы защитных коробок (ПОД)",
+  "source_rd": "Чертежи защитных сооружений (ППР)",
+  "source_id": "Акты АОСР на устройство защитных ограждений",
+  "trigger_logic": "Отсутствие в ППР защитных мероприятий для сетей в зоне работы техники.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Мероприятия по защите действующих коммуникаций"
+  ],
+  "applicability": "demolition"
+ },
+ {
+  "id": 93,
+  "code": "M-093",
+  "section": "ПОД",
+  "parameter_name": "Общие объемы демонтируемых конструкций (по типам)",
+  "unit": "м³",
+  "source_pd": "Сводная ведомость объемов демонтажа (ПОД)",
+  "source_rd": "Спецификации и ведомости (ППР)",
+  "source_id": "Акт обследования площадки; Реестр фактически демонтированных",
+  "trigger_logic": "Расхождение объемов лома между ПД и РД/ИД > 5%.",
+  "review_priority": "MEDIUM",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "delta_pct",
+   "tolerance": 5.0
+  },
+  "anchors": [
+   "Общие объемы демонтируемых конструкций (по типам)"
+  ],
+  "applicability": "demolition"
+ },
+ {
+  "id": 94,
+  "code": "M-094",
+  "section": "ПОД",
+  "parameter_name": "Масса и класс опасности образующихся отходов",
+  "unit": "т / Класс",
+  "source_pd": "Расчет объемов и классов опасности (ПОД)",
+  "source_rd": "Регламенты по отходам (ППР)",
+  "source_id": "Справки об утилизации; Талоны с полигонов",
+  "trigger_logic": "Превышение объемов опасных отходов в ИД или занижение класса опасности.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "increase"
+  },
+  "anchors": [
+   "Масса и класс опасности образующихся отходов"
+  ],
+  "applicability": "demolition"
+ },
+ {
+  "id": 95,
+  "code": "M-095",
+  "section": "ПОД",
+  "parameter_name": "Мероприятия по пылеподавлению и снижению шума",
+  "unit": "—",
+  "source_pd": "Текст ПОД: Требования к орошению/экранам",
+  "source_rd": "Технологические карты; Места водных пушек (ППР)",
+  "source_id": "Журнал производственного экоконтроля (замеры шума/пыли)",
+  "trigger_logic": "Отсутствие систем гидроорошения или защитных экранов в РД при демонтаже стен.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Мероприятия по пылеподавлению и снижению шума"
+  ],
+  "applicability": "demolition"
+ },
+ {
+  "id": 96,
+  "code": "M-096",
+  "section": "ПОД",
+  "parameter_name": "Узлы временного расчленения сохраняемых конструкций",
+  "unit": "—",
+  "source_pd": "Чертежи временных подпорок (ПОД)",
+  "source_rd": "Детальные узлы крепелей; Спецификация (КР/ППР)",
+  "source_id": "Акты АОСР на устройство креплений; Фотофиксация",
+  "trigger_logic": "Занижение сечений элементов расчленения в РД; отсутствие актов монтажа.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Узлы временного расчленения сохраняемых конструкций"
+  ],
+  "applicability": "demolition"
+ },
+ {
+  "id": 97,
+  "code": "M-097",
+  "section": "ПОД",
+  "parameter_name": "Места и габариты площадок временного складирования лома",
+  "unit": "м²",
+  "source_pd": "Строительный генплан демонтажа (ПОД)",
+  "source_rd": "Зоны накопления бункера (ППР)",
+  "source_id": "Исполнительная схема площадки; Записи в ОКР",
+  "trigger_logic": "Складирование тяжелого мусора на бровке котлована или над действующими сетями.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Места и габариты площадок временного складирования лома"
+  ],
+  "applicability": "demolition"
+ },
+ {
+  "id": 98,
+  "code": "M-098",
+  "section": "ООС",
+  "parameter_name": "Регистрация лимитов в АИС \"ОСИГ\"",
+  "unit": "Статус",
+  "source_pd": "Проектные ТЭП отходов (ООС)",
+  "source_rd": "Технологический регламент (ТРПО)",
+  "source_id": "Электронный паспорт в АИС \"ОСИГ\"",
+  "trigger_logic": "Начало земляных/демонтажных работ без открытого разрешения на перемещение ОСС.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Регистрация лимитов в АИС \"ОСИГ\""
+  ],
+  "applicability": null
+ },
+ {
+  "id": 99,
+  "code": "M-099",
+  "section": "ООС",
+  "parameter_name": "Верфикация транспортных средств (ГЛОНАСС)",
+  "unit": "Статус",
+  "source_pd": "Мероприятия по эко-транспортировке (ООС)",
+  "source_rd": "Перечень спецтехники (ТРПО)",
+  "source_id": "Логи РНИС; Телеметрия в АИС \"ОСИГ\"",
+  "trigger_logic": "Рейс самосвала без ГЛОНАСС-трекера или не зарегистрированного в РНИС.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Верфикация транспортных средств (ГЛОНАСС)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 100,
+  "code": "M-100",
+  "section": "ООС",
+  "parameter_name": "Фиксация рейсов через мобильный КПТС",
+  "unit": "Статус",
+  "source_pd": "Требования к весовому контролю (ООС)",
+  "source_rd": "Места размещения постов КПП (ППР)",
+  "source_id": "Лог-данные \"Мобильный КПТС\"",
+  "trigger_logic": "Выезд самосвала с отходами без генерации QR-кода в \"Мобильном КПТС\".",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Фиксация рейсов через мобильный КПТС"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 101,
+  "code": "M-101",
+  "section": "ООС",
+  "parameter_name": "Сверка легитимности полной утилизации",
+  "unit": "Статус",
+  "source_pd": "Перечень конечных объектов (КПО/полигоны) (ООС)",
+  "source_rd": "Договоры с полигонами (ТРПО)",
+  "source_id": "Электронные отметки полигона; ГРОО",
+  "trigger_logic": "Выгрузка отходов на полигон, не входящий в ТРПО или без лицензии ГРОО.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Сверка легитимности полной утилизации"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 102,
+  "code": "M-102",
+  "section": "ППМ",
+  "parameter_name": "Деление здания на пожарные отсеки",
+  "unit": "—",
+  "source_pd": "Схемы деления на отсеки; Площади (ППМ)",
+  "source_rd": "Кладочные планы; Маркировка отсеков (АР/КР)",
+  "source_id": "Исполнительные схемы конструкций",
+  "trigger_logic": "Нарушение непрерывности противопожарных стен в РД/ИД; увеличение площади отсека.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Деление здания на пожарные отсеки"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 103,
+  "code": "M-103",
+  "section": "ППМ",
+  "parameter_name": "Пределы огнестойкости противопожарных дверей и ворот (EI)",
+  "unit": "мин",
+  "source_pd": "Ведомость проемов в преградах (ППМ)",
+  "source_rd": "Спецификация дверей; Маркировка EI (АР)",
+  "source_id": "Сертификаты на двери; Акты монтажа",
+  "trigger_logic": "Снижение предела огнестойкости (например, EI-60 на EI-30) в РД.",
+  "review_priority": "HIGH",
+  "data_type": "enum",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": "EI\\s?-?\\s?\\d{2,3}",
+  "is_active": true,
+  "value_scale": "numeric_suffix",
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Предел огнестойкости противопожарных дверей"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 104,
+  "code": "M-104",
+  "section": "ППМ",
+  "parameter_name": "Ширина и высота эвакуационных проходов",
+  "unit": "м",
+  "source_pd": "Расчет путей эвакуации (ППМ)",
+  "source_rd": "Кладочные планы; Линейные размеры (АР)",
+  "source_id": "Исполнительная схема поэтажных планов (обмеры)",
+  "trigger_logic": "Сужение коридоров < 1.2 м (СП 1.13130).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": 1.2,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "min",
+   "min": 1.2
+  },
+  "anchors": [
+   "Ширина и высота эвакуационных проходов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 105,
+  "code": "M-105",
+  "section": "ППМ",
+  "parameter_name": "Ширина эвакуационных дверей наружных выходов",
+  "unit": "м",
+  "source_pd": "Планы эвакуации (ППМ)",
+  "source_rd": "Спецификация дверей; Детальные чертежи (АР)",
+  "source_id": "Паспорта на двери; Акты АОСР; Фактические обмеры",
+  "trigger_logic": "Ширина дверного полотна в РД/ИД < 0.9 м.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": 0.9,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "min",
+   "min": 0.9
+  },
+  "anchors": [
+   "Ширина эвакуационных дверей наружных выходов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 106,
+  "code": "M-106",
+  "section": "ППМ",
+  "parameter_name": "Направление открывания дверей на путях эвакуации",
+  "unit": "—",
+  "source_pd": "Схемы направления движения (ППМ)",
+  "source_rd": "Рабочие планы этажей (АР)",
+  "source_id": "Акты проверки систем ПЗ; Фотофиксация",
+  "trigger_logic": "Дверь открывается внутрь или блокирует смежный поток эвакуации.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Направление открывания дверей на путях эвакуации"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 107,
+  "code": "M-107",
+  "section": "ППМ",
+  "parameter_name": "Класс пожарной опасности отделочных материалов",
+  "unit": "Класс (КМ)",
+  "source_pd": "Требования к отделке стен/полов (ППМ)",
+  "source_rd": "Ведомости отделки (АР)",
+  "source_id": "Сертификаты; Пожарные декларации",
+  "trigger_logic": "Подмена КМ0/КМ1 на КМ3 на путях эвакуации в РД/ИД.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Класс пожарной опасности отделочных материалов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 108,
+  "code": "M-108",
+  "section": "ППМ",
+  "parameter_name": "Количество и расстановка извещателей АПС",
+  "unit": "шт. / м",
+  "source_pd": "Структурная схема АПС; Зоны контроля (ППМ/ИОС)",
+  "source_rd": "Поэтажные планы; Расстановка датчиков (СС/АПС)",
+  "source_id": "Паспорта на датчики; Исполнительные схемы шлейфов",
+  "trigger_logic": "Сокращение количества датчиков в РД или нарушение расстояний между ними.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Количество и расстановка извещателей АПС"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 109,
+  "code": "M-109",
+  "section": "ППМ",
+  "parameter_name": "Пожарная маркировка кабелей систем ПЗ (СПЗ)",
+  "unit": "Марка",
+  "source_pd": "Требования к живучести кабелей (ППМ)",
+  "source_rd": "Кабельные журналы; Спецификации (ЭОМ/АПС)",
+  "source_id": "Сертификаты на кабели; Акты АОСР на прокладку",
+  "trigger_logic": "Применение кабеля без индекса огнестойкости (например, замена FRLS на обычный LS).",
+  "review_priority": "HIGH",
+  "data_type": "enum",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Пожарная маркировка кабелей систем ПЗ (СПЗ)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 110,
+  "code": "M-110",
+  "section": "ППМ",
+  "parameter_name": "Количество и расстановка оповещателей СОУЭ",
+  "unit": "шт.",
+  "source_pd": "Требования к типу СОУЭ (ППМ)",
+  "source_rd": "Поэтажные планы; Расстановка (СС/СОУЭ)",
+  "source_id": "Исполнительные схемы СОУЭ; Акт тестирования звука",
+  "trigger_logic": "Сокращение количества динамиков; отсутствие табло \"Выход\" на путях эвакуации.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Количество и расстановка оповещателей СОУЭ"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 111,
+  "code": "M-111",
+  "section": "ППМ",
+  "parameter_name": "Расположение и пределы огнестойкости клапанов (ОЗК)",
+  "unit": "мин (EI)",
+  "source_pd": "Схемы вентиляции с ОЗК (ППМ/ИОС)",
+  "source_rd": "Планы разводки; Маркировка клапанов (ОВ)",
+  "source_id": "Паспорта на клапаны; Акты монтажа ОЗК",
+  "trigger_logic": "Отсутствие ОЗК в местах пересечения воздуховодами противопожарных преград в РД.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Расположение и пределы огнестойкости клапанов (ОЗК)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 112,
+  "code": "M-112",
+  "section": "ППМ",
+  "parameter_name": "Производительность вентиляторов ДУ и подпора воздуха",
+  "unit": "м³/ч / Па",
+  "source_pd": "Расчетные расходы ДУ (ППМ/ИОС)",
+  "source_rd": "Таблицы систем; Спецификация (ОВ)",
+  "source_id": "Технические паспорта; Акты аэродинамических испытаний",
+  "trigger_logic": "Занижение производительности или давления вентиляторов ДУ в РД.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Производительность вентиляторов ДУ и подпора воздуха"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 113,
+  "code": "M-113",
+  "section": "ППМ",
+  "parameter_name": "Расход воды и количество струй внутреннего пожаротушения (ВПВ)",
+  "unit": "л/с / шт.",
+  "source_pd": "Расчет расхода на ВПВ (ППМ)",
+  "source_rd": "Планы сети ВПВ; Аксонометрия (ВК)",
+  "source_id": "Исполнительные схемы ВПВ; Акты испытаний на водоотдачу",
+  "trigger_logic": "Уменьшение диаметра кольцевого трубопровода ВПВ; сокращение количества кранов.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Расход воды и количество струй внутреннего пожаротушения (ВПВ)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 114,
+  "code": "M-114",
+  "section": "ППМ",
+  "parameter_name": "Расход воды на наружное пожаротушение (НПВ)",
+  "unit": "л/с",
+  "source_pd": "Расчетный расход НПВ (ППМ)",
+  "source_rd": "Схемы расстановки ПГ (НВК)",
+  "source_id": "Акты проверки ПГ на водоотдачу",
+  "trigger_logic": "Радиус действия ПГ на чертеже РД не покрывает наиболее удаленную точку здания.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Расход воды на наружное пожаротушение (НПВ)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 115,
+  "code": "M-115",
+  "section": "ОДИ",
+  "parameter_name": "Технические параметры и наличие инвалидных подъемников",
+  "unit": "—",
+  "source_pd": "Структурные схемы ОДИ; Спецификация",
+  "source_rd": "Чертежи установки подъемников (АР/ТХ)",
+  "source_id": "Технические паспорта; Декларации; Акты ПНР",
+  "trigger_logic": "Исключение подъемника из РД или замена на модель без автоматического управления.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Технические параметры и наличие инвалидных подъемников"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 116,
+  "code": "M-116",
+  "section": "ОДИ",
+  "parameter_name": "Ширина коридоров на путях движения МГН",
+  "unit": "м",
+  "source_pd": "Планы этажей; Пути движения (ОДИ)",
+  "source_rd": "Кладочные планы; Линейные размеры (АР)",
+  "source_id": "Исполнительная схема поэтажных планов (обмеры)",
+  "trigger_logic": "Сужение коридоров < 1.5-1.8 м (СП 59.13330).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Ширина коридоров на путях движения МГН"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 117,
+  "code": "M-117",
+  "section": "ОДИ",
+  "parameter_name": "Ширина дверных проемов на путях движения МГН",
+  "unit": "м",
+  "source_pd": "Ведомость заполнения проемов (ОДИ/АР)",
+  "source_rd": "Спецификация дверей; Маркировка МГН (АР)",
+  "source_id": "Паспорта на двери; Фактические обмеры",
+  "trigger_logic": "Ширина полотна двери в свету < 1.5 м (СП 59.13330).",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": 1.5,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "min",
+   "min": 1.5
+  },
+  "anchors": [
+   "Ширина дверных проемов на путях движения МГН"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 118,
+  "code": "M-118",
+  "section": "ОДИ",
+  "parameter_name": "Высота порогов в дверных проемах на путях МГН",
+  "unit": "м",
+  "source_pd": "Текст ОДИ; Детали проемов",
+  "source_rd": "Детальные узлы сопряжения полов (АР)",
+  "source_id": "Акты АОСР на устройство полов (фактические замеры)",
+  "trigger_logic": "Высота порога > 0.014 м (СП 59.13330).",
+  "review_priority": "MEDIUM",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "delta_pct",
+   "tolerance": 0.0
+  },
+  "anchors": [
+   "Высота порогов в дверных проемах на путях МГН"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 119,
+  "code": "M-119",
+  "section": "ОДИ",
+  "parameter_name": "Габариты и планировка санузлов для инвалидов (универсальные кабины)",
+  "unit": "м² / м",
+  "source_pd": "Чертежи планировки санузлов (ОДИ)",
+  "source_rd": "Детальные чертежи санузлов (АР/ВК)",
+  "source_id": "Исполнительная схема санузлов (обмеры и привязки)",
+  "trigger_logic": "Внутренние размеры универсальной кабины в РД/ИД < 1.5 м (СП 59.13330).",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": 1.5,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "min",
+   "min": 1.5
+  },
+  "anchors": [
+   "Габариты и планировка санузлов для инвалидов (универсальные кабины)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 120,
+  "code": "M-120",
+  "section": "ОДИ",
+  "parameter_name": "Спецификация опорных стационарных и откидных поручней",
+  "unit": "шт.",
+  "source_pd": "Схемы оснащения поручнями (ОДИ)",
+  "source_rd": "Детальные чертежи санузлов; Спецификация (АР)",
+  "source_id": "Паспорта на поручни; Акты АОСР на монтаж",
+  "trigger_logic": "Отсутствие в РД откидных и стационарных поручней в санузлах для инвалидов.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Спецификация опорных стационарных и откидных поручней"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 121,
+  "code": "M-121",
+  "section": "ОДИ",
+  "parameter_name": "Количество и габариты парковочных мест для инвалидов",
+  "unit": "шт. / м",
+  "source_pd": "Схема парковочных зон (ОДИ/СПЗУ)",
+  "source_rd": "План благоустройства; Разметка (ПП)",
+  "source_id": "Исполнительная схема разметки",
+  "trigger_logic": "Сокращение количества мест для инвалидов; уменьшение ширины места < 3.5 м.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": 3.5,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "min",
+   "min": 3.5
+  },
+  "anchors": [
+   "Количество и габариты парковочных мест для инвалидов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 122,
+  "code": "M-122",
+  "section": "ОДИ",
+  "parameter_name": "Наличие и расстановка тактильно-контрастных указателей",
+  "unit": "—",
+  "source_pd": "Планы этажей и территории (ОДИ)",
+  "source_rd": "Планы покрытий; Планы полов (ГП/АР)",
+  "source_id": "Акты АОСР на устройство полов; Исполнительные схемы",
+  "trigger_logic": "Отсутствие в РД предупреждающих тактильных полос перед лестницами и дверями.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Наличие и расстановка тактильно-контрастных указателей"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 123,
+  "code": "M-123",
+  "section": "ОДИ",
+  "parameter_name": "Состав систем двухсторонней связи и вызова помощника",
+  "unit": "—",
+  "source_pd": "Структурные схемы СС/ОДИ",
+  "source_rd": "Планы кабельных сетей; Спецификация (СС)",
+  "source_id": "Паспорта на оборудование; Акты ПНР",
+  "trigger_logic": "Отсутствие в РД кнопок вызова персонала в санузлах или на входе в здание.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Состав систем двухсторонней связи и вызова помощника"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 124,
+  "code": "M-124",
+  "section": "ЗУ",
+  "parameter_name": "Класс энергетической эффективности здания",
+  "unit": "Буква",
+  "source_pd": "Энергетический паспорт (ЗУ)",
+  "source_rd": "Лист \"Общие данные\"; Маркировка класса (АР/ОВ)",
+  "source_id": "Фактический энергопаспорт (по замерам)",
+  "trigger_logic": "Снижение проектного класса энергоэффективности в РД/ИД.",
+  "review_priority": "HIGH",
+  "data_type": "enum",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": "\\b(A\\+\\+|A\\+|A|B|C|D|E)\\b",
+  "is_active": true,
+  "value_scale": [
+   "E",
+   "D",
+   "C",
+   "B",
+   "A",
+   "A+",
+   "A++"
+  ],
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Класс энергетической эффективности здания"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 125,
+  "code": "M-125",
+  "section": "ЗУ",
+  "parameter_name": "Толщина теплоизоляционного слоя наружных стен",
+  "unit": "мм",
+  "source_pd": "Теплоизоляционный расчет; Разрезы стен (ЗУ/АР)",
+  "source_rd": "Спецификация фасадных систем; Разрезы стен (АР)",
+  "source_id": "Акты АОСР на утепление; Паспорта на утеплитель",
+  "trigger_logic": "Уменьшение толщины утеплителя в РД, ведущее к падению сопротивления теплопередаче.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Толщина утеплителя наружных стен",
+   "Толщина теплоизоляции стен"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 126,
+  "code": "M-126",
+  "section": "ЗУ",
+  "parameter_name": "Коэффициент теплопроводности (λ) утеплителя стен",
+  "unit": "Вт/(м·С)",
+  "source_pd": "Теплоизоляционный расчет; Марка материала (ЗУ)",
+  "source_rd": "Спецификация материалов стен; Фасадов (АР)",
+  "source_id": "Паспорта качества; Сертификаты на утеплитель",
+  "trigger_logic": "Замена утеплителя на аналог с более высоким коэффициентом теплопроводности.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Коэффициент теплопроводности (λ) утеплителя стен"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 127,
+  "code": "M-127",
+  "section": "ЗУ",
+  "parameter_name": "Коэффициент сопротивления теплопередаче окон (Ro)",
+  "unit": "м²·С/Вт",
+  "source_pd": "Требования к светопрозрачным конструкциям (ЗУ)",
+  "source_rd": "Спецификация окон; Профили/стеклопакеты (АР)",
+  "source_id": "Сертификаты; Паспорта на окна",
+  "trigger_logic": "Ухудшение теплозащитных свойств оконных блоков в РД/ИД.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Коэффициент сопротивления теплопередаче окон (Ro)"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 128,
+  "code": "M-128",
+  "section": "ЗУ",
+  "parameter_name": "Толщина утеплителя чердачных перекрытий / кровли",
+  "unit": "мм",
+  "source_pd": "Теплоизоляционный расчет; Разрезы кровли (ЗУ/АР)",
+  "source_rd": "План кровли; Детальные узлы (АР)",
+  "source_id": "Акты АОСР на устройство кровли; Паспорта качества",
+  "trigger_logic": "Уменьшение проектного слоя кровельного утеплителя в РД.",
+  "review_priority": "HIGH",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Толщина утеплителя чердачных перекрытий / кровли"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 129,
+  "code": "M-129",
+  "section": "ЗУ",
+  "parameter_name": "Наличие приборов учета расхода энергоресурсов",
+  "unit": "шт.",
+  "source_pd": "Описание систем учета (ЗУ)",
+  "source_rd": "Схемы узлов учета (ИОС1/ИОС2/ОВ)",
+  "source_id": "Акты допуска приборов; Паспорта счетчиков",
+  "trigger_logic": "Отсутствие в РД общедомовых/поквартирных счетчиков (электричество, вода, тепло).",
+  "review_priority": "MEDIUM",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "equal"
+  },
+  "anchors": [
+   "Наличие приборов учета расхода энергоресурсов"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 130,
+  "code": "M-130",
+  "section": "ЗУ",
+  "parameter_name": "Установка энергосберегающего осветительного оборудования",
+  "unit": "—",
+  "source_pd": "Спецификации светильников (ЗУ/ИОС1)",
+  "source_rd": "Спецификация оборудования (ЭОМ)",
+  "source_id": "Сертификаты; Накладные; Фотофиксация",
+  "trigger_logic": "Замена светодиодных светильников (LED) на люминесцентные или лампы накаливания.",
+  "review_priority": "MEDIUM",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "decrease"
+  },
+  "anchors": [
+   "Установка энергосберегающего осветительного оборудования"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 131,
+  "code": "M-131",
+  "section": "ЗУ",
+  "parameter_name": "Удельный годовой расход тепловой энергии на отопление",
+  "unit": "кВт·ч/м²",
+  "source_pd": "Итоговая таблица Паспорта ЗУ",
+  "source_rd": "Лист \"Общие данные\"; Таблица нагрузок (ОВ)",
+  "source_id": "Фактический энергопаспорт",
+  "trigger_logic": "Превышение удельного годового расхода энергии в РД над лимитом из ПД.",
+  "review_priority": "HIGH",
+  "data_type": "string",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "increase"
+  },
+  "anchors": [
+   "Удельный годовой расход тепловой энергии на отопление"
+  ],
+  "applicability": null
+ },
+ {
+  "id": 132,
+  "code": "M-132",
+  "section": "СМ",
+  "parameter_name": "Итоговая стоимость по Сводному сметному расчету (ССР)",
+  "unit": "тыс. руб.",
+  "source_pd": "Сводный сметный расчет (Главы 1-12) (СМ)",
+  "source_rd": "Сводная объектная смета (на основании РД)",
+  "source_id": "Справка о стоимости выполненных работ (КС-3)",
+  "trigger_logic": "Превышение итоговой стоимости строительства в РД/ИД над утвержденной ПД > 5%.",
+  "review_priority": "MEDIUM",
+  "data_type": "number",
+  "min_value": null,
+  "max_value": null,
+  "regex_pattern": null,
+  "is_active": true,
+  "compare": {
+   "kind": "delta_pct",
+   "tolerance": 5.0
+  },
+  "anchors": [
+   "Итоговая стоимость по ССР",
+   "Итого по сводному сметному расчету"
+  ],
+  "applicability": null
+ }
+]

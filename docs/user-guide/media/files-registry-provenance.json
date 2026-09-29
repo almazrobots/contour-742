@@ -1,0 +1,19 @@
+{
+  "schema": "docs-screenshot.v1",
+  "file": "screens/files-registry.png",
+  "sha256": "72c7fdc6dd4837da495f4c1b5b0224106b4f3b119061646811344b8a7f2668b6",
+  "web_image": "inspector-files-registry:d77fd911bd2068a6ef677e1e2c2d5d45dbdaa282",
+  "capture_commit": "e026bed78d10",
+  "data": "synthetic HTTP fixtures; not real backend results",
+  "production_api_calls": 0,
+  "evidence_log": "20260929-195652-feat_docs-redesign-plan.log",
+  "verified": [
+    "keyboard disclosure",
+    "search query preservation during pagination",
+    "source row rendering"
+  ],
+  "not_verified": [
+    "backend permissions",
+    "corpus accuracy"
+  ]
+}

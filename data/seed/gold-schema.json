@@ -1,0 +1,122 @@
+[
+ {
+  "field": "evidence_group_id",
+  "type": "string",
+  "required": "Да",
+  "rule": "Объект + атомарный параметр/правило + актуальные источники и доказательства"
+ },
+ {
+  "field": "finding_id",
+  "type": "string",
+  "required": "Да",
+  "rule": "Стабильный идентификатор атомарного finding"
+ },
+ {
+  "field": "object_id",
+  "type": "string",
+  "required": "Да",
+  "rule": "Группа для object-level split; все редакции объекта остаются в одном наборе"
+ },
+ {
+  "field": "matrix_code / rule_version",
+  "type": "string",
+  "required": "Да",
+  "rule": "M-001…M-132 либо версия правила свободного поиска"
+ },
+ {
+  "field": "expected_value",
+  "type": "string/number/geometry",
+  "required": "Да",
+  "rule": "Ожидаемое значение/решение из актуального источника"
+ },
+ {
+  "field": "actual_value",
+  "type": "string/number/geometry",
+  "required": "Да",
+  "rule": "Фактическое значение/решение"
+ },
+ {
+  "field": "source_expected_file_id / sha256",
+  "type": "string",
+  "required": "Да",
+  "rule": "Точный файл-источник требования и его контрольная сумма"
+ },
+ {
+  "field": "source_expected_stage/code/revision/approval",
+  "type": "string",
+  "required": "Да",
+  "rule": "Стадия, шифр, редакция и статус утверждения"
+ },
+ {
+  "field": "source_expected_page / bbox_polygon",
+  "type": "int / float[]",
+  "required": "Да",
+  "rule": "Лист/страница и нормализованные координаты [0;1]"
+ },
+ {
+  "field": "source_actual_file_id / sha256",
+  "type": "string",
+  "required": "Да",
+  "rule": "Точный файл-источник факта и его контрольная сумма"
+ },
+ {
+  "field": "source_actual_stage/code/revision/approval",
+  "type": "string",
+  "required": "Да",
+  "rule": "Стадия, шифр, редакция и статус утверждения"
+ },
+ {
+  "field": "source_actual_page / bbox_polygon",
+  "type": "int / float[]",
+  "required": "Да",
+  "rule": "Лист/страница и нормализованные координаты [0;1]"
+ },
+ {
+  "field": "approved_change_ref",
+  "type": "string/NONE",
+  "required": "Да",
+  "rule": "Согласованное изменение, отменяющее исходное требование, либо NONE"
+ },
+ {
+  "field": "completeness_status",
+  "type": "enum",
+  "required": "Да",
+  "rule": "COMPLETE / MISSING_EVIDENCE / NOT_APPLICABLE / NOT_COMPARABLE / CLARIFICATION_REQUIRED"
+ },
+ {
+  "field": "finding_status",
+  "type": "enum",
+  "required": "Да",
+  "rule": "NEGATIVE_VERIFIED / CANDIDATE / CONFIRMED_VIOLATION / SUSPICION"
+ },
+ {
+  "field": "review_priority",
+  "type": "enum",
+  "required": "Да",
+  "rule": "HIGH / MEDIUM / LOW; только порядок экспертной проверки"
+ },
+ {
+  "field": "expert_id / timestamp",
+  "type": "string / datetime",
+  "required": "Для GOLD",
+  "rule": "Кто и когда принял решение"
+ },
+ {
+  "field": "expert_reason_code / comment",
+  "type": "string",
+  "required": "Для GOLD",
+  "rule": "Код и обоснование подтверждения/отклонения"
+ },
+ {
+  "field": "dataset_version / matrix_version / model_version",
+  "type": "string",
+  "required": "Да",
+  "rule": "Полная воспроизводимость запуска"
+ },
+ {
+  "field": "split",
+  "type": "enum",
+  "required": "Для релиза",
+  "rule": "TRAIN / VALIDATION / HIDDEN_TEST; назначается по object_id"
+ }
+]

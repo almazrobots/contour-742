@@ -1,0 +1,96 @@
+{
+  "schema": "inspector-w2-holdout-params/1",
+  "about": "Отложенный состязательный набор волны W2 (T-195, ADR-0010 п. 6, каталог TO-BE §15, OS-INSP-6.5.60–6.5.69). Пара «параметр × оператор» — строка params: что меряется на сцене (kind), на каком листе (disc: AR, OV, PB, GP; frag main — основной план листа АР, не фрагмент), правило Матрицы (rule) и норма для CMP-06. Истина группы считается генератором по правилу из этой строки на сцене ПД и РД, а не по паспорту системы, и сверяется с декларацией effects мутации: расхождение правила и декларации — отказ генерации. effects: CANDIDATE — нарушение; NEG:NOT_COMPARABLE — отрицательная группа, где честный ответ системы — воздержание; OTHER:<ключ> — группа вне P/R, ожидаемые статусы — в expect. Пары, не названные в effects, — NEGATIVE_VERIFIED. wired — оператор пары подключён в конвейере; false (или операции из requires нет в implemented) — пары идут в раздел «ожидает оператора». M-104×CMP-14 — положение двери на пути эвакуации (пилот LOS3A, карточка CMP-14); M-119×CMP-06 — ширина двери санузла МГН в свету.",
+  "seed_min": 100000,
+  "params": [
+    {"code": "M-040", "operator": "CMP-12", "wired": true, "kind": "corridor_clear", "disc": "AR", "frag": "main", "label": "Ширина эвакуационного коридора в свету", "unit": "мм", "rule": {"type": "abs", "tol": 20}},
+    {"code": "M-040", "operator": "CMP-06", "wired": true, "kind": "corridor_clear", "disc": "AR", "frag": "main", "label": "Ширина эвакуационного коридора в свету против нормы", "unit": "мм", "rule": {"type": "min", "min": 1200},
+     "norm": {"doc": "СП 1.13130.2020", "clause": null, "measure": "в свету между отделанными поверхностями стен, за вычетом выступающих элементов", "note": "пункт и срок действия — data/seed/norms.json (T-193)"}},
+    {"code": "M-119", "operator": "CMP-12", "wired": true, "kind": "cabin_width", "disc": "AR", "label": "Ширина кабины санузла МГН в свету (фрагмент)", "unit": "мм", "rule": {"type": "abs", "tol": 20}},
+    {"code": "M-119", "operator": "CMP-13", "wired": true, "kind": "cabin_area", "disc": "AR", "label": "Площадь кабины санузла МГН", "unit": "м²", "rule": {"type": "pct", "pct": 3.0}},
+    {"code": "M-119", "operator": "CMP-15", "wired": true, "kind": "cabin_contour", "disc": "AR", "label": "Контур кабины санузла МГН", "unit": "мм", "rule": {"type": "shape", "iou": 0.95, "haus": 50}},
+    {"code": "M-119", "operator": "CMP-06", "wired": true, "kind": "door_clear", "disc": "AR", "label": "Ширина двери санузла МГН в свету против нормы", "unit": "мм", "rule": {"type": "min", "min": 900},
+     "norm": {"doc": "СП 59.13330.2020", "clause": null, "measure": "в свету: между коробкой и открытым на 90° полотном, не ширина полотна и не проём", "note": "пункт и срок действия — data/seed/norms.json (T-193)"}},
+    {"code": "M-104", "operator": "CMP-14", "wired": true, "kind": "door_pos", "disc": "AR", "frag": "main", "label": "Положение двери Д1 на пути эвакуации", "unit": "мм", "rule": {"type": "pos", "tol": 100}},
+    {"code": "M-054", "operator": "CMP-12", "wired": true, "kind": "axis_steps", "disc": "AR", "frag": "main", "label": "Шаг координационных осей", "unit": "мм", "rule": {"type": "steps", "tol": 10}},
+    {"code": "M-054", "operator": "CMP-14", "wired": true, "kind": "axis_pos", "disc": "AR", "frag": "main", "label": "Привязка координационных осей", "unit": "мм", "rule": {"type": "axes", "tol": 10}},
+    {"code": "M-030", "operator": "CMP-12", "wired": true, "kind": "road_width", "disc": "GP", "label": "Ширина проезда", "unit": "мм", "rule": {"type": "abs", "tol": 100}},
+    {"code": "M-030", "operator": "CMP-06", "wired": true, "kind": "road_width", "disc": "GP", "label": "Ширина проезда против нормы", "unit": "мм", "rule": {"type": "min", "min": 3500},
+     "norm": {"doc": "СП 4.13130.2013", "clause": null, "measure": "ширина проезжей части между кромками покрытия", "note": "пункт и срок действия — data/seed/norms.json (T-193)"}},
+    {"code": "M-025", "operator": "CMP-13", "wired": true, "kind": "area:asphalt", "disc": "GP", "label": "Площадь асфальтобетонного покрытия", "unit": "м²", "rule": {"type": "pct", "pct": 5.0}},
+    {"code": "M-026", "operator": "CMP-13", "wired": true, "kind": "area:paving", "disc": "GP", "label": "Площадь плиточного покрытия", "unit": "м²", "rule": {"type": "pct", "pct": 5.0}},
+    {"code": "M-027", "operator": "CMP-13", "wired": true, "kind": "area:lawn", "disc": "GP", "label": "Площадь газонов", "unit": "м²", "rule": {"type": "pct", "pct": 5.0}},
+    {"code": "M-027", "operator": "CMP-15", "wired": true, "kind": "lawn_contour", "disc": "GP", "label": "Контур газона у плиточного покрытия", "unit": "мм", "rule": {"type": "shape", "iou": 0.95, "haus": 1000}},
+    {"code": "M-028", "operator": "CMP-13", "wired": true, "kind": "area:playground", "disc": "GP", "label": "Площадь детской площадки", "unit": "м²", "rule": {"type": "pct", "pct": 5.0}},
+    {"code": "M-078", "operator": "CMP-19", "wired": true, "kind": "vent_graph", "disc": "OV", "label": "Топология приточной системы: установки, тройник, клапаны, воздухораспределители с марками", "unit": "граф", "rule": {"type": "graph"}},
+    {"code": "M-111", "operator": "CMP-16", "wired": true, "kind": "ozk_cover", "disc": "OV", "label": "Клапан ОЗК у каждого пересечения трассы с противопожарной преградой", "unit": "мм", "rule": {"type": "cover", "d": 500}},
+    {"code": "M-111", "operator": "CMP-09", "wired": true, "kind": "ozk_presence", "disc": "OV", "label": "Клапан ОЗК из ПД есть в РД", "unit": "шт.", "rule": {"type": "presence", "d": 500}},
+    {"code": "M-111", "operator": "CMP-07", "wired": true, "kind": "count:ozk", "disc": "OV", "label": "Количество клапанов ОЗК по знакам", "unit": "шт.", "rule": {"type": "count"}},
+    {"code": "M-111", "operator": "CMP-31", "wired": true, "kind": "ozk_cover_ar", "disc": "OV", "label": "Трасса ОВ через противопожарную стену АР без клапана", "unit": "мм", "rule": {"type": "cover", "d": 500}},
+    {"code": "M-111", "operator": "CMP-30", "wired": true, "kind": "spec:ozk", "disc": "OV", "label": "Клапаны ОЗК: спецификация против знаков чертежа", "unit": "шт.", "rule": {"type": "internal"}},
+    {"code": "M-108", "operator": "CMP-07", "wired": true, "kind": "count:ip", "disc": "PB", "label": "Количество извещателей АПС по знакам", "unit": "шт.", "rule": {"type": "count"}},
+    {"code": "M-108", "operator": "CMP-30", "wired": true, "kind": "spec:ip", "disc": "PB", "label": "Извещатели АПС: спецификация против знаков", "unit": "шт.", "rule": {"type": "internal"}},
+    {"code": "M-110", "operator": "CMP-07", "wired": true, "kind": "count:op", "disc": "PB", "label": "Количество оповещателей СОУЭ по знакам", "unit": "шт.", "rule": {"type": "count"}},
+    {"code": "M-110", "operator": "CMP-30", "wired": true, "kind": "spec:op", "disc": "PB", "label": "Оповещатели СОУЭ: спецификация против знаков", "unit": "шт.", "rule": {"type": "internal"}},
+    {"code": "M-113", "operator": "CMP-07", "wired": true, "kind": "count:pk", "disc": "PB", "label": "Количество пожарных кранов ВПВ по знакам", "unit": "шт.", "rule": {"type": "count"}},
+    {"code": "M-113", "operator": "CMP-30", "wired": true, "kind": "spec:pk", "disc": "PB", "label": "Пожарные краны ВПВ: спецификация против знаков", "unit": "шт.", "rule": {"type": "internal"}},
+    {"code": "M-121", "operator": "CMP-07", "wired": true, "kind": "count:mgn", "disc": "GP", "label": "Количество машино-мест МГН по знакам", "unit": "шт.", "rule": {"type": "count"}}
+  ],
+  "mutations": {
+    "MUT-04": {"about": "удалить или добавить установку в венткамере вместе с ответвлением и строкой спецификации (граф меняется, внутренняя согласованность — нет)",
+      "variants": {
+        "remove": {"n": 55, "effects": {"M-078×CMP-19": "CANDIDATE"}},
+        "add": {"n": 55, "effects": {"M-078×CMP-19": "CANDIDATE"}}
+      }},
+    "MUT-09": {"about": "сдвиг двери вдоль перегородки, перегородки санузла МГН, границы газона и плиточного покрытия",
+      "variants": {
+        "door": {"n": 110, "effects": {"M-104×CMP-14": "CANDIDATE"}},
+        "partition": {"n": 110, "effects": {"M-119×CMP-12": "CANDIDATE", "M-119×CMP-13": "CANDIDATE", "M-119×CMP-15": "CANDIDATE"}},
+        "border": {"n": 40, "effects": {"M-026×CMP-13": "CANDIDATE", "M-027×CMP-13": "CANDIDATE", "M-027×CMP-15": "CANDIDATE"}}
+      }},
+    "MUT-10": {"about": "сужение: коридор ниже нормы (стена и размер), коридор уже, но в норме, стена сдвинута без правки размера, дверь санузла МГН в свету ниже нормы",
+      "variants": {
+        "corridor_below": {"n": 55, "effects": {"M-040×CMP-12": "CANDIDATE", "M-040×CMP-06": "CANDIDATE"}},
+        "corridor_above": {"n": 35, "effects": {"M-040×CMP-12": "CANDIDATE"}},
+        "wall_only": {"n": 30, "effects": {"M-040×CMP-12": "OTHER:label_conflict", "M-040×CMP-06": "OTHER:label_conflict"}},
+        "door_below": {"n": 55, "effects": {"M-119×CMP-06": "CANDIDATE"}}
+      }},
+    "MUT-13": {"about": "удалить клапан ОЗК на пересечении трассы с противопожарной преградой (спецификация исправлена — количество честно меньше)",
+      "variants": {
+        "crossing": {"n": 110, "effects": {"M-111×CMP-16": "CANDIDATE", "M-111×CMP-09": "CANDIDATE", "M-111×CMP-07": "CANDIDATE", "M-111×CMP-31": "CANDIDATE", "M-078×CMP-19": "CANDIDATE"}}
+      }},
+    "MUT-14": {"about": "удалить позицию из спецификации, знаки на чертеже остались: внутреннее расхождение (CMP-30), межстадийный счёт по двойному подсчёту — SUSPICION (карточка CMP-07)",
+      "variants": {
+        "ip": {"n": 28, "effects": {"M-108×CMP-30": "CANDIDATE", "M-108×CMP-07": "OTHER:dual_count"}},
+        "op": {"n": 28, "effects": {"M-110×CMP-30": "CANDIDATE", "M-110×CMP-07": "OTHER:dual_count"}},
+        "pk": {"n": 27, "effects": {"M-113×CMP-30": "CANDIDATE", "M-113×CMP-07": "OTHER:dual_count"}},
+        "ozk": {"n": 27, "effects": {"M-111×CMP-30": "CANDIDATE", "M-111×CMP-07": "OTHER:dual_count"}}
+      }}
+  },
+  "controls": {
+    "NEG-01": {"n": 40, "about": "объект сам с собой: РД — тот же файл, что ПД; любая находка — ложное срабатывание", "effects": {}},
+    "NEG-02": {"n": 40, "about": "только штамп: номер изменения, дата, строка таблицы изменений", "effects": {}},
+    "NEG-03": {"n": 40, "about": "чистая детализация РД: отводы «уткой», распределители без марок, мебель, привязки и внутренние размеры, деревья на генплане", "effects": {}},
+    "TRAP-SHIFT": {"n": 25, "about": "весь лист РД сдвинут на 8–25 мм: регистрация по осям снимает сдвиг", "effects": {}},
+    "TRAP-ROTATE": {"n": 25, "about": "лист РД повёрнут: /Rotate 90 или содержимое на 90°", "effects": {}},
+    "TRAP-SCALE": {"n": 25, "about": "план РД в масштабе 1:100 вместо 1:50 или 1:200, штамп исправлен", "effects": {}},
+    "TRAP-LEAF": {"n": 30, "about": "у двери санузла МГН шире полотно, в свету — то же: норма в свету не нарушена", "effects": {}},
+    "TRAP-OZK-NEAR": {"n": 30, "about": "клапан ОЗК сдвинут вдоль воздуховода на 200–300 мм, в окрестности пересечения", "effects": {}},
+    "TRAP-TOL": {"n": 25, "about": "изменения в пределах допусков: дверь на 30 мм, коридор на 10 мм, граница газона — площадь < 1,5 %, клапан на 50 мм", "effects": {}},
+    "TRAP-NOSCALE": {"n": 20, "about": "на листе АР РД нет масштаба ни в штампе, ни в заголовке и нет размеров основного плана: мерить нечем — NOT_COMPARABLE (VER-04)",
+      "effects": {"M-040×CMP-12": "NEG:NOT_COMPARABLE", "M-040×CMP-06": "NEG:NOT_COMPARABLE", "M-104×CMP-14": "NEG:NOT_COMPARABLE", "M-054×CMP-12": "NEG:NOT_COMPARABLE", "M-054×CMP-14": "NEG:NOT_COMPARABLE"}},
+    "TRAP-STYLE": {"n": 20, "about": "другие соглашения оформления в РД: ограничители размеров, надпись по другую сторону линии, диаметр марок осей, доля текста кривыми", "effects": {}}
+  },
+  "modifiers": {
+    "MUT-17": {"n": 30, "about": "облако изменения и строка «Изм. 1 Зам.» рядом с мутацией: ожидается APPROVED_CHANGE или уточнение (CMP-29)",
+      "over": ["MUT-09/door", "MUT-09/partition", "MUT-10/corridor_below", "MUT-10/door_below", "MUT-13/crossing", "MUT-04/remove"],
+      "requires": ["CMP-29"], "expect": ["NEGATIVE_VERIFIED", "CLARIFICATION_REQUIRED"]}
+  },
+  "expect": {
+    "label_conflict": ["SUSPICION", "NOT_COMPARABLE"],
+    "dual_count": ["SUSPICION"]
+  },
+  "operators": ["CMP-06", "CMP-07", "CMP-09", "CMP-12", "CMP-13", "CMP-14", "CMP-15", "CMP-16", "CMP-19", "CMP-30", "CMP-31"],
+  "min_per_operator": {"pos": 100, "neg": 100},
+  "implemented": []
+}

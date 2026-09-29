@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Дизайн-система «Чертёжный бетон»</title>
+<meta name="description" content="Принятые дизайн-решения, дизайн-система и подход к реализации интерфейса «Инспектор ИИ / Надзориум»: как решено и как сделано в коде, с честными расхождениями.">
+<style>
+/* Страница свёрстана самим языком «Чертёжный бетон» (docs/scenario-map/05-дизайн-язык.md): она же — живой образец.
+   Шрифты — из /docs/assets/fonts (scripts/demo-docs.mjs), внешних запросов нет. Тёмной темы нет — это решение. */
+@font-face{font-family:"Geologica";src:url(../assets/fonts/geologica-cyrillic.woff2) format("woff2");font-weight:300 800;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Geologica";src:url(../assets/fonts/geologica-latin.woff2) format("woff2");font-weight:300 800;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Golos Text";src:url(../assets/fonts/golos-text-var.woff2) format("woff2");font-weight:400 900;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url(../assets/fonts/jetbrains-mono-var.woff2) format("woff2");font-weight:100 800;font-display:swap}
+
+:root{
+  color-scheme:light;
+  --ground:#D9DDE3;--ground-2:#CDD2D9;--scene:#E6E9EE;--surface:#F8F9FB;--surface-2:#EEF0F4;
+  --line:#D5D9E0;--line-strong:#C3C8D1;
+  --ink:#11151D;--ink-2:#3F4656;--mute:#6B7384;--mute-g:#565E6E;
+  --aim:#1F49F0;--aim-soft:#E3E9FE;
+  --actual:#EC6A14;--actual-soft:#FDEBDD;--actual-ink:#B84E08;
+  --red:#D0241C;--red-soft:#FBE3E1;--green:#137A55;--green-soft:#DDF1E8;
+  --amber:#E0A100;--amber-soft:#F6EDC8;--amber-ink:#8A6D00;--amber-ink-ok:#7A6000;
+  --blue:#2F5BD8;--gray:#8A92A3;--gray-soft:#E7EAEF;
+  --r-s:6px;--r-m:12px;--r-frame:20px;--gap:8px;
+  --shadow:0 8px 24px rgb(17 21 29 / .14);
+  --f-display:"Geologica","Golos Text",system-ui,sans-serif;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --dur-1:90ms;--dur-2:150ms;--ease-out:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
+a{color:var(--aim)}
+:focus-visible{outline:2px solid var(--aim);outline-offset:2px;border-radius:4px}
+h1,h2,h3,h4{font-family:var(--f-display);letter-spacing:-.01em;text-wrap:balance;margin:0;line-height:1.2}
+code,.mono{font-family:var(--f-mono);font-size:.86em;letter-spacing:-.01em}
+code{background:var(--surface-2);padding:1px 5px;border-radius:4px;color:var(--ink-2)}
+.num{font-variant-numeric:tabular-nums}
+.label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);font-weight:600}
+kbd{font-family:var(--f-mono);font-size:11.5px;min-width:20px;height:20px;padding:0 5px;display:inline-grid;place-items:center;border-radius:4px;background:var(--surface);color:var(--ink-2);border:1px solid var(--line-strong);border-bottom-width:2px;line-height:1}
+
+/* ── верхняя полоса материалов */
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 16px;background:var(--ground);border-bottom:1px solid rgb(17 21 29 / .06)}
+.top .home{font:650 15px var(--f-display);color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:10px}
+.top .mark{width:28px;height:28px;border-radius:8px;background:var(--ink);display:grid;place-items:center}
+.top .ro{font:600 11.5px var(--f-mono);background:var(--surface);border:1px solid var(--line-strong);border-radius:999px;padding:2px 10px;color:var(--ink-2)}
+.top .app{margin-left:auto;color:var(--ink);font-weight:600;text-decoration:none;background:var(--surface);padding:6px 12px;border-radius:var(--r-s)}
+.top .app:hover{background:var(--surface-2)}
+
+/* ── каркас «вписанная рамка»: оглавление на подложке, работа в светлой рамке */
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);gap:var(--gap);padding:var(--gap);align-items:start}
+.toc{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;padding:10px 6px 24px}
+.toc .label{padding:0 10px;margin:4px 0 8px;display:block}
+.toc a{display:flex;gap:10px;align-items:baseline;padding:6px 10px;border-radius:10px;color:var(--ink-2);text-decoration:none;font-size:13.5px;line-height:1.3}
+.toc a span{font:500 11px var(--f-mono);color:var(--mute-g);min-width:18px}
+.toc a:hover{background:var(--ground-2);color:var(--ink)}
+.toc a.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgb(17 21 29 / .08)}
+.frame{background:var(--surface);border-radius:var(--r-frame);box-shadow:0 0 0 1px rgb(17 21 29 / .05);min-width:0;overflow:hidden}
+.frame > section{padding:40px 48px;border-top:1px solid var(--line)}
+.frame > section:first-child{border-top:0}
+section h2{font-size:28px;font-weight:650;margin:6px 0 10px;font-variation-settings:"SHRP" 40}
+section h3{font-size:17px;font-weight:650;margin:30px 0 10px}
+section > p,section > ul,section > ol,.prose p{max-width:78ch;color:var(--ink-2)}
+.kicker{display:flex;gap:10px;align-items:center}
+.kicker b{font:600 11px var(--f-mono);color:var(--surface);background:var(--ink);padding:2px 7px;border-radius:4px}
+.lead{font-size:17px;color:var(--ink-2);max-width:70ch}
+
+/* ── обложка */
+.hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:40px;align-items:center;padding:56px 48px 48px!important;background:linear-gradient(var(--surface),var(--surface)) padding-box}
+.hero h1{font-size:52px;font-weight:700;line-height:1.02;letter-spacing:-.025em;margin:12px 0 14px;font-variation-settings:"SHRP" 70}
+.hero h1 em{font-style:normal;color:var(--aim)}
+.hero .facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:24px}
+.hero .facts div{background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.hero .facts b{display:block;font:650 26px/1.05 var(--f-display);font-variant-numeric:tabular-nums;font-variation-settings:"SHRP" 70}
+.hero .facts span{font-size:12.5px;color:var(--ink-2);line-height:1.3;display:block;margin-top:4px}
+.pair{display:grid;gap:10px}
+.pair .cap{font-size:13px;color:var(--ink-2)}
+.vals{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.val{border-radius:10px;padding:14px;background:var(--surface-2);min-width:0}
+.val .v{font:600 30px/1.05 var(--f-display);font-variant-numeric:tabular-nums;margin-top:6px;font-variation-settings:"SHRP" 70}
+.val .s{font-size:12.5px;color:var(--ink-2);margin-top:6px}
+.val.exp{box-shadow:inset 0 0 0 2px var(--aim)}
+.val.act{box-shadow:inset 0 0 0 2px var(--actual),inset 0 0 0 4px var(--surface-2),inset 0 0 0 5px var(--actual)}
+.val.act .v{color:var(--actual-ink)}
+.delta{font-size:13.5px;color:var(--ink-2);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.delta b{color:var(--ink)}
+
+/* ── статусы «решено ↔ в коде»: форма + слово, цвет вторичен */
+.st{display:inline-flex;align-items:center;gap:6px;font:600 11.5px/1 var(--f-mono);padding:4px 8px;border-radius:999px;background:var(--surface);border:1px solid var(--line-strong);white-space:nowrap;color:var(--ink-2)}
+.st::before{content:"";width:8px;height:8px;border-radius:50%;flex:none}
+.st.ok{color:var(--green)}.st.ok::before{background:var(--green)}
+.st.part{color:var(--amber-ink-ok)}.st.part::before{background:linear-gradient(90deg,var(--amber) 50%,transparent 50%);box-shadow:inset 0 0 0 1.5px var(--amber)}
+.st.no{color:var(--mute-g)}.st.no::before{box-shadow:inset 0 0 0 1.5px var(--mute)}
+.st.gap{color:var(--actual-ink)}.st.gap::before{border-radius:2px;background:var(--actual);transform:rotate(45deg);width:7px;height:7px}
+.st.plan{color:var(--aim)}.st.plan::before{border-radius:2px;box-shadow:inset 0 0 0 1.5px var(--aim)}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}
+
+/* ── таблицы */
+.tw{overflow-x:auto;border-radius:var(--r-m);background:var(--surface);box-shadow:0 0 0 1px var(--line);margin:14px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:9px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th{font:600 11px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--mute);background:var(--surface-2);white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td .src{display:block;font:11.5px var(--f-mono);color:var(--mute);margin-top:3px}
+td.when{font:12px var(--f-mono);color:var(--ink-2);white-space:nowrap}
+
+/* ── принципы */
+.princ{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:18px}
+.princ div{background:var(--surface-2);border-radius:var(--r-m);padding:16px}
+.princ b{font:650 16px/1.25 var(--f-display);display:block;margin:6px 0 6px}
+.princ p{margin:0;font-size:13.5px;color:var(--ink-2)}
+.princ .i{font:600 11px var(--f-mono);color:var(--mute-g)}
+
+/* ── цвет */
+.swg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0 4px}
+.sw{border-radius:var(--r-m);overflow:hidden;background:var(--surface);box-shadow:0 0 0 1px var(--line)}
+.sw i{display:block;height:64px}
+.sw div{padding:8px 10px}
+.sw b{font:600 12px var(--f-mono);display:block}
+.sw span{font:11.5px var(--f-mono);color:var(--mute)}
+.sw p{margin:4px 0 0;font-size:12.5px;color:var(--ink-2);line-height:1.35}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.note{background:var(--surface-2);border-radius:var(--r-m);padding:14px 16px;font-size:14px;color:var(--ink-2);margin:14px 0}
+.note b{color:var(--ink)}
+.note.warn{background:var(--actual-soft)}
+.note.aim{box-shadow:inset 3px 0 0 var(--aim)}
+
+/* ── контраст */
+.chip{display:inline-flex;align-items:center;justify-content:center;min-width:64px;height:28px;padding:0 8px;border-radius:6px;font:600 12.5px var(--f-body)}
+.pass{color:var(--green);font-weight:600}.fail{color:var(--actual-ink);font-weight:700}
+
+/* ── шрифт */
+.spec{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.spec div{background:var(--surface-2);border-radius:var(--r-m);padding:16px;min-width:0}
+.spec .big{font-size:40px;line-height:1.05;margin:8px 0 10px;overflow-wrap:anywhere}
+.spec .g{font-family:var(--f-display);font-weight:650;font-variation-settings:"SHRP" 70}
+.spec .t{font-family:var(--f-body);font-weight:500}
+.spec .m{font-family:var(--f-mono);font-weight:600;font-size:30px}
+.spec p{margin:0;font-size:13px;color:var(--ink-2)}
+.scale{display:grid;gap:6px;margin-top:12px}
+.scale .row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:center}
+.scale .ticks{display:flex;gap:4px;flex-wrap:wrap}
+.scale .ticks i{font:600 11.5px var(--f-mono);font-style:normal;padding:3px 7px;border-radius:4px;background:var(--surface-2);color:var(--ink-2)}
+.scale .ticks i.x{background:var(--actual-soft);color:var(--actual-ink)}
+.scale .ticks i.miss{background:none;box-shadow:inset 0 0 0 1px var(--line-strong);color:var(--mute-g);text-decoration:line-through}
+
+/* ── каркас-модель */
+.model{background:var(--ground);border-radius:16px;padding:10px;display:grid;grid-template-columns:54px 1fr;gap:8px;height:260px;margin-top:14px}
+.model .r{display:flex;flex-direction:column;gap:6px;align-items:center;padding-top:4px}
+.model .r i{width:40px;height:34px;border-radius:9px;display:block}
+.model .r i:first-child{width:26px;height:26px;border-radius:7px;background:var(--ink);margin-bottom:6px}
+.model .r i.a{background:var(--surface);box-shadow:0 1px 2px rgb(17 21 29 / .08)}
+.model .r i.b{box-shadow:inset 0 0 0 1px rgb(17 21 29 / .08)}
+.model .m{background:var(--surface);border-radius:14px;box-shadow:0 0 0 1px rgb(17 21 29 / .05);display:grid;grid-template-rows:34px 1fr;overflow:hidden}
+.model .m .h{border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;font:600 11px var(--f-mono);color:var(--mute)}
+.model .m .b{display:grid;grid-template-columns:150px 1fr 170px;gap:8px;padding:8px}
+.model .m .b > div{border-radius:8px;background:var(--surface-2)}
+.model .m .b > div.s{background:var(--scene)}
+.dims{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:12px}
+.dims div{background:var(--surface-2);border-radius:var(--r-m);padding:12px}
+.dims b{display:block;font:650 20px var(--f-display);font-variant-numeric:tabular-nums}
+.dims span{font-size:12.5px;color:var(--ink-2)}
+.radii{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-top:12px}
+.radii div{text-align:center;font:11.5px var(--f-mono);color:var(--ink-2)}
+.radii i{display:block;width:64px;height:64px;background:var(--surface-2);box-shadow:inset 0 0 0 1.5px var(--ink-2);margin:0 auto 6px}
+
+/* ── лист с рамками */
+.sheetdemo{background:var(--scene);border-radius:var(--r-m);padding:22px 18px 18px;margin-top:14px}
+.sheetwrap{position:relative;max-width:560px;margin:0 auto}
+.tab{position:absolute;left:0;top:-20px;background:var(--ink);color:var(--surface);font:600 11px var(--f-mono);padding:4px 9px 5px;border-radius:6px 6px 0 0}
+.paper{background:#FCFCFA;border-radius:0 6px 6px 6px;box-shadow:0 0 0 1px var(--line-strong);padding:22px 22px 26px;position:relative;font:12px/1.5 var(--f-mono);color:#2B303B;min-height:220px}
+.paper .ln{height:7px;background:#E3E5EA;border-radius:2px;margin:9px 0}
+.paper .w60{width:60%}.paper .w80{width:80%}.paper .w40{width:40%}.paper .w70{width:70%}
+.fr{position:absolute;border-radius:3px}
+.fr.exp{border:2px solid var(--aim);background:rgb(31 73 240 / .06)}
+.fr.act{border:2px solid var(--actual);outline:2px solid var(--actual);outline-offset:3px;background:rgb(236 106 20 / .06)}
+.fr.req{border:1.5px dashed var(--ink-2)}
+.fr em{position:absolute;top:-19px;left:-2px;font:600 10.5px var(--f-mono);font-style:normal;color:#fff;padding:2px 6px;border-radius:3px;white-space:nowrap}
+.fr.exp em{background:var(--aim)}.fr.act em{background:var(--actual-ink);top:-24px;left:-7px}.fr.req em{background:var(--ink-2)}
+.frleg{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin-top:16px;font-size:12.5px;color:var(--ink-2)}
+.frleg span{display:inline-flex;gap:8px;align-items:center}
+.frleg i{width:26px;height:14px;border-radius:2px;display:inline-block}
+
+/* ── живые компоненты */
+.demo{background:var(--surface-2);border-radius:var(--r-m);padding:18px;margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.demo.col{flex-direction:column;align-items:stretch}
+.demo .cap{width:100%;font-size:12px;color:var(--mute-g);margin-bottom:2px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.red{background:var(--red-soft);color:var(--red)}.pill.amber{background:var(--amber-soft);color:var(--amber-ink)}
+.pill.green{background:var(--green-soft);color:var(--green)}.pill.blue{background:var(--aim-soft);color:var(--blue)}
+.pill.gray{background:var(--gray-soft);color:var(--ink-2)}.pill.violet{background:var(--gray-soft);color:var(--aim)}
+.pill.s-amber{background:var(--amber);color:#fff}.pill.s-gray{background:var(--gray);color:#fff}.pill.s-red{background:var(--red);color:#fff}.pill.s-green{background:var(--green);color:#fff}
+.pill.s-amber::before,.pill.s-gray::before,.pill.s-red::before,.pill.s-green::before{background:#fff}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-strong);background:var(--surface);border-radius:var(--r-s);padding:7px 12px;font:500 13px var(--f-body);color:var(--ink);cursor:default}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--ink-2)}
+.btn kbd{height:18px;min-width:18px;font-size:10.5px}
+.btn.primary kbd{background:rgb(255 255 255 / .12);color:#fff;border-color:rgb(255 255 255 / .25)}
+.decide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:560px}
+.decide .btn{justify-content:space-between;padding:10px 12px;font-size:13.5px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.stagestrip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:640px}
+.slot{background:var(--surface);border-radius:10px;padding:10px 12px;box-shadow:0 0 0 1px var(--line)}
+.slot .hd{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ink-2)}
+.stagetag{font:700 11px var(--f-mono);background:var(--ink);color:var(--surface);padding:2px 6px;border-radius:4px}
+.slot b{display:block;font:650 20px var(--f-display);font-variant-numeric:tabular-nums;margin-top:6px}
+.slot small{font-size:12px;color:var(--mute)}
+.slot.absent b{color:var(--mute-g)}
+.undo{background:var(--ink);color:#fff;border-radius:14px;padding:12px 14px 10px;max-width:520px;width:100%;box-shadow:var(--shadow)}
+.undo .row{display:flex;gap:12px;align-items:center;justify-content:space-between;font-size:13.5px}
+.undo .btn{background:rgb(255 255 255 / .1);border-color:rgb(255 255 255 / .18);color:#fff}
+.undo .btn kbd{background:rgb(255 255 255 / .12);color:#fff;border-color:rgb(255 255 255 / .25)}
+.undo .track{height:3px;background:rgb(255 255 255 / .18);border-radius:2px;margin-top:10px;overflow:hidden}
+.undo .track i{display:block;height:100%;width:62%;background:#fff}
+.toast{background:var(--ink);color:#fff;border-radius:10px;padding:9px 14px;font-size:13px;box-shadow:var(--shadow)}
+.toast kbd{background:rgb(255 255 255 / .12);color:#fff;border-color:rgb(255 255 255 / .25)}
+.seglist{display:flex;gap:3px;width:100%;max-width:560px}
+.seglist i{flex:1;height:8px;border-radius:2px;background:var(--line-strong)}
+.seglist i.v{background:var(--red)}.seglist i.n{background:var(--green)}.seglist i.q{background:var(--blue)}.seglist i.c{background:var(--ink);transform:scaleY(1.5)}
+.inp{border:1px solid var(--line-strong);border-radius:var(--r-s);padding:7px 10px;background:var(--surface);font:13px var(--f-body);min-width:220px;color:var(--mute)}
+
+/* ── движение */
+.mv{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:12px}
+.mv div{background:var(--surface-2);border-radius:var(--r-m);padding:14px}
+.mv b{font:650 15px var(--f-display);display:block;margin:6px 0 4px}
+.mv p{margin:0;font-size:13px;color:var(--ink-2)}
+.ease{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.ease figure{margin:0;background:var(--surface-2);border-radius:var(--r-m);padding:12px;width:200px}
+.ease svg{display:block;width:100%;height:90px}
+.ease figcaption{font:11.5px var(--f-mono);color:var(--ink-2);margin-top:6px}
+
+/* ── mermaid */
+/* у Mermaid свой класс .label — метка языка на него не распространяется */
+pre.mermaid .label{text-transform:none;letter-spacing:normal;font-size:inherit;font-weight:inherit;color:inherit}
+pre.mermaid{background:var(--surface);border-radius:var(--r-m);box-shadow:0 0 0 1px var(--line);padding:16px;overflow-x:auto;text-align:center;margin:14px 0;font-size:12px}
+
+/* ── долг */
+.debt{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.debt > div{background:var(--surface-2);border-radius:var(--r-m);padding:16px}
+.debt h4{font-size:15px;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.debt h4 b{font:700 30px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.debt ol{margin:0;padding-left:18px;font-size:13px;color:var(--ink-2)}
+.debt li{margin:6px 0}
+.debt .p0{box-shadow:inset 0 3px 0 var(--ink)}
+.never{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:var(--r-m);overflow:hidden;box-shadow:0 0 0 1px var(--line);margin-top:14px}
+.never > div{padding:10px 14px;font-size:13.5px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.never > div:nth-child(odd){background:var(--surface-2);color:var(--ink-2)}
+.never > .h{font:600 11px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--mute);background:var(--surface)!important}
+.team{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px}
+.team div{background:var(--surface-2);border-radius:var(--r-m);padding:14px}
+.team b{display:block;font:650 14.5px var(--f-display);margin-bottom:4px}
+.team p{margin:0;font-size:12.5px;color:var(--ink-2)}
+footer{padding:28px 48px 40px;border-top:1px solid var(--line);font-size:12.5px;color:var(--mute-g)}
+
+@media (max-width:1100px){
+  .hero{grid-template-columns:1fr}
+  .spec{grid-template-columns:1fr}
+  .debt{grid-template-columns:1fr}
+}
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;padding:0}
+  .toc{position:sticky;top:0;z-index:4;max-height:none;display:flex;overflow-x:auto;gap:2px;padding:6px 8px;background:var(--ground);border-bottom:1px solid rgb(17 21 29 / .06)}
+  .toc .label{display:none}
+  .toc a{white-space:nowrap;padding:6px 10px}
+  .frame{border-radius:0}
+  .frame > section,footer{padding:28px 16px}
+  .hero{padding:32px 16px!important}
+  .hero h1{font-size:36px}
+  .hero .facts{grid-template-columns:1fr 1fr}
+  .split,.never{grid-template-columns:1fr}
+  .never > .h:nth-child(2){display:none}
+  .model .m .b{grid-template-columns:70px 1fr 80px}
+  .decide,.stagestrip{grid-template-columns:1fr}
+  .top{position:static;padding:10px 16px;gap:8px 12px}
+  .top .home{font-size:14px}
+  .top .app{margin-left:0;padding:4px 10px;font-size:13.5px}
+  html{scroll-padding-top:56px}
+}
+/* Metadata is scoped; the demonstration components retain their own tokens. */
+.service-skip{position:fixed;top:-100px;left:16px;z-index:100;background:#fff;padding:10px 16px;border-radius:8px;color:#245bd1}
+.service-skip:focus{top:12px}
+.service-meta{display:flex;flex-wrap:wrap;gap:8px 16px;margin:18px 0;font-size:12px;line-height:1.6;color:var(--ink-2)}
+.service-status{padding:2px 8px;border:1px solid var(--line-strong);border-radius:6px;background:var(--surface-2)}
+@media print{.service-skip{display:none}}
+
+.docs-service-nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 24px;margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid #e1e6ef;font:14px/1.5 "Golos Text",system-ui,sans-serif}
+.docs-service-nav .docs-service-brand{font-weight:700;font-size:16px;color:#16202f;text-decoration:none}
+.docs-service-nav .docs-service-brand span{font-size:12px;font-weight:400;color:#647184;margin-left:8px}
+.docs-service-nav .docs-service-links{display:flex;flex-wrap:wrap;gap:8px 18px}
+.docs-service-nav .docs-service-links a{color:#245bd1;text-underline-offset:3px}
+.docs-service-meta{margin:12px 0 0;padding:9px 12px;border-radius:8px;background:#f4f6fa;color:#425063;font:12px/1.6 "Golos Text",system-ui,sans-serif;overflow-wrap:anywhere}
+.docs-service-meta strong{color:#16202f;font-weight:600}
+.docs-service-skip{position:absolute;top:-100px;left:16px;z-index:20;padding:10px 14px;border-radius:8px;background:#fff;color:#245bd1;font:14px/1.5 system-ui,sans-serif}
+.docs-service-skip:focus{top:8px}
+.docs-service-nav a:focus-visible,.docs-service-skip:focus-visible{outline:3px solid #245bd1;outline-offset:3px}
+@media(max-width:560px){.docs-service-nav{gap:8px;margin-bottom:12px}.docs-service-nav .docs-service-brand span{display:block;margin-left:0}.docs-service-meta{font-size:12px}}
+@media print{.docs-service-nav,.docs-service-skip{display:none}.docs-service-meta{background:transparent;border:1px solid #e1e6ef}}
+
+.docs-service-nav{margin:0;padding:14px 20px;background:#fff;border-bottom:1px solid #e1e6ef}
+@media(max-width:560px){.docs-service-nav{padding:12px 16px}}
+</style>
+</head>
+<body>
+<a class="docs-service-skip" href="#top">К содержанию дизайн-системы</a>
+<div class="docs-service-nav"><a class="docs-service-brand" href="../guide/index.html">Надзориум <span>База знаний</span></a><nav class="docs-service-links" aria-label="База знаний"><a href="../guide/index.html">Руководство</a><a href="../index.html">Все материалы</a><a href="../gera/TRACE-MAP.html">Trace Map</a><a href="/">В приложение ↗</a></nav></div>
+
+<div class="shell">
+<nav class="toc" aria-label="Разделы страницы">
+  <span class="label">Дизайн-система</span>
+  <a href="#summary"><span>00</span>Коротко</a>
+  <a href="#principles"><span>01</span>Принципы</a>
+  <a href="#decisions"><span>02</span>Хроника решений</a>
+  <a href="#color"><span>03</span>Цвет</a>
+  <a href="#contrast"><span>04</span>Контраст</a>
+  <a href="#type"><span>05</span>Шрифт</a>
+  <a href="#geometry"><span>06</span>Каркас и геометрия</a>
+  <a href="#frames"><span>07</span>Рамки на листе</a>
+  <a href="#components"><span>08</span>Компоненты</a>
+  <a href="#statuses"><span>09</span>Словари статусов</a>
+  <a href="#motion"><span>10</span>Движение</a>
+  <a href="#experience"><span>11</span>Архитектура опыта</a>
+  <a href="#keys"><span>12</span>Клавиатура</a>
+  <a href="#voice"><span>13</span>Голос</a>
+  <a href="#a11y"><span>14</span>Доступность</a>
+  <a href="#build"><span>15</span>Подход к реализации</a>
+  <a href="#debt"><span>16</span>Долг и порядок работ</a>
+  <a href="#never"><span>17</span>Никогда / обязано</a>
+  <a href="#method"><span>18</span>Как собрана страница</a>
+</nav>
+
+<main class="frame" id="top" tabindex="-1">
+
+<!-- ═══════════════ 00 -->
+<section class="hero" id="summary">
+  <div>
+    <div class="kicker"><b>T-167</b><span class="label">Дизайн-система · 28.09.2026</span></div>
+    <h1>Чертёжный <em>бетон</em></h1>
+    <div class="service-meta" aria-label="Сведения о материале"><span>Основа: <code>b53d995</code></span><span>Содержание от <time datetime="2026-09-28">28 сентября 2026</time></span><span class="service-status">Соответствие текущему стенду требует проверки</span></div>
+    <p class="lead">Язык интерфейса «Инспектора ИИ»: принятые решения, дизайн-система и подход к реализации. Каждый пункт показан дважды: <b>как решено</b> и <b>как сделано в коде</b>. Расхождения не спрятаны, у каждого есть место в порядке работ.</p>
+    <div class="legend" aria-label="Обозначения статусов">
+      <span class="st ok">сделано</span><span class="st part">частично</span><span class="st gap">расходится</span><span class="st no">не сделано</span><span class="st plan">отложено</span>
+    </div>
+    <div class="facts">
+      <div><b>40</b><span>токенов в <code>:root</code> приложения</span></div>
+      <div><b>14</b><span>компонентов React и 10 CSS-паттернов</span></div>
+      <div><b>29</b><span>решений в хронике с 24.09</span></div>
+      <div><b>4 · 11 · 7</b><span>долг P0 · P1 · P2 по аудиту</span></div>
+    </div>
+  </div>
+  <div class="pair" aria-label="Образец главного аргумента интерфейса">
+    <span class="label">Главный аргумент интерфейса</span>
+    <div class="vals">
+      <div class="val exp"><span class="label">По проекту · ПД</span><div class="v">0,90 м</div><div class="s">кобальт, сплошная рамка</div></div>
+      <div class="val act"><span class="label">Фактически · РД</span><div class="v">0,85 м</div><div class="s">оранжевый, двойная рамка</div></div>
+    </div>
+    <div class="delta"><span>Δ <b>−0,05 м</b></span><span class="pill amber">На оценку</span><span>решение — за инспектором</span></div>
+    <p class="cap">Хроматика в продукте несёт один аргумент: «по проекту ↔ фактически». Сине-оранжевая пара различима при всех распространённых формах дальтонизма, а форма рамки дублирует цвет и в ч/б печати. Эта страница читается так же: кобальт — решение, оранжевый — расхождение кода с решением.</p>
+  </div>
+</section>
+
+<!-- ═══════════════ 01 -->
+<section id="principles">
+  <div class="kicker"><b>01</b><span class="label">Принципы</span></div>
+  <h2>Восемь принципов, из которых выводится всё остальное</h2>
+  <p>Они приняты на экспертной панели 26.09 и решениями владельца. Всё, что ниже, — токены, компоненты, клавиши — следствия. Когда правило спорит с принципом, прав принцип.</p>
+  <div class="princ">
+    <div><span class="i">P1</span><b>Светлый при любых настройках ОС</b><p>Инспектор работает днём в офисе на бликующем мониторе: тёмный фон становится зеркалом. От бликов защищает подложка среднего тона <code>#D9DDE3</code>, а не тёмная тема.</p></div>
+    <div><span class="i">P2</span><b>Хроматика несёт только аргумент</b><p>Основной цвет — графит. Кобальт — «по проекту» и фокус, оранжевый — «фактически», красный — только исход «признано инспектором».</p></div>
+    <div><span class="i">P3</span><b>Форма дублирует цвет</b><p>Рамка «по проекту» сплошная, «фактически» двойная, реквизиты пунктиром. Стадии ПД / РД / ИД различаются местом и биркой, а не цветом.</p></div>
+    <div><span class="i">P4</span><b>Три решения равного веса</b><p>«Признать», «Снять», «Уточнить» выглядят одинаково. Цвет получает только исход, уже после решения. Яркая кнопка «Подтвердить» подталкивала бы соглашаться с ИИ.</p></div>
+    <div><span class="i">P5</span><b>Отмена вместо вопроса</b><p>Никаких «Вы уверены?». Последнее решение отменяет <kbd>Z</kbd>, финализацию — окно на 10 с.</p></div>
+    <div><span class="i">P6</span><b>Факты, а не правовые выводы</b><p>Нарушение устанавливает должностное лицо. Система пишет «найдено расхождение», «не представлено в загруженном комплекте», «сверено автоматически, решение за инспектором».</p></div>
+    <div><span class="i">P7</span><b>Ввод никогда не ждёт</b><p>Клавиши сопоставляются по <code>KeyboardEvent.code</code> и работают и в ЙЦУКЕН, и в QWERTY. Следующий кандидат загружен заранее, анимация в горячем цикле — не дольше 280 мс.</p></div>
+    <div><span class="i">P8</span><b>Ничего само по себе</b><p>Каждое действие — явная клавиша или кнопка. Отметки по наведению или таймеру запрещены (решение владельца 26.09).</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════ 02 -->
+<section id="decisions">
+  <div class="kicker"><b>02</b><span class="label">Хроника</span></div>
+  <h2>Хроника принятых решений</h2>
+  <p>Каждое решение привязано к источнику: задаче, документу или коммиту. Панель из четырёх ролей (продукт, UI/UX, предметники, ML) работала без живого инспектора (GAP-INSP-01), поэтому всё, что она говорит о практике надзора, — допущение до юзабилити-теста T-077.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Дата</th><th>Решение</th><th>Кто · почему</th><th>Статус</th></tr></thead>
+    <tbody>
+    <tr><td class="when">24.09</td><td>Светлый интерфейс «в духе ClickUp»: сайдбар, шапка, цветные пилюли статусов, токены<span class="src">T-013 · b28dc4a</span></td><td>Владелец. Направление утверждается по скриншоту</td><td><span class="st ok">сделано, заменено T-109</span></td></tr>
+    <tr><td class="when">24.09</td><td>Первая палитра: фиолетовый <code>#6A4DF4</code>, тёмный рейл, дисплейный шрифт Onest<span class="src">b28dc4a</span></td><td>Агент, буквальное следование «ClickUp»</td><td><span class="st no">отменено 26.09</span></td></tr>
+    <tr><td class="when">25.09</td><td>Решение по кандидату — не больше 3 кликов. UI-тест считает настоящие клики: признать 1, снять 2, уточнить 1<span class="src">OS-INSP-4.1.5 · a02ac7e · dialogs.test.mjs</span></td><td>Требование ТЗ 9.3.6</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">26.09</td><td>Отказ от фиолетового: это кластер ИИ-дефолта «индиго-SaaS». Белые карточки на почти белом фоне не отделяются, на экране 9 хроматических сигналов<span class="src">panel/ux.md §1.4 · 4d36160</span></td><td>Панель UX</td><td><span class="st part">фавикон ещё фиолетовый</span></td></tr>
+    <tr><td class="when">26.09</td><td>Язык «Чертёжный бетон»: подложка <code>#D9DDE3</code>, карточки <code>#F8F9FB</code>, графит, пара «кобальт ↔ оранжевый», красный только для «признано»<span class="src">05-дизайн-язык.md · T-109 · 4d36160</span></td><td>Панель UX. Референсы: Linear, Attio, Bluebeam Revu, Figma UI3</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">26.09</td><td><b>Тёмной темы нет.</b> <code>color-scheme: light</code> закреплён на корне, тёмного рейла нет<span class="src">styles.css:13</span></td><td>Владелец увидел витрину T-103 тёмной (macOS подхватил системную тему) и отверг её: инспекторы работают днём на бликующих мониторах</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">26.09</td><td>Экраны говорят словами инспектора: без кодов SC-/Н-, «seed», «партии» и голых процентов</td><td>Владелец. Экран «Партия чистых» с «≤ 52,7 %» был непонятен</td><td><span class="st part">«партия» осталась в выборке</span></td></tr>
+    <tr><td class="when">26.09</td><td>Никаких автодействий: отметка «просмотрено» по наведению через 0,6 с удалена</td><td>Владелец</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">26.09</td><td>«Совпадения выборкой»: 30 случайных совпадений вместо 5–8. Одна ошибка в выборке — совпадения не принимаются<span class="src">T-110 · OS-INSP-4.1.8–11</span></td><td>Панель (спор 1): при 5 карточках верхняя граница ошибки 45 %, при 30 — 10 %</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">26.09</td><td>Признать пачкой нельзя никогда: признание — юридический акт по каждой записи<span class="src">OS-INSP-4.1.13</span></td><td>Панель (спор 2)</td><td><span class="st ok">в модели</span></td></tr>
+    <tr><td class="when">26.09</td><td>«Общий корень» вместо подавления ложных тревог: система предлагает группу, решение записывается по каждому<span class="src">OS-INSP-4.1.12–14 · 7fb7254</span></td><td>Панель (спор 3): скрытый кандидат — это решение без человека</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">26.09</td><td>Шрифты: Geologica — дисплей и цифры, Golos Text — текст, JetBrains Mono — идентификаторы. Onest снят<span class="src">спор 7 · styles.css:47–49</span></td><td>Панель: рядом с Golos Onest не даёт второй роли, у Geologica есть ось резкости</td><td><span class="st gap">протокол и материалы — на Onest</span></td></tr>
+    <tr><td class="when">26.09</td><td>Вписанная рамка: навигация на подложке, работа — в светлой панели с зазором 8 и радиусом 20<span class="src">4d36160 · 3f39d52</span></td><td>Панель UX (приём Яндекс Почты)</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">26.09</td><td>Прицел: лист открывается на фрагменте вокруг рамки (поле 35 %, пропорция 4:3), <kbd>Space</kbd> — весь лист, три следующих кандидата загружены заранее<span class="src">T-106 · aim.ts</span></td><td>Панель UX/ML: лист A1 в колонке 300 px давал рамку в 3–6 px</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">26.09</td><td>Клавиши по <code>e.code</code>; <kbd>2</kbd> → цифра причины; переход к следующему кандидату не ждёт сервер<span class="src">T-106 · aim.ts:76–92</span></td><td>Панель UX: <kbd>J</kbd>/<kbd>K</kbd> по <code>e.key</code> не работали в русской раскладке</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">26.09</td><td>Движение: не дольше 280 мс, ввод не ждёт анимацию, восемь фирменных переходов T1–T8<span class="src">05 §Движение</span></td><td>Панель UX</td><td><span class="st part">T1, T8 и вход прицела</span></td></tr>
+    <tr><td class="when">26.09</td><td>Окно отмены финализации на 10 с вместо «Вы уверены?»<span class="src">T-111 · OS-INSP-4.3.4 · UndoWindow.tsx</span></td><td>Панель → владелец принял кандидата в ГЕРУ</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">26.09</td><td>«Мне сейчас»: с дашборда <kbd>Enter</kbd> / «Продолжить · N» ведёт сразу в конвейер<span class="src">T-112 · d654e8c</span></td><td>Панель: на два перехода меньше</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">26.09</td><td>Голос: интерфейс не делает правовых выводов<span class="src">05 §Голос · labels.ts</span></td><td>Панель предметников</td><td><span class="st gap">дашборд говорит «нарушения»</span></td></tr>
+    <tr><td class="when">26.09</td><td>Менять язык — только после замера скорости, чтобы эффект новизны не смешался с эффектом механик<span class="src">спор 6 · 08-дорожная-карта</span></td><td>Панель</td><td><span class="st gap">язык влит до замера</span></td></tr>
+    <tr><td class="when">26.09</td><td>Конформная гарантия на «чистые» — после сотен отрицательных меток<span class="src">спор 4</span></td><td>Панель: честное n ≈ 4</td><td><span class="st plan">отложено</span></td></tr>
+    <tr><td class="when">27.09</td><td>«Сводка сверки» вместо «протокола» в интерфейсе. Выгружаемый документ по-прежнему «Протокол проверки»<span class="src">спор 5 · 8de8747</span></td><td>Владелец: инспектор слышит «протокол» как протокол по КоАП</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">27.09</td><td>Значение показывается словами документа, а не служебным ключом сравнения<span class="src">OS-INSP-4.1.19 · 7d01ad6 · 100db65</span></td><td>Замечания T-129, T-133</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">27.09</td><td>Экран верификации: очередь сворачивается, три раскладки листов, лист на весь экран<span class="src">T-132 · 4fc3987</span></td><td>Агент</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">27.09</td><td>Демо-стенд только для чтения: 403 в API до обработчика, плашка происхождения данных в UI<span class="src">T-131 · INSPECTOR_READONLY · demo.ts</span></td><td>Владелец: «только чтение — в API, а не только в интерфейсе»</td><td><span class="st part">3 из ~15 кнопок скрыты</span></td></tr>
+    <tr><td class="when">27.09</td><td>Протокол PDF/DOCX по Приложению 2 — в дизайн-системе интерфейса: те же токены цвета, волосяные разделители<span class="src">T-121 · 1e59931 · render_appendix2.py</span></td><td>Владелец: «выходные форматы — в дизайн-системе интерфейса»</td><td><span class="st gap">шрифт текста — Onest</span></td></tr>
+    <tr><td class="when">27.09</td><td>«Честная цифра» на витрине покрытия ТЗ: нейтральный цвет и красная полоса вместо зелёного<span class="src">T-141 · 0e2d05d</span></td><td>Зелёный читался как «хорошо»</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td class="when">28.09</td><td>Детальная трасса ТЗ раскрашивается по правде о реализации, без оглядки на стоп-код</td><td>Владелец</td><td><span class="st ok">принято</span></td></tr>
+    <tr><td class="when">28.09</td><td>Эта страница: как решено и как сделано рядом, расхождения показаны<span class="src">T-167</span></td><td>Владелец</td><td><span class="st ok">опубликовано</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════ 03 -->
+<section id="color">
+  <div class="kicker"><b>03</b><span class="label">Цвет</span></div>
+  <h2>Цвет: бетон, графит и один аргумент</h2>
+  <p>Подложка среднего тона, карточки светлее неё, панели отделяются светлотой, а не обводкой. Основной цвет — графит, хроматика несёт только «по проекту ↔ фактически» и исход. Значения ниже взяты из <code>apps/web/src/styles.css:12–50</code>. Где имя в коде расходится с языком, указаны оба.</p>
+
+  <h3>Подложки и текст</h3>
+  <div class="swg">
+    <div class="sw"><i style="background:#D9DDE3"></i><div><b>--ground</b><span>#D9DDE3</span><p>холодный бетон: фон приложения, на нём лежит навигация</p></div></div>
+    <div class="sw"><i style="background:#CDD2D9"></i><div><b>--ground-2</b><span>#CDD2D9</span><p>наведение на подложке</p></div></div>
+    <div class="sw"><i style="background:#E6E9EE"></i><div><b>--scene</b><span>#E6E9EE</span><p>сцена листов внутри рамки</p></div></div>
+    <div class="sw"><i style="background:#F8F9FB"></i><div><b>--surface</b><span>#F8F9FB</span><p>вписанная рамка, карточки, кнопки</p></div></div>
+    <div class="sw"><i style="background:#EEF0F4"></i><div><b>--surface-2</b><span>#EEF0F4</span><p>вторичная заливка, ячейки сравнения</p></div></div>
+    <div class="sw"><i style="background:#11151D"></i><div><b>--ink</b><span>#11151D</span><p>текст, основная кнопка, бирка стадии</p></div></div>
+    <div class="sw"><i style="background:#3F4656"></i><div><b>--ink-2</b><span>#3F4656</span><p>вторичный тёмный текст</p></div></div>
+    <div class="sw"><i style="background:#6B7384"></i><div><b>--mute</b><span>#6B7384</span><p>приглушённый текст, только на surface</p></div></div>
+  </div>
+
+  <h3>Аргумент и исход</h3>
+  <div class="swg">
+    <div class="sw"><i style="background:#1F49F0"></i><div><b>--accent</b><span>#1F49F0 · язык: --aim</span><p>кобальт: «по проекту», прицел, фокус, ссылки</p></div></div>
+    <div class="sw"><i style="background:#EC6A14"></i><div><b>--actual</b><span>#EC6A14</span><p>«фактически»: рамка и Δ. Как текст не используется</p></div></div>
+    <div class="sw"><i style="background:#B84E08"></i><div><b>--actual-ink</b><span>#B84E08 · язык: --actual-text</span><p>оранжевый в роли текста, 4,83:1</p></div></div>
+    <div class="sw"><i style="background:#D0241C"></i><div><b>--red</b><span>#D0241C · язык: --violation</span><p>только «признано инспектором»</p></div></div>
+    <div class="sw"><i style="background:#137A55"></i><div><b>--green</b><span>#137A55 · язык: --cleared</span><p>«расхождения нет», OS-INSP-8.1.1</p></div></div>
+  </div>
+
+  <h3>Статусы процесса — сверх языка</h3>
+  <div class="swg">
+    <div class="sw"><i style="background:#E0A100"></i><div><b>--amber</b><span>#E0A100 · ink #8A6D00</span><p>«На оценку», «Ждёт решения», «Верификация»</p></div></div>
+    <div class="sw"><i style="background:#2F5BD8"></i><div><b>--blue</b><span>#2F5BD8</span><p>«Уточнение», «Несопоставимо», «Разбор»</p></div></div>
+    <div class="sw"><i style="background:#8A92A3"></i><div><b>--gray</b><span>#8A92A3</span><p>нейтральные исходы: «Не представлено», «Неприменимо»</p></div></div>
+  </div>
+
+  <div class="split">
+    <div class="note aim"><b>Почему нет тёмной темы.</b> Это решение, а не пробел. Тёмный фон на бликующем экране отражает окно поверх чертежа. Против бликов работает подложка <code>#D9DDE3</code> вместо чистого белого: она снижает общую яркость экрана, а контраст текста остаётся 13,4:1. Интерфейс не подхватывает системную тёмную тему, <code>color-scheme: light</code> закреплён на корне.</div>
+    <div class="note warn"><b>Расходится с языком.</b> В языке три хроматических входа, в коде восемь. Янтарный и второй синий <code>#2F5BD8</code> рядом с кобальтом окрашивают статусы процесса, красный стоит на приоритете «Высокий», «РиН недоступна» и ошибках. Производные цвета заданы hex-литералами, а не <code>color-mix(in oklch)</code>. Токена <code>#565E6E</code> для приглушённого текста на подложке нет.</div>
+  </div>
+</section>
+
+<!-- ═══════════════ 04 -->
+<section id="contrast">
+  <div class="kicker"><b>04</b><span class="label">Контраст</span></div>
+  <h2>Контраст WCAG 2.2 — посчитан, а не на глаз</h2>
+  <p>Коэффициенты посчитаны по формуле относительной яркости для реальных пар токенов. Порог обычного текста — 4,5:1, крупного текста и графики — 3:1. Пары, которые на экране не проходят, выделены оранжевым: для каждой указана проверенная замена.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Образец</th><th>Пара</th><th class="n">Коэфф.</th><th>Итог</th><th>Где на экране · замена</th></tr></thead>
+    <tbody>
+    <tr><td><span class="chip" style="background:#F8F9FB;color:#11151D;box-shadow:0 0 0 1px #D5D9E0">Текст</span></td><td>ink / surface</td><td class="n">17,35</td><td class="pass">проходит</td><td>основной текст</td></tr>
+    <tr><td><span class="chip" style="background:#D9DDE3;color:#11151D">Текст</span></td><td>ink / ground</td><td class="n">13,41</td><td class="pass">проходит</td><td>навигация на подложке</td></tr>
+    <tr><td><span class="chip" style="background:#F8F9FB;color:#6B7384;box-shadow:0 0 0 1px #D5D9E0">Текст</span></td><td>mute / surface</td><td class="n">4,52</td><td class="pass">на грани</td><td>подписи, заголовки таблиц</td></tr>
+    <tr><td><span class="chip" style="background:#D9DDE3;color:#6B7384">Текст</span></td><td>mute / ground</td><td class="n">3,49</td><td class="fail">не проходит</td><td>язык требует <code>#565E6E</code> (4,78), токена нет</td></tr>
+    <tr><td><span class="chip" style="background:#E6E9EE;color:#6B7384">Текст</span></td><td>mute / scene</td><td class="n">3,91</td><td class="fail">не проходит</td><td>легенда рамок. Замена <code>#565E6E</code> даёт 5,36</td></tr>
+    <tr><td><span class="chip" style="background:#EEF0F4;color:#6B7384">Текст</span></td><td>mute / surface-2</td><td class="n">4,17</td><td class="fail">не проходит</td><td>подписи в ячейках сравнения, слот «нет в стадии»</td></tr>
+    <tr><td><span class="chip" style="background:#F8F9FB;color:#1F49F0;box-shadow:0 0 0 1px #D5D9E0">Текст</span></td><td>accent / surface</td><td class="n">6,10</td><td class="pass">проходит</td><td>ссылки, «по проекту»</td></tr>
+    <tr><td><span class="chip" style="background:#F8F9FB;color:#B84E08;box-shadow:0 0 0 1px #D5D9E0">Текст</span></td><td>actual-ink / surface</td><td class="n">4,83</td><td class="pass">проходит</td><td>значение «фактически»</td></tr>
+    <tr><td><span class="chip" style="background:#FDEBDD;color:#B84E08">Текст</span></td><td>actual-ink / actual-soft</td><td class="n">4,38</td><td class="fail">не проходит</td><td>замена <code>#A04506</code>: 5,41</td></tr>
+    <tr><td><span class="chip" style="background:#FBE3E1;color:#D0241C">Признано</span></td><td>red / red-soft</td><td class="n">4,35</td><td class="fail">не проходит</td><td>пилюля «Признано инспектором» — главный исход. Замена <code>#B01E17</code>: 5,64</td></tr>
+    <tr><td><span class="chip" style="background:#DDF1E8;color:#137A55">Нет</span></td><td>green / green-soft</td><td class="n">4,52</td><td class="pass">на грани</td><td>«Расхождения нет»</td></tr>
+    <tr><td><span class="chip" style="background:#F6EDC8;color:#8A6D00">Оценка</span></td><td>amber-ink / amber-soft</td><td class="n">4,19</td><td class="fail">не проходит</td><td>«На оценку», «Ждёт решения». Замена <code>#7A6000</code>: 5,10</td></tr>
+    <tr><td><span class="chip" style="background:#E0A100;color:#fff">Внимание</span></td><td>белый / amber</td><td class="n">2,27</td><td class="fail">не проходит</td><td>плотная пилюля «Требует внимания». Замена: текст ink, 8,07</td></tr>
+    <tr><td><span class="chip" style="background:#8A92A3;color:#fff">Нет</span></td><td>белый / gray</td><td class="n">3,12</td><td class="fail">не проходит</td><td>плотная серая пилюля. Замена: фон mute, 4,76</td></tr>
+    <tr><td><span class="chip" style="background:#11151D;color:#fff">Окно</span></td><td>белый / ink</td><td class="n">18,28</td><td class="pass">проходит</td><td>окно отмены, тост</td></tr>
+    <tr><td><span class="chip" style="background:#F8F9FB;color:#11151D;box-shadow:0 0 0 1px #C3C8D1">Поле</span></td><td>line-strong / surface</td><td class="n">1,59</td><td class="fail">граница поля</td><td>граница поля ввода не видна как элемент (нужно 3:1)</td></tr>
+    <tr><td><span class="chip" style="background:#F8F9FB;color:#EC6A14;box-shadow:inset 0 0 0 2px #EC6A14">Рамка</span></td><td>actual / surface</td><td class="n">3,00</td><td class="pass">на пределе</td><td>рамка «фактически». На surface-2 — 2,77, не проходит</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════ 05 -->
+<section id="type">
+  <div class="kicker"><b>05</b><span class="label">Шрифт</span></div>
+  <h2>Три роли, три шрифта, все свои</h2>
+  <p>Все шрифты лежат в <code>apps/web/public/fonts</code> (woff2) вместе с лицензиями OFL, внешних запросов нет (CSP <code>font-src 'self'</code>). Geologica разбита по <code>unicode-range</code> на кириллицу и латиницу, поэтому браузер скачивает только нужный поднабор.</p>
+  <div class="spec">
+    <div><span class="label">Дисплей и крупные цифры</span><div class="big g">Geologica 0,85</div><p>Ось резкости <code>SHRP</code> даёт чертёжную остроту без засечек. Заголовки, значения «по проекту / фактически» 28 px, счётчики. Вес 300–800.</p></div>
+    <div><span class="label">Текст интерфейса</span><div class="big t">Golos Text</div><p>Сделан ParaType под кириллицу и госинтерфейсы, плотный и читаемый на 13–14 px. <code>body</code> 14/1,45. Вес 400–900.</p></div>
+    <div><span class="label">Идентификаторы</span><div class="big m">М-023 · КЖ2</div><p>JetBrains Mono: шифры, коды параметров, хеши, клавиши, бирки стадий. Вес 100–800.</p></div>
+  </div>
+
+  <h3>Шкала кеглей: решено 8, в коде 18</h3>
+  <div class="scale">
+    <div class="row"><span class="label">Язык 05</span><div class="ticks"><i>11</i><i>12</i><i>13</i><i>14</i><i>16</i><i class="miss">20</i><i>28</i><i class="miss">40</i></div></div>
+    <div class="row"><span class="label">styles.css</span><div class="ticks"><i class="x">10</i><i class="x">10,5</i><i>11</i><i class="x">11,5</i><i>12</i><i class="x">12,5</i><i>13</i><i class="x">13,5</i><i>14</i><i class="x">15</i><i>16</i><i class="x">17</i><i class="x">18</i><i class="x">21</i><i class="x">22</i><i class="x">24</i><i>28</i><i class="x">30</i></div></div>
+  </div>
+  <p style="font-size:13.5px">Оранжевые кегли — вне шкалы, перечёркнутые — в шкале есть, в коде не используются. Самый частый кегль — 13 px (13 правил). Цифры набраны <code>tabular-nums</code> через класс <code>.num</code> и точечно, глобального правила нет. Метки — 11 px, прописные, разрядка 0,06 em (<code>.label</code>), как в языке. Ось <code>SHRP</code> Geologica в приложении не задействована: <code>font-variation-settings</code> не задан ни разу (на этой странице задан).</p>
+  <div class="split">
+    <div class="note"><b>Сделано.</b> Роли шрифтов, свой хостинг, лицензии, <code>text-wrap: balance</code> у заголовков, межстрочный 1,45.</div>
+    <div class="note warn"><b>Расходится.</b> Протокол PDF/DOCX (<code>render_appendix2.py</code>) и материалы демо-стенда набраны Onest, который язык снял с роли. В вебе <code>@font-face</code> Onest объявлен, но не используется ни одним правилом.</div>
+  </div>
+</section>
+
+<!-- ═══════════════ 06 -->
+<section id="geometry">
+  <div class="kicker"><b>06</b><span class="label">Каркас и геометрия</span></div>
+  <h2>Вписанная рамка</h2>
+  <p>Интерфейс выглядит собранным без украшений. Навигация лежит прямо на подложке, вся работа — в одной светлой панели, вписанной в окно с зазором 8 px и радиусом 20 px. Активный пункт рейла — светлая плашка того же тона, что панель: взгляд читает её как «дверь» в рамку. Рамку отделяет светлота, а не тень. Эта страница собрана так же: оглавление слева на бетоне, содержание — в рамке.</p>
+  <div class="model" aria-label="Схема каркаса: рейл 72 пикселя на подложке, вписанная рамка с верхней полосой, очередью, сценой листов и карточкой решения">
+    <div class="r"><i></i><i class="a"></i><i class="b"></i><i class="b"></i><i class="b"></i></div>
+    <div class="m"><div class="h">Проверки / ЖК «Полярная» / Верификация · 12 ждут решения</div><div class="b"><div></div><div class="s"></div><div></div></div></div>
+  </div>
+  <div class="dims">
+    <div><b>72 px</b><span>рейл, пункт 60 px с подписью под иконкой</span></div>
+    <div><b>8 px</b><span>зазор рамки <code>--gap-frame</code></span></div>
+    <div><b>20 → 12 → 6</b><span>концентрика: рамка → карточка → кнопка</span></div>
+    <div><b>≈ 40 px</b><span>строка таблицы: режим «комфортно»</span></div>
+    <div><b>640 px</b><span>ниже — рамка во весь экран, радиус 0</span></div>
+  </div>
+  <h3>Радиусы по роли</h3>
+  <div class="radii">
+    <div><i style="border-radius:4px"></i>4 · бирка</div>
+    <div><i style="border-radius:6px"></i>6 · кнопка</div>
+    <div><i style="border-radius:10px"></i>10 · тост</div>
+    <div><i style="border-radius:12px"></i>12 · панель</div>
+    <div><i style="border-radius:14px"></i>14 · окно</div>
+    <div><i style="border-radius:20px"></i>20 · рамка</div>
+    <div><i style="border-radius:999px;width:96px;height:32px"></i>999 · пилюля</div>
+  </div>
+  <div class="split" style="margin-top:14px">
+    <div class="note"><b>Сделано.</b> Рейл 72 px, зазор 8, рамка 20 и прозрачный рейл на бетоне. Активный пункт — плашка <code>--surface</code>. Одна тень <code>0 8px 24px / .14</code> у всплывающих элементов: тост, окно отмены, лоток, веер.</div>
+    <div class="note warn"><b>Расходится.</b> В CSS 11 разных радиусов вместо 7 ролей. Шкалы отступов в токенах нет: встречаются значения 3, 5, 7, 9, 10, 14, 18 и 22 px вне сетки 4. Переключателя плотности 32/40 px нет. Панели обведены линией <code>--line</code> на такой же светлой рамке, хотя язык требует отделять их светлотой.</div>
+  </div>
+</section>
+
+<!-- ═══════════════ 07 -->
+<section id="frames">
+  <div class="kicker"><b>07</b><span class="label">Рамки на листе</span></div>
+  <h2>Рамки на листе — главный объект экрана</h2>
+  <p>Доказательство показывается на самом листе документа, а не пересказом. Прицел (<code>aim.ts</code>) открывает окно вокруг рамок: поле 35 %, пропорция 4:3, не уже 130 мм листа. Удержание <kbd>Space</kbd> показывает весь лист. Форма рамки дублирует цвет: различие видно и в ч/б печати сводки.</p>
+  <div class="sheetdemo">
+    <div class="sheetwrap">
+      <span class="tab">ПД · лист 21 · ИОС5.4.2</span>
+      <div class="paper" aria-label="Синтетический лист: рамки по проекту, фактически и реквизитов">
+        <div class="ln w60"></div><div class="ln w80"></div><div class="ln w40"></div>
+        <div style="height:26px"></div>
+        <div class="ln w70"></div><div class="ln w60"></div><div class="ln w80"></div>
+        <div class="fr exp" style="left:22px;top:84px;width:150px;height:30px"><em>по проекту 0,90 м</em></div>
+        <div class="fr act" style="left:270px;top:92px;width:130px;height:26px"><em>фактически 0,85 м</em></div>
+        <div class="fr req" style="right:18px;bottom:14px;width:170px;height:44px"><em>реквизиты</em></div>
+      </div>
+    </div>
+    <div class="frleg">
+      <span><i style="border:2px solid var(--aim)"></i>по проекту — сплошная</span>
+      <span><i style="border:2px solid var(--actual);outline:2px solid var(--actual);outline-offset:2px;width:22px;height:10px;margin:0 2px"></i>фактически — двойная</span>
+      <span><i style="border:1.5px dashed var(--ink-2)"></i>реквизиты — пунктир</span>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--mute-g)">Лист синтетический. Документы корпуса на страницы материалов не попадают никогда (ADR-0002).</p>
+  <div class="tw"><table>
+    <thead><tr><th>Решение языка</th><th>В коде</th><th>Статус</th></tr></thead>
+    <tbody>
+    <tr><td>«По проекту» — сплошная рамка кобальтом</td><td><code>.hl.expected</code>: 2 px solid, заливка 8 %<span class="src">styles.css:183</span></td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td>«Фактически» — двойная оранжевая рамка</td><td>Двойная только в прицеле и в диффе листа (<code>outline</code> + <code>offset</code>). Базовая <code>.hl.actual</code> одинарная и отличается от «по проекту» лишь цветом<span class="src">styles.css:182, 253, 293</span></td><td><span class="st part">частично</span></td></tr>
+    <tr><td>Реквизиты — пунктир</td><td>1,5 px dashed, но зелёным — лишнее хроматическое значение<span class="src">styles.css:192</span></td><td><span class="st gap">цвет лишний</span></td></tr>
+    <tr><td>Язычок стадии вырастает из угла рамки листа, как вкладка папки</td><td>Бирка <code>.stagetag</code> стоит в строке шапки листа, текст — только «ПД», шифр отдельно<span class="src">Sheet.tsx:147–150</span></td><td><span class="st no">не сделано</span></td></tr>
+    <tr><td>Стадии без цвета</td><td>Бирка графитовая и одинаковая для ПД, РД и ИД<span class="src">styles.css:172–173</span></td><td><span class="st ok">сделано</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════ 08 -->
+<section id="components">
+  <div class="kicker"><b>08</b><span class="label">Компоненты</span></div>
+  <h2>Компоненты — живые образцы на токенах</h2>
+  <p>UI-библиотеки нет: все компоненты свои, в <code>apps/web/src/components</code>, стили — в одном <code>styles.css</code> на CSS-переменных. Иконки — 18 собственных SVG-путей в <code>ui.tsx</code>, 24×24, обводка 1,8, <code>currentColor</code>, <code>aria-hidden</code>. Образцы ниже нарисованы теми же токенами.</p>
+
+  <div class="demo"><span class="cap">Кнопки · <code>.btn</code>: основная — графит, а не кобальт. Подсказка клавиши — прямо на кнопке</span>
+    <span class="btn primary">Новая проверка</span><span class="btn">Совпадения выборкой</span><span class="btn ghost">Вернуться к сверке</span><span class="btn">Измерить</span><span class="btn">Закрыть <kbd>Esc</kbd></span>
+  </div>
+  <div class="demo"><span class="cap">Три решения равного веса · <code>.decide-row</code>: заливки нет, цвет — только у точки исхода</span>
+    <div class="decide">
+      <span class="btn"><span><span class="dot" style="background:var(--red)"></span>&nbsp; Признать</span><kbd>1</kbd></span>
+      <span class="btn"><span><span class="dot" style="background:var(--green)"></span>&nbsp; Снять</span><kbd>2</kbd></span>
+      <span class="btn"><span><span class="dot" style="background:var(--blue)"></span>&nbsp; Уточнить</span><kbd>3</kbd></span>
+    </div>
+  </div>
+  <div class="demo"><span class="cap">Полоса стадий · <code>StageStrip</code>: ПД → РД → ИД для одного параметра. Стадию сообщает место и бирка</span>
+    <div class="stagestrip">
+      <div class="slot"><div class="hd"><span class="stagetag">ПД</span>ПЗ · с. 14</div><b>0,90 м</b><small>ещё 2 согласно</small></div>
+      <div class="slot"><div class="hd"><span class="stagetag">РД</span>АР · Общие данные</div><b style="color:var(--actual-ink)">0,85 м</b><small>1 другой комплект</small></div>
+      <div class="slot absent"><div class="hd"><span class="stagetag">ИД</span>стадия не загружена</div><b>—</b><small>Сравнить нельзя — запросите документ</small></div>
+    </div>
+  </div>
+  <div class="demo"><span class="cap">Лента хода · <code>.progress-strip .seg</code>: текущий кандидат — графит; исходы — цветом (долг: только цветом)</span>
+    <div class="seglist"><i class="v"></i><i class="n"></i><i class="n"></i><i class="q"></i><i class="c"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+  <div class="demo"><span class="cap">Тост · решение записано, отмена клавишей</span>
+    <span class="toast">M-023 · Снято · не то изменение · <kbd>Z</kbd> вернуть</span>
+  </div>
+  <div class="demo"><span class="cap">Окно отмены · <code>UndoWindow</code>: 10 с вместо «Вы уверены?»</span>
+    <div class="undo"><div class="row"><span>Сводка сверки будет завершена и передана в ИАИС «РиН» через 6 с</span><span class="btn">Отменить <kbd>Z</kbd></span></div><div class="track"><i></i></div></div>
+  </div>
+  <div class="demo"><span class="cap">Поле ввода · <code>.input</code>: граница 1,59:1 — долг (нужно 3:1)</span>
+    <span class="inp">Поиск по адресу или шифру</span>
+  </div>
+
+  <h3>Реестр компонентов</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Компонент</th><th>Назначение</th><th>Где</th></tr></thead>
+    <tbody>
+    <tr><td><code>Icon</code></td><td>Линейная иконка из 18 путей. Неизвестное имя молча заменяется на <code>list</code><span class="src">ui.tsx:26</span></td><td>рейл, кнопки, группы</td></tr>
+    <tr><td><code>Pill</code> · <code>FindingPill</code> · <code>VerificationPill</code> · <code>ProcessPill</code> · <code>SyncPill</code></td><td>Пилюли статусов по словарям <code>labels.ts</code>. Код статуса — только в <code>title</code><span class="src">ui.tsx:35–62</span></td><td>везде</td></tr>
+    <tr><td><code>Priority</code></td><td>Флаг очерёдности с пояснением «не юридическое действие»<span class="src">ui.tsx:64</span></td><td>Verify, Matrix, Inspection</td></tr>
+    <tr><td><code>ToastHost</code> · <code>useToast</code></td><td>Глобальный тост, 3,5 с; ошибка — 6 с<span class="src">ui.tsx:77–97</span></td><td>7 экранов</td></tr>
+    <tr><td><code>useLoad</code> · <code>Loading</code></td><td>Загрузка данных и единое состояние «Загрузка… / Не удалось загрузить». Скелетонов нет — это решение<span class="src">ui.tsx:100–122</span></td><td>почти все экраны</td></tr>
+    <tr><td><code>Sheet</code> · <code>SheetViewer</code></td><td>Лист PDF (pdf.js) с рамками, реквизитами, измерением и прицелом. На весь экран — масштаб 100–400 %. DOCX и XML показываются текстом<span class="src">Sheet.tsx:120, 382</span></td><td>Verify, Sample, DocCard</td></tr>
+    <tr><td><code>StageStrip</code></td><td>Полоса стадий ПД → РД → ИД одного параметра: значение, «нет в стадии», «не загружена»<span class="src">StageStrip.tsx:16</span></td><td>Verify</td></tr>
+    <tr><td><code>ClassMentions</code></td><td>Все упоминания параметра по стадиям: прочтения моделей, цитата, как использовано<span class="src">ClassMentions.tsx:38</span></td><td>Verify</td></tr>
+    <tr><td><code>UndoWindow</code></td><td>Окно отмены финализации на 10 с, клавиши <kbd>Z</kbd> и <kbd>Esc</kbd><span class="src">UndoWindow.tsx:7</span></td><td>Inspection</td></tr>
+    <tr><td><code>CriticalReview</code></td><td>Перечень критических параметров перед завершением, флажок «Перечень просмотрен»<span class="src">CriticalReview.tsx:12</span></td><td>Inspection</td></tr>
+    <tr><td><code>DocCard</code> · <code>DocTypePill</code></td><td>Карточка документа постранично или сплошной прокруткой, реквизиты по страницам<span class="src">DocCard.tsx:18, 27</span></td><td>Inspection</td></tr>
+    <tr><td><code>ParamPassport</code></td><td>Паспорт параметра Матрицы — боковая панель; фокус возвращается на код<span class="src">ParamPassport.tsx:102</span></td><td>Matrix</td></tr>
+    <tr><td><code>FeedbackLogs</code></td><td>Журналы отклонений и спорных случаев<span class="src">FeedbackLogs.tsx:9</span></td><td>Inspection, Ml</td></tr>
+    <tr><td><code>DemoBanner</code></td><td>Плашка демо-стенда и происхождения данных. Ставит <code>html[data-readonly]</code>, после чего кнопки <code>[data-mutates]</code> скрываются<span class="src">DemoBanner.tsx:5</span></td><td>каркас</td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:13.5px">Паттерны на CSS-классах без React-компонента: каркас (<code>.shell .rail .main .topbar</code>), кнопки (<code>.btn</code> — <code>primary / danger / good / ghost / decide</code>), поля, вкладки, таблицы <code>.rows</code>, KPI-плитки, экран верификации (<code>.verify .queue .compare .viewer .tray .fan</code>), выборка (<code>.sample-*</code>).</p>
+</section>
+
+<!-- ═══════════════ 09 -->
+<section id="statuses">
+  <div class="kicker"><b>09</b><span class="label">Словари статусов</span></div>
+  <h2>Словари статусов: код → слово инспектора → тон</h2>
+  <p>Коды статусов в интерфейсе не показываются: словари <code>apps/web/src/lib/labels.ts</code> переводят их в слова и тон пилюли. Словарь покрыт тестом <code>labels.test.mjs</code>.</p>
+  <div class="split">
+    <div class="tw"><table>
+      <thead><tr><th colspan="2">Находка · FINDING</th></tr></thead>
+      <tbody>
+      <tr><td>CANDIDATE</td><td><span class="pill amber">На оценку</span></td></tr>
+      <tr><td>NEGATIVE_VERIFIED</td><td><span class="pill green">Расхождения нет</span></td></tr>
+      <tr><td>MISSING_EVIDENCE</td><td><span class="pill gray">Не представлено</span></td></tr>
+      <tr><td>NOT_APPLICABLE</td><td><span class="pill gray">Неприменимо</span></td></tr>
+      <tr><td>NOT_COMPARABLE</td><td><span class="pill blue">Несопоставимо</span></td></tr>
+      <tr><td>CLARIFICATION_REQUIRED</td><td><span class="pill blue">Нужно уточнение</span></td></tr>
+      <tr><td>CONFIRMED_VIOLATION</td><td><span class="pill red">Признано инспектором</span></td></tr>
+      <tr><td>SUSPICION</td><td><span class="pill violet">Наблюдение ИИ</span></td></tr>
+      </tbody></table></div>
+    <div class="tw"><table>
+      <thead><tr><th colspan="2">Решение инспектора · VERIFICATION</th></tr></thead>
+      <tbody>
+      <tr><td>PENDING</td><td><span class="pill amber">Ждёт решения</span></td></tr>
+      <tr><td>CONFIRMED_VIOLATION</td><td><span class="pill red">Признано инспектором</span></td></tr>
+      <tr><td>NEGATIVE_VERIFIED</td><td><span class="pill green">Снято: расхождения нет</span></td></tr>
+      <tr><td>CLARIFICATION_REQUIRED</td><td><span class="pill blue">Уточнение</span></td></tr>
+      <tr><td>SPLIT</td><td><span class="pill gray">Разделён</span></td></tr>
+      </tbody></table></div>
+    <div class="tw"><table>
+      <thead><tr><th colspan="2">Пакет · PROCESS</th></tr></thead>
+      <tbody>
+      <tr><td>PENDING</td><td><span class="pill gray">Загружено</span></td></tr>
+      <tr><td>PARSING</td><td><span class="pill blue">Разбор</span></td></tr>
+      <tr><td>READY</td><td><span class="pill violet">Сводка сверки готова</span></td></tr>
+      <tr><td>VERIFYING</td><td><span class="pill amber">Верификация</span></td></tr>
+      <tr><td>COMPLETED</td><td><span class="pill green">Верификация завершена</span></td></tr>
+      <tr><td>FINALIZED</td><td><span class="pill gray">Финализирован</span></td></tr>
+      </tbody></table></div>
+    <div class="tw"><table>
+      <thead><tr><th colspan="2">Передача в РиН · SYNC и группы дашборда</th></tr></thead>
+      <tbody>
+      <tr><td>PENDING_SYNC</td><td><span class="pill amber">Ждёт отправки в РиН</span></td></tr>
+      <tr><td>SYNCED</td><td><span class="pill green">Передано в РиН</span></td></tr>
+      <tr><td>SYNC_FAILED</td><td><span class="pill red">РиН недоступна</span> <span class="st gap">красный вне «признано»</span></td></tr>
+      <tr><td>цвет red</td><td><span class="pill s-red">Есть нарушения</span> <span class="st gap">голос</span></td></tr>
+      <tr><td>цвет yellow</td><td><span class="pill s-amber">Требует внимания</span> <span class="st gap">2,27:1</span></td></tr>
+      <tr><td>цвет green</td><td><span class="pill s-green">Без замечаний</span></td></tr>
+      <tr><td>цвет gray</td><td><span class="pill s-gray">Нет результатов</span> <span class="st gap">3,12:1</span></td></tr>
+      </tbody></table></div>
+  </div>
+  <div class="note warn"><b>Тон «violet»</b> остался именем из первой палитры: сейчас это кобальтовый текст на сером. Язык требует хроматику только у аргумента и исхода «признано», а янтарные и синие пилюли процесса — это следующий шаг чистки (см. «Долг»).</div>
+</section>
+
+<!-- ═══════════════ 10 -->
+<section id="motion">
+  <div class="kicker"><b>10</b><span class="label">Движение</span></div>
+  <h2>Движение: одно движение — одна причина</h2>
+  <div class="mv">
+    <div><span class="st ok">соблюдено</span><b>≤ 280 мс в горячем цикле</b><p>Самая длинная анимация в коде — 220 мс (полёт чипа в лоток).</p></div>
+    <div><span class="st ok">соблюдено</span><b>Ввод не ждёт анимацию</b><p>Решение переключает кандидата сразу, оптимистично; ответ сервера приходит позже.</p></div>
+    <div><span class="st ok">соблюдено</span><b>Без отскока камеры</b><p>Пульсаций, свечений и стекла над чертежом нет.</p></div>
+    <div><span class="st gap">расходится</span><b>Меньше движения — это не ноль</b><p>Язык: при <code>prefers-reduced-motion</code> перемещение заменяется сменой прозрачности за 90 мс, связь «откуда — куда» сохраняется. Код гасит всё через <code>!important</code> (styles.css:246).</p></div>
+    <div><span class="st no">не сделано</span><b>Токены движения</b><p><code>--dur-0…4</code>, <code>--ease-*</code>, <code>--spring-land</code> не объявлены: все длительности вписаны литералами.</p></div>
+    <div><span class="st no">не сделано</span><b>Платформа Baseline</b><p>View Transitions, <code>@starting-style</code>, anchor positioning, <code>linear()</code> не используются.</p></div>
+  </div>
+  <h3>Кривые языка</h3>
+  <div class="ease" aria-label="Графики кривых ускорения">
+    <figure><svg viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M0 60 C20 12 20 0 100 0" fill="none" stroke="#1F49F0" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg><figcaption>--ease-out (.2,.8,.2,1) · появления, камера</figcaption></figure>
+    <figure><svg viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M0 60 C40 60 100 0 100 0" fill="none" stroke="#EC6A14" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg><figcaption>--ease-exit (.4,0,1,1) · исчезновения, на 30 % короче</figcaption></figure>
+    <figure><svg viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M0 60 C45 60 20 0 100 0" fill="none" stroke="#11151D" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg><figcaption>--ease-inout (.45,0,.2,1) · морфы</figcaption></figure>
+    <figure><svg viewBox="0 0 100 60" preserveAspectRatio="none"><polyline points="0,60 8,46.8 18,24 30,6 42,-2.1 55,-1.2 72,0 100,0" fill="none" stroke="#137A55" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg><figcaption>--spring-land · только посадка чипа</figcaption></figure>
+  </div>
+  <h3>Восемь фирменных переходов</h3>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Переход</th><th>Решено</th><th>В коде</th><th>Статус</th></tr></thead>
+    <tbody>
+    <tr><td>T1</td><td>Уход в лоток</td><td>Чип улетает по дуге 220 мс, посадка пружиной</td><td>WAAPI 220 мс, <code>(.45,0,.2,1)</code>; без пружины и прокрутки счётчика<span class="src">Verify.tsx:35–43</span></td><td><span class="st part">частично</span></td></tr>
+    <tr><td>T2</td><td>Прицел</td><td>Камера 280 мс, уголки-скобки сходятся от 140 % к 100 %</td><td><code>aim-in</code> 180 мс: масштабируется вся рамка, камеры нет<span class="src">styles.css:252</span></td><td><span class="st part">упрощено</span></td></tr>
+    <tr><td>T3</td><td>Одно стекло</td><td>Листы ПД/РД/ИД двигаются вместе, замок синхронизации</td><td>—</td><td><span class="st no">не сделано</span></td></tr>
+    <tr><td>T4</td><td>Причина из кнопки</td><td>«Снять» раскрывается в шесть причин, 150/120/100 мс</td><td>Список причин появляется без перехода</td><td><span class="st part">логика есть</span></td></tr>
+    <tr><td>T5</td><td>Сводка из чипов</td><td>Чипы разлетаются по разделам сводки</td><td>—</td><td><span class="st no">не сделано</span></td></tr>
+    <tr><td>T6</td><td>Расщепление</td><td>Предпросмотр N частей, затем <kbd>Enter</kbd></td><td>Делит сразу, без предпросмотра</td><td><span class="st no">не сделано</span></td></tr>
+    <tr><td>T7</td><td>Проверка → конвейер</td><td>Карточка морфится в верхнюю полосу</td><td>—</td><td><span class="st no">не сделано</span></td></tr>
+    <tr><td>T8</td><td>Окно отмены</td><td>Выезд 150 мс, полоса 10 с линейно</td><td>150 мс, полоса через rAF <code>scaleX</code><span class="src">UndoWindow.tsx</span></td><td><span class="st ok">сделано</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════ 11 -->
+<section id="experience">
+  <div class="kicker"><b>11</b><span class="label">Архитектура опыта</span></div>
+  <h2>Архитектура опыта: роли, маршруты, главный путь</h2>
+  <p>11 маршрутов на hash-router (<code>main.tsx:79–98</code>). Рейл показывает пункты по роли (<code>access.ts</code> — зеркало прав API). Права проверяются в API: интерфейс только прячет недоступное.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Роль</th><th>Пункты рейла</th><th>Стартовый экран</th></tr></thead>
+    <tbody>
+    <tr><td>Инспектор</td><td>Проверки · Загрузка · Матрица · Нормы</td><td><code>/inspections</code> — «Мне сейчас»</td></tr>
+    <tr><td>Супервизор</td><td>Проверки · Загрузка · Матрица · Нормы · Модель · Журнал</td><td><code>/inspections</code></td></tr>
+    <tr><td>Администратор</td><td>Проверки · Матрица · Нормы · Модель · Журнал · Метрики. Видит карточки кандидатов, решений не выносит</td><td><code>/inspections</code></td></tr>
+    <tr><td>ML-инженер, куратор</td><td>Матрица · Нормы · Модель</td><td><code>/ml</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Главный путь инспектора</h3>
+<pre class="mermaid">
+flowchart TD
+  I["Мне сейчас<br/>J K Enter O"] -->|"Новая проверка"| N["Загрузка пакета<br/>файлы и реестр"]
+  N --> C["Карточка проверки<br/>идёт разбор"]
+  C -->|"сводка готова"| V["Верификация<br/>очередь, листы, решение"]
+  C -->|"совпадения"| S["Выборка 30 карточек<br/>1 верно, 2 ошибка"]
+  S -->|"Shift+Enter"| V
+  I -->|"Продолжить или Enter"| V
+  V -->|"1 признать, 3 уточнить"| V
+  V -->|"2 снять и цифра причины"| F{"Тот же документ<br/>у соседей?"}
+  F -->|"да"| G["Общий корень<br/>X, Enter, Esc"]
+  F -->|"нет"| V
+  G --> V
+  V -->|"решено всё"| K{"Критические<br/>без ответа?"}
+  K -->|"есть"| R["Перечень просмотрен"]
+  K -->|"нет"| U["Окно отмены 10 с<br/>Z отменяет"]
+  R --> U
+  U -->|"10 с истекли"| P["Сводка сверки<br/>текст для акта, экспорт"]
+  U -->|"Z"| C
+</pre>
+
+  <h3>Состояния</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Состояние</th><th>Как оформлено</th></tr></thead>
+    <tbody>
+    <tr><td>Загрузка / ошибка</td><td>Одна строка «Загрузка…» или «Не удалось загрузить: …». Между кандидатами перезагрузки нет: PDF берётся из LRU-кэша на 12 документов, три следующих загружены заранее</td></tr>
+    <tr><td>Пусто</td><td>Одна фраза о том, что произошло и что делать: «Кандидатов нет — сводку сверки можно завершить на карточке проверки.» Маскотов нет</td></tr>
+    <tr><td>Нет источника</td><td>В слоте стадии — «—» и «стадия не загружена». Вместо листа — плашка «Показателя нет в N документах стадии · Нужен документ: … · Сравнить со следующей стадией нельзя — запросите документ». Ячейка «Фактически» остаётся нейтральной, не красной</td></tr>
+    <tr><td>Только просмотр</td><td>Пилюли «Просмотр: решения выносят инспектор и супервизор», «Сводка сверки завершена — решения неизменяемы»</td></tr>
+    <tr><td>Демо-стенд</td><td>Плашка «Демо-стенд «Надзориум» · только просмотр» и происхождение данных: где посчитано, ревизия, дата. Изменяющий запрос API отклоняет с ответом 403</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><b>Диалоги.</b> Ни одного <code>window.confirm</code> и ни одного модального «Вы уверены?». Веер «Общий корень» — это не подтверждение, а предложение группы: решение всё равно записывается по каждому кандидату. <code>CriticalReview</code> — инлайн-карточка. Лист на весь экран закрывается <kbd>Esc</kbd>.</div>
+</section>
+
+<!-- ═══════════════ 12 -->
+<section id="keys">
+  <div class="kicker"><b>12</b><span class="label">Клавиатура</span></div>
+  <h2>Клавиатура: частое — одной клавишей</h2>
+  <p>Буквенные клавиши везде сопоставляются по <code>e.code</code> (<code>aim.ts:76–92</code>, <code>Inspections.tsx:29–32</code>, <code>Sample.tsx:61–74</code>). Инспектор, который только что набрал комментарий по-русски, нажимает <kbd>J</kbd>, и это работает. По <code>e.key</code> остались только <kbd>Esc</kbd>, <kbd>Enter</kbd>, <kbd>+</kbd> и <kbd>−</kbd>: они не зависят от раскладки.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Клавиша</th><th>Где</th><th>Действие</th><th>Статус</th></tr></thead>
+    <tbody>
+    <tr><td><kbd>J</kbd> <kbd>K</kbd> · <kbd>↓</kbd> <kbd>↑</kbd></td><td>Проверки, верификация, выборка, веер</td><td>следующий / предыдущий</td><td><span class="st part">не везде; в режиме просмотра выключены</span></td></tr>
+    <tr><td><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></td><td>верификация</td><td>признать / снять / уточнить</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td><kbd>2</kbd> → <kbd>1</kbd>…<kbd>9</kbd></td><td>верификация</td><td>причина снятия, запись сразу</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td><kbd>Z</kbd></td><td>верификация, выборка, окно отмены</td><td>вернуть последнее решение (один уровень)</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td><kbd>Space</kbd> удерживать</td><td>верификация</td><td>весь лист</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td><kbd>Enter</kbd> · <kbd>O</kbd></td><td>Проверки</td><td>в конвейер · открыть карточку</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td><kbd>X</kbd> · <kbd>Enter</kbd> · <kbd>Esc</kbd></td><td>веер «Общий корень»</td><td>отметка · снять отмеченные · по одному</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td><kbd>⇧</kbd> <kbd>Enter</kbd></td><td>выборка</td><td>принять остальные</td><td><span class="st ok">сделано</span></td></tr>
+    <tr><td><kbd>D</kbd> <kbd>R</kbd> <kbd>M</kbd> <kbd>S</kbd> <kbd>H</kbd> <kbd>P</kbd> <kbd>F</kbd> <kbd>\</kbd> <kbd>Tab</kbd></td><td>сцена, проверка</td><td>было/стало, реквизиты, измерение, разделить, наблюдение, сводка, финализация, стопка, следующий источник</td><td><span class="st no">только кнопками</span></td></tr>
+    <tr><td><kbd>G</kbd> + буква</td><td>везде</td><td>переходы между разделами</td><td><span class="st no">не сделано</span></td></tr>
+    <tr><td><kbd>⌘</kbd> <kbd>K</kbd> · <kbd>?</kbd></td><td>везде</td><td>палитра команд · карта клавиш</td><td><span class="st plan">после стоп-кода</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn"><b>Дефекты клавиатуры по коду.</b> Цифры <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> срабатывают под листом, открытым на весь экран, и выносят решение «вслепую». Глобальный обработчик перехватывает <kbd>Space</kbd> и стрелки у кнопок и списков выбора (<code>Verify.tsx:223–228</code>). <kbd>Z</kbd> после отмены сбрасывает фильтр параметра.</div>
+</section>
+
+<!-- ═══════════════ 13 -->
+<section id="voice">
+  <div class="kicker"><b>13</b><span class="label">Голос</span></div>
+  <h2>Голос: интерфейс надзора говорит фактами</h2>
+  <p>Нарушение устанавливает должностное лицо. Поэтому система не квалифицирует, а сообщает, что нашла и где. Подтверждает только инспектор.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Нельзя</th><th>Почему</th><th>Вместо</th></tr></thead>
+    <tbody>
+    <tr><td>«Выявлено нарушение»</td><td>нарушение устанавливает должностное лицо</td><td>«Найдено расхождение между документами»</td></tr>
+    <tr><td>«Не соответствует СП …»</td><td>это квалификация</td><td>«Значение 0,85 м; порог Матрицы по СП 1.13130 — 0,9 м»</td></tr>
+    <tr><td>«Вероятность нарушения 87 %» в заголовке</td><td>риск ≠ основание (ТЗ 9.2.7)</td><td>«Очерёдность: высокая», оценка — мелко в деталях</td></tr>
+    <tr><td>«Документ отсутствует»</td><td>система знает только, что документ не представлен</td><td>«Не представлено в загруженном комплекте»</td></tr>
+    <tr><td>«Подтверждено ИИ»</td><td>подтверждает только инспектор</td><td>«Сверено автоматически, решение за инспектором»</td></tr>
+    <tr><td>«Предписание сформировано»</td><td>предписание выдаётся вне системы</td><td>«Черновик текста для акта»</td></tr>
+    <tr><td>Тост с абзацем системного текста</td><td>за один цикл взгляд уходит в угол 20 раз</td><td>«Снято · не то изменение · Отменить Z»</td></tr>
+    </tbody>
+  </table></div>
+  <div class="split">
+    <div class="note"><b>Уже звучит правильно.</b> «Риск — только очерёдность проверки, не основание для предписания.» · «Гипотеза — ещё не нарушение: … пока не решит инспектор» · «Стадия не загружена» · «Текст для акта появится после завершения сводки сверки» · тост «M-023 · Снято · Z — вернуть».</div>
+    <div class="note warn"><b>Звучит неправильно.</b> «Есть нарушения», «Подтверждённые нарушения» на дашборде и в карточке проверки. «Нет доказательства» вместо «Не представлено». «Вердикт ИИ», «подтверждено» от имени модели. «Партия» в выборке. Системные коды: <code>CLARIFICATION_REQUIRED</code>, <code>parse_status</code>, названия движков распознавания.</div>
+  </div>
+</section>
+
+<!-- ═══════════════ 14 -->
+<section id="a11y">
+  <div class="kicker"><b>14</b><span class="label">Доступность</span></div>
+  <h2>Доступность: что держит, что нет</h2>
+  <div class="split">
+    <div class="note"><b>Держит.</b> Глобальный <code>:focus-visible</code> кобальтом. Иконки с <code>aria-hidden</code>, у рейла видимые подписи. В паспорте параметра — <code>aria-expanded</code> и возврат фокуса. Рамки различаются формой, а не только цветом. Светлая тема закреплена. Эмодзи и «✨ ИИ» нет.</div>
+    <div class="note warn"><b>Не держит.</b> Поле выбора файлов скрыто и не получает фокус: загрузить пакет с клавиатуры нельзя. Документ открывается только кликом по строке таблицы. У диалогов нет <code>aria-modal</code> и удержания фокуса. Вкладки без <code>role="tab"</code>. Лента хода и лента кодов передают статус только цветом. Ошибки в тосте объявляются как <code>status</code>, а должны как <code>alert</code>. Десять полей без подписи.</div>
+  </div>
+  <p style="font-size:13.5px">Оценка аудитора: доступность 4 из 10, согласованность 6 из 10, дизайн-долг 6 из 10. Полный список нарушений с номерами строк — в порядке работ ниже.</p>
+</section>
+
+<!-- ═══════════════ 15 -->
+<section id="build">
+  <div class="kicker"><b>15</b><span class="label">Подход к реализации</span></div>
+  <h2>Подход к реализации интерфейса</h2>
+  <p>Правило сначала проходит через модель требований, затем тест, затем код. Экран — последнее звено, и в нём нет предметной логики: всё, что можно проверить без браузера, вынесено в чистые функции.</p>
+<pre class="mermaid">
+flowchart LR
+  G["ГЕРА: правило<br/>03-services.md"] --> Y["model.yaml<br/>impl: код и тест"]
+  Y --> T["Тест правила<br/>domain*.test.ts"]
+  T --> D["Чистая функция<br/>apps/api/src/domain"]
+  D --> A["API и сервисы<br/>IO, 403 в демо"]
+  A --> L["Чистые модули веба<br/>lib: aim, labels, queue"]
+  L --> UI["Экран React<br/>токены styles.css"]
+  UI --> E["Диалоги Playwright<br/>dialogs.test.mjs"]
+  E --> Q["Гейт: образ запущен,<br/>CSP проверен"]
+</pre>
+  <div class="tw"><table>
+    <thead><tr><th>Слой</th><th>Решение</th><th>Источник</th></tr></thead>
+    <tbody>
+    <tr><td>Стек</td><td>React 19, react-router 7, pdfjs-dist 4, Vite 6, TypeScript 7. Других runtime-зависимостей нет. UI-библиотек и Tailwind нет: компоненты свои, стили — один файл на CSS-переменных, графики — SVG без библиотек</td><td><code>apps/web/package.json</code> · ADR-0001</td></tr>
+    <tr><td>Предметная логика</td><td>Чистые функции в <code>apps/api/src/domain</code>: выборка, общий корень, поток решения, отпечаток доказательства, хронометраж. Новое правило сначала появляется тестом</td><td><code>CLAUDE.md</code> проекта</td></tr>
+    <tr><td>UI-логика</td><td>Модули без JSX в <code>apps/web/src/lib</code>: окно прицела и разбор клавиш (<code>aim.ts</code>), словари (<code>labels.ts</code>), очередь (<code>queue.ts</code>), права (<code>access.ts</code>). Тесты — <code>node --test</code>, всего 22 теста</td><td><code>apps/web/tests</code></td></tr>
+    <tr><td>Диалоги</td><td>29 сценариев Playwright на изолированном стенде со своей PGlite: DLG-INSP-01…22 и правила OS-INSP-4.1.5, 4.1.12, 4.1.15, 4.3.4, 4.3.5. Клики считаются по-настоящему</td><td><code>dialogs.test.mjs</code></td></tr>
+    <tr><td>Эшелоны</td><td>У каждого теста разметка эшелона: aim — L1+L3, dialogs — L1+L2, queue — L1+L3+L7. Тест правила без разметки роняет гейт</td><td><code>echelons.json</code></td></tr>
+    <tr><td>Мутации</td><td>Stryker — только для <code>apps/api/src/domain</code>, пороги 90 / 80 / 70. Веб не мутируется: стандарт относит его к презентационной логике</td><td><code>stryker.config.mjs</code></td></tr>
+    <tr><td>Гейт</td><td><code>scripts/local-gate.sh</code> на маке: тесты, трасса, hadolint, сборка образа, <b>запуск</b> образа под <code>101:101</code> и проверка, что <code>/</code> отдаёт CSP с <code>frame-ancestors 'none'</code>, затем trivy</td><td><code>local-gate.sh</code></td></tr>
+    <tr><td>Образ</td><td>Многостадийная сборка: node по digest собирает, в рантайм <code>nginx-unprivileged</code> едет только <code>dist</code>. Файлы принадлежат <code>root</code> и закрыты на запись, порт 8443</td><td><code>apps/web/Dockerfile</code></td></tr>
+    <tr><td>nginx</td><td>Все заголовки — на уровне <code>server</code>, разница выражена через <code>map</code>. Приложению встроенный скрипт запрещён, материалам <code>/docs/</code> разрешён. HSTS, <code>nosniff</code>, TLS 1.3, лимиты запросов</td><td><code>apps/web/nginx.conf</code></td></tr>
+    <tr><td>Демо-стенд</td><td><code>INSPECTOR_READONLY=1</code>: изменяющий запрос получает 403 до обработчика. Интерфейс узнаёт демо по <code>/docs/publication.json</code></td><td>T-131 · <code>demo.ts</code></td></tr>
+    <tr><td>Разработка</td><td>Порт 45810 на <code>127.0.0.1</code>: выше 40000, потому что на низких портах висят чужие service worker</td><td><code>vite.config.ts</code></td></tr>
+    <tr><td>Печатные формы</td><td>Протокол PDF/DOCX по Приложению 2 собирается в тех же токенах цвета: волосяные разделители 0,3 pt, без вертикальной сетки, номер раздела кобальтом</td><td><code>render_appendix2.py</code></td></tr>
+    <tr><td>Юзабилити</td><td>Цель ТЗ — полный цикл ≤ 30 мин (NFR-VERIFY-30), подтверждена только при ≥ 5 участниках. Хронометраж пишет <code>verify-timing.ts</code>. Робот намерил задержку интерфейса: от <kbd>J</kbd> до рамки p50 35 мс, p95 111 мс. Это не время инспектора: тест T-077 ждёт живых людей</td><td>T-077 · <code>usability-test-protocol.md</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════ 16 -->
+<section id="debt">
+  <div class="kicker"><b>16</b><span class="label">Долг</span></div>
+  <h2>Долг и порядок работ</h2>
+  <p>Порядок задаёт вред для инспектора, а не сложность правки. P0 блокирует работу или главный исход, P1 нарушает принятое решение или WCAG AA, P2 — шероховатости. Номера строк — на ветке от <code>b53d995</code>.</p>
+  <div class="debt">
+    <div class="p0"><h4>P0 <b>4</b></h4><ol>
+      <li>Загрузка файлов недоступна с клавиатуры: поле скрыто <code>hidden</code> <span class="mono">NewInspection.tsx:65–75</span></li>
+      <li>Документ открывается только кликом по строке <span class="mono">Inspection.tsx:252</span></li>
+      <li>Контраст пилюль: «Признано» 4,35, «На оценку» 4,19, плотная янтарная 2,27, серая 3,12</li>
+      <li>Верификация перехватывает <kbd>Space</kbd> и стрелки у кнопок и select <span class="mono">Verify.tsx:223–228</span></li>
+    </ol></div>
+    <div><h4>P1 <b>11</b></h4><ol>
+      <li>«Нарушения» и «Нет доказательства» от имени системы: дашборд, карточка, <code>labels.ts:37</code></li>
+      <li>«Подтверждено», «Вердикт ИИ» от имени модели</li>
+      <li>Токен <code>--mute-ground #565E6E</code> и Δ на surface-2</li>
+      <li>Поля без подписей, диалоги без фокуса, вкладки без ролей</li>
+      <li>KPI-плитки над списком; панели с обводкой на белом</li>
+      <li>Красный вне «признано»; цвет на статусе и приоритете сразу</li>
+      <li>Фиолетовый фавикон <span class="mono">index.html:6</span></li>
+      <li>Граница поля 1,59, рамка «фактически» на surface-2 2,77</li>
+      <li>Статус только цветом: лента хода, лента кодов</li>
+      <li>Ошибки как <code>alert</code></li>
+      <li>Финализация тихо не уходит, если за 10 с уйти со страницы <span class="mono">UndoWindow.tsx:34–37</span></li>
+    </ol></div>
+    <div><h4>P2 <b>7</b></h4><ol>
+      <li>Жаргон и коды: «партия», <code>parse_status</code>, названия движков</li>
+      <li>Остатки <code>e.key</code>, подсказки клавиш на вторичных кнопках</li>
+      <li>Меньше движения — прозрачность за 90 мс вместо нуля</li>
+      <li><code>aria-label</code> на <code>div</code>, нет <code>&lt;main&gt;</code>, таймер в <code>aria-live</code></li>
+      <li>Иконочные кнопки без видимой подписи</li>
+      <li>Деления хода 8 px, скрытые полосы прокрутки</li>
+      <li>CSS: дубли правил, мёртвый Onest, классы без стилей, 11 радиусов, 18 кеглей</li>
+    </ol></div>
+  </div>
+  <div class="note aim"><b>Вне приложения, но в той же системе.</b> Материалы демо-стенда, карты ГЕРЫ и ролик демо (<code>demo-docs.mjs</code>, <code>trace-map.mjs</code>, <code>arch-map.mjs</code>, <code>record-demo.mjs</code>) свёрстаны первой палитрой: почти белый фон, индиго <code>#3B4FA8</code>, Onest. Протокол набран Onest вместо Golos Text. Эта страница — первая из материалов на токенах «Чертёжного бетона».</div>
+</section>
+
+<!-- ═══════════════ 17 -->
+<section id="never">
+  <div class="kicker"><b>17</b><span class="label">Правила</span></div>
+  <h2>Никогда / обязано быть</h2>
+  <p>Запрет без парного требования не принимается: каждое «никогда» идёт вместе с тем, что должно быть вместо него. Справа — как это выполнено сейчас.</p>
+  <div class="never">
+    <div class="h">Никогда</div><div class="h">Обязано быть</div>
+    <div>Тёмная тема, тёмный рейл, подстройка под системную тему</div><div>Светлая среда при любых настройках ОС, подложка среднего тона <span class="st ok">да</span></div>
+    <div>Фиолетовый или индиго как «цвет продукта»</div><div>Графитовая основная кнопка и один кобальт <span class="st part">фавикон</span></div>
+    <div>Серифный дисплей с терракотой, бежевый «крафт»</div><div>Geologica на холодном бетоне <code>#D9DDE3</code> <span class="st ok">да</span></div>
+    <div>Белые карточки с обводкой на белом</div><div>Карточки светлее подложки, разделение светлотой <span class="st gap">нет</span></div>
+    <div>KPI-плитки «для красоты» над рабочим списком</div><div>Одно число «осталось N решений» и оценка минут <span class="st gap">нет</span></div>
+    <div>Цвет на стадии, статусе и приоритете одновременно</div><div>Хроматика только у аргумента и исхода «признано» <span class="st gap">нет</span></div>
+    <div>Самая яркая кнопка на «Подтвердить»</div><div>Три решения равного веса <span class="st ok">да</span></div>
+    <div>«Вы уверены?»</div><div>Отмена <kbd>Z</kbd>, окно 10 с, удержание только для подписи <span class="st part">без удержания</span></div>
+    <div>Лист целиком в колонке 300 px</div><div>Кроп вокруг рамки, <kbd>Space</kbd> — весь лист <span class="st ok">да</span></div>
+    <div>Скелетоны и спиннеры между кандидатами</div><div>Три следующих загружены заранее <span class="st ok">да</span></div>
+    <div>Пульсации, свечения, стекло над чертежом</div><div>Движение с причиной, ≤ 280 мс, прерываемое вводом <span class="st ok">да</span></div>
+    <div>Клавиши по <code>e.key</code></div><div>Клавиши по <code>e.code</code> и подсказка у каждой кнопки <span class="st part">подсказки</span></div>
+    <div>Пустое состояние с маскотом</div><div>Одна фраза: что произошло, что дальше, какой клавишей <span class="st part">без клавиши</span></div>
+    <div>Эмодзи и «✨ ИИ»</div><div>Позиция советника серым в одну строку <span class="st gap">цветная пилюля</span></div>
+    <div>Иконки без подписи в рабочей зоне</div><div>Подпись и клавиша; иконка без подписи — только в рейле <span class="st part">частично</span></div>
+    <div>Цвет как единственный носитель различия</div><div>Форма рамки: сплошная, двойная, пунктир <span class="st part">лента хода</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════ 18 -->
+<section id="method">
+  <div class="kicker"><b>18</b><span class="label">Метод</span></div>
+  <h2>Как собрана страница</h2>
+  <p>Страница описывает, <b>как есть</b> в коде, рядом с тем, <b>как решено</b> в <code>docs/scenario-map/05-дизайн-язык.md</code>. Новых требований она не вводит. Пять ролей независимо прочитали код <code>apps/web</code> и документы, каждая со ссылками на строки. Затем дизайн-директор свёл находки и пересчитал контраст.</p>
+  <div class="team">
+    <div><b>Инженер дизайн-системы</b><p>Инвентарь 40 токенов, реестр компонентов, словари статусов, цвета вне токенов.</p></div>
+    <div><b>Архитектор опыта</b><p>Маршруты и роли, главный путь, состояния, клавиши, диалоги, дефекты сценариев.</p></div>
+    <div><b>Визуальный дизайнер</b><p>Каркас, шкала кеглей и отступов, рамки на листе, движение, печатные формы.</p></div>
+    <div><b>Аудитор</b><p>Контраст WCAG, фокус и ARIA, голос, построчная проверка «никогда / обязано».</p></div>
+    <div><b>Историк решений</b><p>Хроника решений с источниками, подход к реализации, юзабилити, открытые вопросы.</p></div>
+  </div>
+  <h3>Источники</h3>
+  <ul style="font-size:13.5px;color:var(--ink-2)">
+    <li><code>docs/scenario-map/05-дизайн-язык.md</code> — язык «Чертёжный бетон» (T-103)</li>
+    <li><code>docs/scenario-map/02-экспертная-панель.md</code>, <code>panel/ux.md</code> — споры и решения панели</li>
+    <li><code>apps/web/src/styles.css</code>, <code>components/*.tsx</code>, <code>pages/*.tsx</code>, <code>lib/*.ts</code> — как сделано</li>
+    <li><code>ml/inspector_ml/render_appendix2.py</code> — протокол PDF/DOCX</li>
+    <li><code>apps/web/Dockerfile</code>, <code>nginx.conf</code>, <code>scripts/local-gate.sh</code> — поставка</li>
+    <li>задачи T-013…T-016, T-077, T-103, T-106, T-109…T-112, T-121, T-131, T-167</li>
+  </ul>
+</section>
+
+<footer>«Инспектор ИИ / Надзориум» · дизайн-система «Чертёжный бетон» · страница T-167, 28.09.2026 · собрана по коду ветки от <code>b53d995</code>. Все шрифты — OFL, свой хостинг. Лист в разделе 07 синтетический.</footer>
+</main>
+</div>
+
+<script src="../assets/mermaid.min.js"></script>
+<script>
+if (window.mermaid) mermaid.initialize({startOnLoad:true,securityLevel:"strict",theme:"base",themeVariables:{fontFamily:"Golos Text, system-ui, sans-serif",fontSize:"13px",primaryColor:"#EEF0F4",primaryBorderColor:"#3F4656",primaryTextColor:"#11151D",lineColor:"#6B7384",tertiaryColor:"#F8F9FB",edgeLabelBackground:"#F8F9FB"}});
+// оглавление: подсветка текущего раздела
+(function(){
+  var links = {}; document.querySelectorAll(".toc a").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+  if (!("IntersectionObserver" in window)) return;
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { for (var k in links) links[k].classList.remove("on"); var l = links[e.target.id]; if (l) { l.classList.add("on"); if (window.innerWidth <= 900) l.scrollIntoView({block:"nearest",inline:"center"}); } } }); }, {rootMargin:"-30% 0px -60% 0px"});
+  document.querySelectorAll("main > section").forEach(function(s){ io.observe(s); });
+})();
+</script>
+</body>
+</html>

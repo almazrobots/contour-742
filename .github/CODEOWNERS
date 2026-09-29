@@ -1,0 +1,7 @@
+# Исключения скана секретов и гейт CI — только с ревью владельца
+/.gitleaksignore @almazrobots
+/.github/ @almazrobots
+/.gitleaks.toml @almazrobots
+/scripts/security-guard.mjs @almazrobots
+/CODEOWNERS @almazrobots
+/docs/CODEOWNERS @almazrobots

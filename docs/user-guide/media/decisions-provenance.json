@@ -1,0 +1,93 @@
+{
+  "schema": "docs-scenario.v1",
+  "scenario_id": "inspector-reject-undo-clarify",
+  "role": "inspector",
+  "api_revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+  "ui_asset_hashes": [
+    {
+      "path": "/assets/index-D77tWavi.css",
+      "sha256": "28d1bf35c3007319799ffa5ecd56d25b626802f1ee9fabe2eeeb11d5274630b0",
+      "bytes": 32091
+    },
+    {
+      "path": "/assets/index-YUsdhbUv.js",
+      "sha256": "43b525b6946e1ab696c7d408179c5988a07420ada62ae61412159ee6b404c0e1",
+      "bytes": 869045
+    }
+  ],
+  "data": "Synthetic PDFs and precomputed candidate; no OCR",
+  "production_api_calls": 0,
+  "production_writes": 0,
+  "chapters": [
+    {
+      "seconds": 0.575,
+      "title": "Учебная проверка: заранее подготовленные результаты, два кандидата"
+    },
+    {
+      "seconds": 3.906,
+      "title": "Сравните настоящие учебные PDF: в ПД 11 этажей, в РД 12"
+    },
+    {
+      "seconds": 6.838,
+      "title": "Снять: выберите причину; стандартная причина сразу сохраняет решение"
+    },
+    {
+      "seconds": 9.95,
+      "title": "Снятие сохранено; последнее решение можно вернуть клавишей Z"
+    },
+    {
+      "seconds": 13.005,
+      "title": "После возврата перепроверьте карточку и источники"
+    },
+    {
+      "seconds": 15.852,
+      "title": "Уточнить: сохранён новый исход; прежнее решение остаётся в истории"
+    }
+  ],
+  "duration_seconds": 18.48,
+  "validated": [
+    "reject persisted",
+    "undo superseded previous decision",
+    "clarify persisted"
+  ],
+  "page_errors": [],
+  "capture_wall_clock_seconds": 19.246,
+  "video_review": {
+    "duration": 18.48,
+    "width": 1440,
+    "height": 1000,
+    "playback": "complete without decoder error",
+    "frames": [
+      {
+        "seconds": 1.575,
+        "file": "decoded-0.png",
+        "sha256": "31b3941b0693390b110cd51897a3770fd91cc6b03091d14b9f741da98e2c6628"
+      },
+      {
+        "seconds": 4.906000000000001,
+        "file": "decoded-1.png",
+        "sha256": "576f80550d9b2cdd8fd552e49711dc35cbe2104f5ad3ac9e83cbb7fc0cd0002b"
+      },
+      {
+        "seconds": 7.838,
+        "file": "decoded-2.png",
+        "sha256": "5b8aac50ba1b485f08e89786d360a1b0d5c6a413069ebd446b295418717eeafb"
+      },
+      {
+        "seconds": 10.95,
+        "file": "decoded-3.png",
+        "sha256": "f55a1d57ff797bee5bde90fc1485c13afe30511ad7fb428e3a6a4d6ffaf55c37"
+      },
+      {
+        "seconds": 14.005,
+        "file": "decoded-4.png",
+        "sha256": "2bd7e47b5c74e9231a0736a2cdb5333cc4e4798131f7636dd55ac488bba34e7a"
+      },
+      {
+        "seconds": 16.852,
+        "file": "decoded-5.png",
+        "sha256": "f18901aa198c47a6adf0e6a00dc25e2426c3a98ea538851bc9b20dc08e899096"
+      }
+    ]
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "schema": "docs-scenario.v1",
+  "scenario_id": "inspector-decision-finalize",
+  "role": "inspector",
+  "fixture_id": "synthetic-pd11-rd12",
+  "api_revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+  "source_web_image": "e1c9dc4f61d29e71212dda8ad5fa69f9b1cda68a",
+  "ui_source_parity": "not claimed: deployed overlay; asset hashes recorded",
+  "ui_asset_hashes": [
+    {
+      "path": "/assets/index-D77tWavi.css",
+      "sha256": "28d1bf35c3007319799ffa5ecd56d25b626802f1ee9fabe2eeeb11d5274630b0",
+      "bytes": 32091
+    },
+    {
+      "path": "/assets/index-JNMiEqrR.js",
+      "sha256": "5719a6eee9744d568afd917dc286e99dfb35cb4cae6cd67331c536cbab0cfefa",
+      "bytes": 867951
+    }
+  ],
+  "health_revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+  "data": "Synthetic PDFs and precomputed candidate; no OCR/ML demonstration",
+  "production_api_calls": 0,
+  "production_writes": 0,
+  "fixture_api_calls": 16,
+  "check_id": "DOCS-CHECK-01",
+  "outcome": "CONFIRMED_VIOLATION; FINALIZED; PENDING_SYNC",
+  "validated": [
+    "premature_finalize_409",
+    "two_pdf_originals",
+    "decision_user",
+    "decision_audit",
+    "COMPLETED",
+    "real_10sec_undo",
+    "protocol_FINALIZED",
+    "sync_PENDING_SYNC",
+    "decision_after_finalize_409"
+  ],
+  "originals": [
+    {
+      "id": "DOCS-FILE-PD",
+      "stage": "PD",
+      "sha": "336d2c6fa2dff1cae662cace1f075fffb58b8fd166e36932f73e4b1ce1c6b182",
+      "bytes": 43324
+    },
+    {
+      "id": "DOCS-FILE-RD",
+      "stage": "RD",
+      "sha": "bd9c4c36e22319e6d4ea7154e1f90d6b4f0118c471f6941e8a596315a051192b",
+      "bytes": 43424
+    }
+  ],
+  "finalize_wait_ms": 10088,
+  "duration_seconds": 22.04,
+  "chapters": [
+    {
+      "seconds": 0.297,
+      "title": "Учебная проверка: заранее подготовленные результаты, один кандидат"
+    },
+    {
+      "seconds": 3.311,
+      "title": "Сравните настоящие учебные PDF: в ПД 11 этажей, в РД 12"
+    },
+    {
+      "seconds": 6.307,
+      "title": "Признать: решение сохранено настоящим API в отдельной учебной базе"
+    },
+    {
+      "seconds": 9.238,
+      "title": "Завершите сводку: доступно настоящее десятисекундное окно отмены"
+    },
+    {
+      "seconds": 19.337,
+      "title": "Сводка завершена; передача в РиН ожидается и в этом видео не выполняется"
+    }
+  ],
+  "page_errors": [],
+  "recorded_at": "2026-09-29T16:04:44.068Z",
+  "capture_wall_clock_seconds": 22.734,
+  "video_review": {
+    "width": 1440,
+    "height": 1000,
+    "duration": 22.04,
+    "buffered_end": 22.04,
+    "playback": "complete without decoder error",
+    "decoded_frames": [
+      {
+        "seconds": 4,
+        "file": "decoded-evidence.png",
+        "sha256": "8a7b3d681da1b3c8cb8f9747236cd72b1a4e07ccaffdc735108ac5e54163cda1"
+      },
+      {
+        "seconds": 15,
+        "file": "decoded-undo.png",
+        "sha256": "6eaf08b8e5471ec13878d3a89bd588668e1157d3619639ceb030d0c13b395861"
+      },
+      {
+        "seconds": 21,
+        "file": "decoded-finalized.png",
+        "sha256": "cb8c015042d1feb0f361e0741d811515a7a3e955783be43ad50b885a5cc0135c"
+      }
+    ]
+  }
+}

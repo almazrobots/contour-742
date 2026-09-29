@@ -1,0 +1,283 @@
+{
+ "_about": "Синтетика по контракту GeomMention (ADR-0010) для тестов T-193; координаты — мм в осях здания (bld) или мм листа (sheet). Не корпус (ADR-0002). Извещатели (ENT-08), помещение (ENT-01), воздуховод (ENT-09), стены (ENT-11), клапаны (ENT-08 damper).",
+ "RD": [
+  {
+   "entity": "ENT-08",
+   "measure": "count",
+   "value": null,
+   "unit": "шт",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "ИП1",
+   "at": [
+    3000,
+    3000
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": "smoke_detector",
+   "system": null
+  },
+  {
+   "entity": "ENT-08",
+   "measure": "count",
+   "value": null,
+   "unit": "шт",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "ИП2",
+   "at": [
+    9000,
+    3000
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": "smoke_detector",
+   "system": null
+  },
+  {
+   "entity": "ENT-01",
+   "measure": "area",
+   "value": null,
+   "unit": "м²",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "201",
+   "at": null,
+   "polygon": [
+    [
+     0,
+     0
+    ],
+    [
+     12000,
+     0
+    ],
+    [
+     12000,
+     6000
+    ],
+    [
+     0,
+     6000
+    ]
+   ],
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": null,
+   "system": null
+  },
+  {
+   "entity": "ENT-09",
+   "measure": "relation",
+   "value": null,
+   "unit": "мм",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "В1",
+   "at": null,
+   "polygon": [
+    [
+     0,
+     10000
+    ],
+    [
+     20000,
+     10000
+    ]
+   ],
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": "duct",
+   "system": "В1"
+  },
+  {
+   "entity": "ENT-11",
+   "measure": "relation",
+   "value": null,
+   "unit": "мм",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "С1",
+   "at": null,
+   "polygon": [
+    [
+     6000,
+     8000
+    ],
+    [
+     6000,
+     12000
+    ]
+   ],
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": "fire",
+   "system": null
+  },
+  {
+   "entity": "ENT-11",
+   "measure": "relation",
+   "value": null,
+   "unit": "мм",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "С2",
+   "at": null,
+   "polygon": [
+    [
+     14000,
+     8000
+    ],
+    [
+     14000,
+     12000
+    ]
+   ],
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": "fire",
+   "system": null
+  },
+  {
+   "entity": "ENT-11",
+   "measure": "relation",
+   "value": null,
+   "unit": "мм",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "С3",
+   "at": null,
+   "polygon": [
+    [
+     10000,
+     8000
+    ],
+    [
+     10000,
+     12000
+    ]
+   ],
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": "plain",
+   "system": null
+  },
+  {
+   "entity": "ENT-08",
+   "measure": "relation",
+   "value": null,
+   "unit": "шт",
+   "by": "geometry",
+   "label_value": null,
+   "measured_value": null,
+   "key": "КЛ1",
+   "at": [
+    6300,
+    10000
+   ],
+   "polygon": null,
+   "graph": null,
+   "frame": "bld",
+   "scale_n": 100.0,
+   "scale_spread_pct": 0.4,
+   "residual_mm": 3.0,
+   "page": 1,
+   "bbox": [
+    0.1,
+    0.1,
+    0.2,
+    0.15
+   ],
+   "quote": "",
+   "kind": "fire_damper",
+   "system": null
+  }
+ ]
+}

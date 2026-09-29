@@ -1,0 +1,39 @@
+# Reuse the production ClamAV client before uploads reach FS/S3.
+# The official image already carries signatures; freshclam updates them in a
+# dedicated persistent volume. No corpus or credentials are mounted here.
+services:
+  api:
+    environment:
+      INSPECTOR_AV: clamd
+      INSPECTOR_CLAMD_HOST: clamav
+      INSPECTOR_CLAMD_PORT: "3310"
+    depends_on:
+      clamav: { condition: service_healthy }
+  clamav:
+    image: clamav/clamav:stable@sha256:0e31ce089574268aefa0b543767d66b70240ab51ed49eec53e07f18d5629d817
+    user: "100:101"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - freshclam --daemon --foreground --config-file=/etc/clamav/freshclam.conf & exec clamd --foreground --config-file=/etc/clamav/clamd.conf
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    cpus: 2
+    mem_limit: 3g
+    memswap_limit: 3g
+    pids_limit: 128
+    tmpfs: ["/tmp:uid=100,gid=101,mode=1777,size=256m"]
+    volumes:
+      - clamav-db:/var/lib/clamav
+      - ../platform/clamd.conf:/etc/clamav/clamd.conf:ro
+      - ../platform/freshclam.conf:/etc/clamav/freshclam.conf:ro
+    networks: [backend, edge]
+    healthcheck:
+      test: ["CMD", "clamdscan", "--ping=1", "--config-file=/etc/clamav/clamd.conf"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 120s
+volumes:
+  clamav-db: {}

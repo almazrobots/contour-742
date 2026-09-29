@@ -1,0 +1,60 @@
+{
+ "object": {
+  "object_id": "OBJ-ROOM-1",
+  "name": "Школа на 600 мест (синтетический двойник)",
+  "address": "г. Москва, ул. Вымышленная Тюменская, вл. 5",
+  "customer": "АНО «Вымышленная инфраструктура»",
+  "contractor": "ООО «Условный подрядчик»",
+  "permit_number": "77-000-0005-2025",
+  "profile": {
+   "residential": false,
+   "underground": true,
+   "gas": false,
+   "demolition": false
+  }
+ },
+ "files": [
+  {
+   "file_id": "ROOM-PD-OV",
+   "file_name": "ROOM-PD-OV.pdf",
+   "sha256": "5cb627afce9af3bd2c15b7031636f3e7db161b8e731b414019437a961ee4e09f",
+   "doc_stage": "PD",
+   "discipline": "ИОС4",
+   "document_code": "РУМ-П-ИОС4.2",
+   "revision": "1",
+   "approval_status": "APPROVED",
+   "approval_date": "2024-03-10",
+   "sheet_page_range": "1",
+   "predecessor_id": null,
+   "signature_status": "SCAN_SIGNED"
+  },
+  {
+   "file_id": "ROOM-RD-OV21",
+   "file_name": "ROOM-RD-OV21.pdf",
+   "sha256": "138ef57550af9d762c4655454e1c9d822a60e7269a45c1a40608ba7166ab9dd8",
+   "doc_stage": "RD",
+   "discipline": "ОВ",
+   "document_code": "РУМ-РД-ОВ2.1",
+   "revision": "3",
+   "approval_status": "FOR_CONSTRUCTION",
+   "approval_date": "2025-04-23",
+   "sheet_page_range": "1",
+   "predecessor_id": null,
+   "signature_status": "SCAN_SIGNED"
+  },
+  {
+   "file_id": "ROOM-ID-ISP",
+   "file_name": "ROOM-ID-ISP.pdf",
+   "sha256": "76c6a8be43765f9181bc71eab204299d9446f01583b8dc6ccb481a1431d93235",
+   "doc_stage": "ID",
+   "discipline": "ОВ",
+   "document_code": "РУМ-ИД-ОВ2.1",
+   "revision": "1",
+   "approval_status": "APPROVED",
+   "approval_date": "2025-10-07",
+   "sheet_page_range": "1",
+   "predecessor_id": null,
+   "signature_status": "SCAN_SIGNED"
+  }
+ ]
+}

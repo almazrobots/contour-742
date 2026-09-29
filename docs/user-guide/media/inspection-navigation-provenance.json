@@ -1,0 +1,55 @@
+{
+  "schema": "docs-scenario.v1",
+  "scenario_id": "inspector-reject-undo-clarify",
+  "role": "inspector",
+  "api_revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+  "ui_asset_hashes": [
+    {
+      "path": "/assets/index-D77tWavi.css",
+      "sha256": "28d1bf35c3007319799ffa5ecd56d25b626802f1ee9fabe2eeeb11d5274630b0",
+      "bytes": 32091
+    },
+    {
+      "path": "/assets/index-YUsdhbUv.js",
+      "sha256": "43b525b6946e1ab696c7d408179c5988a07420ada62ae61412159ee6b404c0e1",
+      "bytes": 869045
+    }
+  ],
+  "data": "Synthetic PDFs and precomputed candidate; no OCR",
+  "production_api_calls": 0,
+  "production_writes": 0,
+  "injected_failure": null,
+  "chapters": [
+    {
+      "seconds": 0.747,
+      "title": "Учебная проверка: заранее подготовленные результаты, два кандидата"
+    },
+    {
+      "seconds": 4.084,
+      "title": "Сравните настоящие учебные PDF: в ПД 11 этажей, в РД 12"
+    },
+    {
+      "seconds": 6.998,
+      "title": "Снять: выберите причину; стандартная причина сразу сохраняет решение"
+    },
+    {
+      "seconds": 10.108,
+      "title": "Снятие сохранено; последнее решение можно вернуть клавишей Z"
+    },
+    {
+      "seconds": 13.238,
+      "title": "После возврата перепроверьте карточку и источники"
+    },
+    {
+      "seconds": 16.097,
+      "title": "Уточнить: сохранён новый исход; прежнее решение остаётся в истории"
+    }
+  ],
+  "duration_seconds": 19.485,
+  "validated": [
+    "reject persisted",
+    "undo superseded previous decision",
+    "clarify persisted"
+  ],
+  "page_errors": []
+}

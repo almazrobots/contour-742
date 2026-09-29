@@ -1,0 +1,22 @@
+{
+  "_meta": { "description": "Data stream inspector-security* → ILM inspector-security (ТЗ 12.5, 13.3: ERROR и WARNING по безопасности хранятся 1 год (TZA-12.5-01, TZA-13.3-01))" },
+  "index_patterns": ["inspector-security*"],
+  "data_stream": {},
+  "priority": 500,
+  "template": {
+    "settings": {
+      "index.lifecycle.name": "inspector-security",
+      "index.number_of_replicas": 0
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": { "type": "date" },
+        "level": { "type": "keyword" },
+        "service": { "type": "keyword" },
+        "message": { "type": "text", "fields": { "raw": { "type": "keyword", "ignore_above": 1024 } } },
+        "request_id": { "type": "keyword" },
+        "user_id": { "type": "keyword" }
+      }
+    }
+  }
+}

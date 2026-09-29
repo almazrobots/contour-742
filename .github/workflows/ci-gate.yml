@@ -1,0 +1,190 @@
+# Гейт «Инспектора ИИ» (T-060) по шаблону qa-standard/ci-gate-v2 и ADR-0005:
+# self-hosted раннер собирает → неизменяемый :<git-sha> в приватный реестр → digest уходит в деплой.
+# Уровень по services/STANDARD.md — Q3: секрет-скан, тесты, сборка, ЗАПУСК каждого образа со сверкой
+# revision, trivy HIGH/CRITICAL, digest от гейта. Мутации (Stryker, mutmut) — по расписанию, без needs у деплоя.
+#
+# Не подключено до решения владельца (T-060): у репозитория пока нет remote. Нужны: репозиторий в GitHub,
+# vars.RUNNER_LABEL (раннер с Docker и ≥ 10 ГБ диска), secrets.REGISTRY_HOST/USER/PASSWORD, хост стенда и
+# services/inspector.conf в infra-as-a-code. Деплой-джоба (deploy-service-v2) добавляется тем же коммитом.
+# Раннер: Docker, uv, tesseract-ocr (rus, eng) — для тестов ML из исходников.
+# Граница доверия (T-087): раннер self-hosted с docker.sock — только одноразовый (config.sh --ephemeral, новый на
+# каждую джобу), в репозитории — «Require approval for all outside collaborators». PR из форков гейт не исполняет.
+# Сборка, smoke и trivy — на локальных тегах inspector-<img>:<sha>; секреты реестра — только в шагах публикации
+# на main (push и недельная пересборка), в PR их нет.
+
+name: CI gate
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * 1"  # недельная пересборка: сканер видит новые CVE и без коммитов
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: gate (gitleaks → тесты → build → smoke → trivy → push)
+    # Без раннера (vars.RUNNER_LABEL не задан) гейт пропускается, а не падает до старта: решение владельца
+    # 2026-09-26 — гейт гоняется локально на маке, scripts/local-gate.sh (T-104).
+    # PR из форка не исполняется на self-hosted раннере с docker.sock (T-087)
+    if: vars.RUNNER_LABEL != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: [self-hosted, "${{ vars.RUNNER_LABEL }}"]
+    timeout-minutes: 60
+    concurrency:
+      group: ci-${{ github.ref }}
+      cancel-in-progress: true
+    outputs:
+      prebuilt_images: ${{ steps.digest.outputs.prebuilt_images }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with: { fetch-depth: 0 }
+
+      # Страж настроек безопасности для push (T-060) — СИГНАЛ, не граница: шаг исполняется из пушнутого коммита,
+      # пушащий может его удалить. Граница для PR — security-guard.yml (pull_request_target, версия из main);
+      # запрет прямого push в main — только защита веток на сервере GitHub. Ветка сравнивается накопительно от
+      # точки расхождения с main (правку нельзя разнести по нескольким push); main — от предыдущего состояния.
+      - name: страж настроек безопасности (push, сигнал)
+        if: ${{ github.event_name == 'push' && !(github.ref == 'refs/heads/main' && github.actor == github.repository_owner) }}
+        env: { BEFORE: "${{ github.event.before }}", REF: "${{ github.ref }}" }
+        run: |
+          set -euo pipefail
+          if [ "$REF" = "refs/heads/main" ]; then BASE="$BEFORE"; else BASE=$(git merge-base origin/main HEAD); fi
+          node scripts/security-guard.mjs "$BASE" "$(git rev-parse HEAD)"
+
+      - name: gitleaks
+        env: { GITLEAKS: "ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f" }
+        run: docker run --rm -v "$PWD:/repo" "$GITLEAKS" detect --source=/repo --gitleaks-ignore-path=/repo/.gitleaksignore --redact --no-banner  # .gitleaksignore — разобранные срабатывания истории
+
+      # API, веб, deploy, трасса ГЕРЫ: pnpm test = pnpm -r test && test:deploy && trace:check
+      - uses: almazrobots/qa-standard/.github/actions/qa-gate@23ab9cf817d3ac3c8271796e35e6e4ad21a0a742
+        with:
+          node-version: "24"
+          package-manager: pnpm
+          run-build: "false"
+
+      - name: тесты ML
+        working-directory: ml
+        run: |
+          set -euo pipefail
+          # T-083: окружение тестов — из uv.lock; --locked падает, если lock разошёлся с pyproject.toml
+          ml_workers=${ML_TEST_WORKERS:-2}
+          case "$ml_workers" in [1-8]) ;; *) echo "ML_TEST_WORKERS должен быть целым числом 1..8" >&2; exit 64 ;; esac
+          uv sync --locked --python 3.12 --extra dev --extra semantic
+          .venv/bin/pytest -q -n "$ml_workers" --dist loadfile -m 'not performance' --durations=30
+          # Приёмочные временные пороги — отдельный последовательный прогон.
+          .venv/bin/pytest -q -n 0 -m performance
+
+      - name: "диск: ≥ 10 GB свободно"
+        run: |
+          set -euo pipefail
+          free_gb=$(( $(df -Pk / | awk 'NR==2 {print $4}') / 1024 / 1024 ))
+          [ "$free_gb" -ge 10 ] || { echo "::error::свободно ${free_gb} GB < 10"; exit 1; }
+
+      - name: docker build (api, ml, web)
+        env: { SHA: "${{ github.sha }}" }
+        run: |
+          set -euo pipefail
+          docker build --build-arg REVISION="$SHA" -f apps/api/Dockerfile -t "inspector-api:$SHA" .
+          docker build --build-arg REVISION="$SHA" -f ml/Dockerfile      -t "inspector-ml:$SHA" .
+          docker build --build-arg REVISION="$SHA" -f apps/web/Dockerfile -t "inspector-web:$SHA" .
+
+      # Сборка ≠ запуск (инцидент портфеля 2026-08-26): каждый образ поднимается так, как в стенде —
+      # read_only, cap_drop ALL; /health = 200 и revision = sha сборки; web — по TLS с CSP.
+      - name: smoke-run образов
+        env: { SHA: "${{ github.sha }}" }
+        run: |
+          set -euo pipefail
+          HARD=(--read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges:true)
+          docker network create smoke-net >/dev/null
+          wait_health() {  # $1 — url, $2 — ожидаемая ревизия (пусто — не сверять)
+            for _ in $(seq 1 45); do
+              body=$(curl -sk --max-time 5 "$1" || true)
+              if echo "$body" | grep -q '"status":"ok"'; then
+                [ -z "$2" ] || echo "$body" | grep -q "\"revision\":\"$2\"" || { echo "::error::$1: revision ≠ $2: $body"; return 1; }
+                return 0
+              fi
+              sleep 2
+            done
+            echo "::error::$1 не ответил"; return 1
+          }
+          docker run -d --name smoke-ml --network smoke-net --network-alias ml "${HARD[@]}" -p 127.0.0.1:18811:8811 \
+            -e INSPECTOR_PROFILE=dev -e INSPECTOR_ML_CACHE=/tmp/ml-cache "inspector-ml:$SHA" >/dev/null  # в dev кэш — файлы; /app/var только для чтения
+          wait_health http://127.0.0.1:18811/health "$SHA" || { docker logs smoke-ml | tail -40; exit 1; }
+          # семантика в образе x86 обязана загрузиться, иначе извлечение молча лексическое
+          docker exec smoke-ml python -c "from inspector_ml.semantic import get_embedder; assert get_embedder() is not None"
+          # TLS стенда — одноразовый корень и сертификат api (SAN: api, localhost)
+          mkdir -p smoke-tls && cd smoke-tls
+          openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256 -nodes -days 1 -subj "/CN=smoke-ca" \
+            -addext "basicConstraints=critical,CA:TRUE" -keyout ca.key -out ca.crt 2>/dev/null
+          openssl req -newkey ec -pkeyopt ec_paramgen_curve:P-256 -nodes -subj "/CN=api" -keyout server.key -out server.csr 2>/dev/null
+          printf 'subjectAltName=DNS:api,DNS:localhost,IP:127.0.0.1\nextendedKeyUsage=serverAuth\n' > ext.cnf
+          openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 1 -extfile ext.cnf -out server.crt 2>/dev/null
+          chmod 644 server.key && cd ..
+          docker run -d --name smoke-api --network smoke-net --network-alias api "${HARD[@]}" --tmpfs /app/var -p 127.0.0.1:18810:8810 \
+            -v "$PWD/smoke-tls:/run/tls:ro" -e INSPECTOR_PROFILE=dev -e HOST=0.0.0.0 -e INSPECTOR_ML_URL=http://ml:8811 \
+            -e INSPECTOR_TLS_CERT=/run/tls/server.crt -e INSPECTOR_TLS_KEY=/run/tls/server.key -e INSPECTOR_DEMO_PASSWORD="$(openssl rand -hex 12)" \
+            "inspector-api:$SHA" >/dev/null
+          wait_health https://127.0.0.1:18810/health "$SHA" || { docker logs smoke-api | tail -40; exit 1; }
+          docker run -d --name smoke-web --network smoke-net "${HARD[@]}" --user 101:101 -p 127.0.0.1:18443:8443 \
+            -v "$PWD/smoke-tls:/run/tls:ro" "inspector-web:$SHA" >/dev/null
+          wait_health https://127.0.0.1:18443/health "$SHA" || { docker logs smoke-web | tail -40; exit 1; }
+          curl -sk -D - -o /dev/null https://127.0.0.1:18443/ | grep -qi "content-security-policy: .*frame-ancestors 'none'" \
+            || { echo "::error::web без CSP"; exit 1; }
+          echo "smoke ok"
+
+      - name: smoke down
+        if: ${{ always() }}
+        run: |
+          docker rm -f smoke-ml smoke-api smoke-web >/dev/null 2>&1 || true
+          docker network rm smoke-net >/dev/null 2>&1 || true
+          rm -rf smoke-tls
+
+      - name: trivy (HIGH, CRITICAL)
+        env: { SHA: "${{ github.sha }}", TRIVY: "aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969" }
+        run: |
+          set -euo pipefail
+          for img in api ml web; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY" image \
+              --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress "inspector-$img:$SHA"
+          done
+
+      # Публикация — только main и не PR (push и недельная пересборка); секреты реестра — только здесь (T-087)
+      - name: docker push (только main)
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+        env: { REG: "${{ secrets.REGISTRY_HOST }}", USR: "${{ secrets.REGISTRY_USER }}", PWD_: "${{ secrets.REGISTRY_PASSWORD }}", SHA: "${{ github.sha }}" }
+        run: |
+          set -euo pipefail
+          echo "$PWD_" | docker login "$REG" -u "$USR" --password-stdin
+          for img in api ml web; do
+            docker tag "inspector-$img:$SHA" "$REG/inspector-$img:$SHA"
+            docker push "$REG/inspector-$img:$SHA"
+          done
+
+      # Карта {"api":"inspector-api@sha256:…", …} без хоста реестра (хост — секрет)
+      - name: digest → prebuilt_images
+        id: digest
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+        env: { REG: "${{ secrets.REGISTRY_HOST }}", SHA: "${{ github.sha }}" }
+        run: |
+          set -euo pipefail
+          map="{"
+          for img in api ml web; do
+            d=$(docker image inspect "$REG/inspector-$img:$SHA" --format '{{range .RepoDigests}}{{println .}}{{end}}' | grep -F "$REG/inspector-$img@sha256:" | head -n1)
+            [ -n "$d" ] || { echo "::error::digest inspector-$img не разрешился"; exit 1; }
+            map="$map\"$img\":\"${d#*/}\","
+          done
+          printf 'prebuilt_images=%s}\n' "${map%,}" >> "$GITHUB_OUTPUT"
+
+      # Очистка без секретов: локальный тег и тег реестра находятся по имени образа и sha
+      - name: docker image rm
+        if: ${{ always() }}
+        env: { SHA: "${{ github.sha }}" }
+        run: |
+          for img in api ml web; do
+            docker image ls --format '{{.Repository}}:{{.Tag}}' | grep -E "(^|/)inspector-$img:$SHA$" | xargs -r docker image rm -f >/dev/null 2>&1 || true
+          done

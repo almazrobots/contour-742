@@ -1,0 +1,39 @@
+# ТЗ 13.7 (T-085): доставка алертов «по почте и в Telegram». Образец — копия уходит на стенд (${ALERTMANAGER_CONFIG}),
+# адреса и релей правятся под стенд. Секреты — только файлами из ${ALERTMANAGER_SECRETS} (/run/secrets/alertmanager):
+# tg_bot_token, tg_chat_id, smtp_password. Alertmanager не подставляет переменные окружения в конфиг.
+# Telegram Bot API недоступен с российских адресов: на стенде в РФ нужен исходящий прокси (http_config.proxy_url).
+route:
+  receiver: ops-mail-and-telegram
+  group_by: [alertname]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers: ['severity="critical"']
+      receiver: ops-mail-and-telegram
+      repeat_interval: 1h
+    # NFR-SLA (ТЗ 11-12, rules/slo.yml): page — бюджет 99,9 % сгорает ×14,4 или проба лежит: сразу и часто
+    - matchers: ['severity="page"']
+      receiver: ops-mail-and-telegram
+      group_wait: 10s
+      repeat_interval: 30m
+    # ticket — медленное сгорание ×6 или исчерпанный бюджет за 30 дней: заявка, напоминание раз в 12 ч
+    - matchers: ['severity="ticket"']
+      receiver: ops-mail-and-telegram
+      repeat_interval: 12h
+
+receivers:
+  - name: ops-mail-and-telegram
+    email_configs:
+      - to: ops@example.invalid
+        from: inspector-alerts@example.invalid
+        smarthost: smtp.example.invalid:587
+        auth_username: inspector-alerts@example.invalid
+        auth_password_file: /run/secrets/alertmanager/smtp_password
+        require_tls: true
+        send_resolved: true
+    telegram_configs:
+      - bot_token_file: /run/secrets/alertmanager/tg_bot_token
+        chat_id_file: /run/secrets/alertmanager/tg_chat_id
+        parse_mode: HTML
+        send_resolved: true

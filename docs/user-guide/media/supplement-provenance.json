@@ -1,0 +1,157 @@
+{
+  "schema": "docs-scenario.v1",
+  "scenario_id": "upload-and-supplement-real-cpu",
+  "role": "inspector",
+  "fixture_id": "synthetic-textlayer-pdf-real-parser",
+  "api_revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+  "source_web_image": "e1c9dc4f61d29e71212dda8ad5fa69f9b1cda68a",
+  "ui_source_parity": "not claimed: deployed overlay; asset hashes",
+  "ui_asset_hashes": [
+    {
+      "path": "/assets/index-D77tWavi.css",
+      "sha256": "28d1bf35c3007319799ffa5ecd56d25b626802f1ee9fabe2eeeb11d5274630b0",
+      "bytes": 32091
+    },
+    {
+      "path": "/assets/index-YUsdhbUv.js",
+      "sha256": "43b525b6946e1ab696c7d408179c5988a07420ada62ae61412159ee6b404c0e1",
+      "bytes": 869045
+    }
+  ],
+  "health_revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+  "ml_health": {
+    "status": "ok",
+    "profile": "dev",
+    "llm": "none",
+    "version": "0.1.0",
+    "revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+    "ml_revision": "r5-x14"
+  },
+  "ml_calls": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/analyze",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/advise",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/analyze",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/advise",
+      "status": 200
+    }
+  ],
+  "production_api_calls": 0,
+  "production_writes": 0,
+  "data": "Generated text-layer PDF; real private CPU parser; no seeded DONE/results",
+  "not_demonstrated": [
+    "scan OCR",
+    "GPU parser parity",
+    "LLM/VLM",
+    "production antivirus",
+    "external RIN"
+  ],
+  "fixture_api_calls": 12,
+  "check_id": "2de60b5e-aca9-4f5d-8588-cf8c4fc6d3db",
+  "outcome": "Actual upload202; parserDONE; original SHA verified",
+  "parsed_file": {
+    "id": "2de60b5e-aca9-4f5d-8588-cf8c4fc6d3db",
+    "parse_status": "DONE",
+    "parse_error": null,
+    "engine": "pdfium",
+    "ml_revision": "r5-x14",
+    "pages_json": "[{\"page\":1,\"width\":800,\"height\":600,\"rotation\":0,\"source\":\"text\",\"quality\":\"OK\",\"ocr_confidence\":null,\"engines\":[],\"disputed_words\":0,\"agreement\":null,\"lines\":6,\"words\":30}]"
+  },
+  "extractions": [
+    {
+      "param_code": "M-007",
+      "raw": "11",
+      "value_num": 11,
+      "value_text": null,
+      "page": 1
+    },
+    {
+      "param_code": "M-023",
+      "raw": "С0",
+      "value_num": null,
+      "value_text": "С0",
+      "page": 1
+    }
+  ],
+  "pdf_sha256": "3a5e35022cacb922851950223eddd3b96bfac3b40224d5f0e576cbb87c0c1b2e",
+  "duration_seconds": 22.24,
+  "chapters": [
+    {
+      "seconds": 0.534,
+      "title": "Добавьте учебный PDF с текстовым слоем и заполните карточку объекта"
+    },
+    {
+      "seconds": 3.835,
+      "title": "Пакет принят настоящим API; начат отдельный CPU-разбор учебного PDF"
+    },
+    {
+      "seconds": 7.178,
+      "title": "Откройте Документы: статус обработки получен от настоящего Python ML"
+    },
+    {
+      "seconds": 10.659,
+      "title": "Оригинал доступен; значения действительно извлечены из учебного текстового слоя"
+    },
+    {
+      "seconds": 13.815,
+      "title": "Дозагрузка: проверьте номер существующей проверки, добавьте новый PDF"
+    },
+    {
+      "seconds": 17.507,
+      "title": "В прежней проверке два документа; оба обработаны отдельным CPU-парсером"
+    }
+  ],
+  "video_review": {
+    "width": 1440,
+    "height": 1000,
+    "duration": 22.24,
+    "error": null,
+    "frames": [
+      {
+        "seconds": 1.534,
+        "file": "decoded-form.png",
+        "sha256": "38746167ccb05a8a3849093ed724b713e1412a046d38b49b9d7aae3bd0f49ea4"
+      },
+      {
+        "seconds": 4.835,
+        "file": "decoded-accepted.png",
+        "sha256": "5ad51736572090d5d2cecfa30d6dd72983fe6aacd56131526e22475c4e9a58dd"
+      },
+      {
+        "seconds": 8.178,
+        "file": "decoded-documents.png",
+        "sha256": "609a4441418d19eabcd85a686f4700dd1da4031f3eb3802b54eaba452133f9f9"
+      },
+      {
+        "seconds": 11.659,
+        "file": "decoded-original.png",
+        "sha256": "0337fa012eb01416ee5e5f7d6969ca08dce5b673c9d457efd0a0fb8f3606bae0"
+      }
+    ]
+  },
+  "page_errors": [],
+  "recorded_at": "2026-09-29T17:42:18.794Z"
+}

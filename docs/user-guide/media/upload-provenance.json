@@ -1,0 +1,134 @@
+{
+  "schema": "docs-scenario.v1",
+  "scenario_id": "upload-real-cpu-textlayer-documents",
+  "role": "inspector",
+  "fixture_id": "synthetic-textlayer-pdf-real-parser",
+  "api_revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+  "source_web_image": "e1c9dc4f61d29e71212dda8ad5fa69f9b1cda68a",
+  "ui_source_parity": "not claimed: deployed overlay; asset hashes",
+  "ui_asset_hashes": [
+    {
+      "path": "/assets/index-D77tWavi.css",
+      "sha256": "28d1bf35c3007319799ffa5ecd56d25b626802f1ee9fabe2eeeb11d5274630b0",
+      "bytes": 32091
+    },
+    {
+      "path": "/assets/index-JNMiEqrR.js",
+      "sha256": "5719a6eee9744d568afd917dc286e99dfb35cb4cae6cd67331c536cbab0cfefa",
+      "bytes": 867951
+    }
+  ],
+  "health_revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+  "ml_health": {
+    "status": "ok",
+    "profile": "dev",
+    "llm": "none",
+    "version": "0.1.0",
+    "revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+    "ml_revision": "r5-x14"
+  },
+  "ml_calls": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/analyze",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/advise",
+      "status": 200
+    }
+  ],
+  "production_api_calls": 0,
+  "production_writes": 0,
+  "data": "Generated text-layer PDF; real private CPU parser; no seeded DONE/results",
+  "not_demonstrated": [
+    "scan OCR",
+    "GPU parser parity",
+    "LLM/VLM",
+    "production antivirus",
+    "external RIN"
+  ],
+  "fixture_api_calls": 8,
+  "check_id": "8408eb2b-88e4-4fe1-9db9-d59d5a67e308",
+  "outcome": "Actual upload202; parserDONE; original SHA verified",
+  "parsed_file": {
+    "id": "8408eb2b-88e4-4fe1-9db9-d59d5a67e308",
+    "parse_status": "DONE",
+    "parse_error": null,
+    "engine": "pdfium",
+    "ml_revision": "r5-x14",
+    "pages_json": "[{\"page\":1,\"width\":800,\"height\":600,\"rotation\":0,\"source\":\"text\",\"quality\":\"OK\",\"ocr_confidence\":null,\"engines\":[],\"disputed_words\":0,\"agreement\":null,\"lines\":6,\"words\":30}]"
+  },
+  "extractions": [
+    {
+      "param_code": "M-007",
+      "raw": "11",
+      "value_num": 11,
+      "value_text": null,
+      "page": 1
+    },
+    {
+      "param_code": "M-023",
+      "raw": "С0",
+      "value_num": null,
+      "value_text": "С0",
+      "page": 1
+    }
+  ],
+  "pdf_sha256": "d0293133d840861cb1e918829ba61b9601ba159c961825bd27c1f657f48eae91",
+  "duration_seconds": 13.8,
+  "chapters": [
+    {
+      "seconds": 0.644,
+      "title": "Добавьте учебный PDF с текстовым слоем и заполните карточку объекта"
+    },
+    {
+      "seconds": 3.945,
+      "title": "Пакет принят настоящим API; начат отдельный CPU-разбор учебного PDF"
+    },
+    {
+      "seconds": 7.328,
+      "title": "Откройте Документы: статус обработки получен от настоящего Python ML"
+    },
+    {
+      "seconds": 10.752,
+      "title": "Оригинал доступен; значения действительно извлечены из учебного текстового слоя"
+    }
+  ],
+  "video_review": {
+    "width": 1440,
+    "height": 1000,
+    "duration": 13.8,
+    "error": null,
+    "frames": [
+      {
+        "seconds": 1.6440000000000001,
+        "file": "decoded-form.png",
+        "sha256": "c2bb53517ce52ded8d1d78639060e2ad46870852d5f4bff2dc89dcf42d58d50b"
+      },
+      {
+        "seconds": 4.945,
+        "file": "decoded-accepted.png",
+        "sha256": "dfe96a6c0d00a14af45ac72c0c6eea500f2d534aeeee71511e74d53cd4272371"
+      },
+      {
+        "seconds": 8.328,
+        "file": "decoded-documents.png",
+        "sha256": "6a0165e145ba89917373412b185fc288daa59446046b906177c684024f134193"
+      },
+      {
+        "seconds": 11.752,
+        "file": "decoded-original.png",
+        "sha256": "064a2027464b57a6d598d0884700e48b3cdb6d1006ee5ffb2bb3fd429849f0dc"
+      }
+    ]
+  },
+  "page_errors": [],
+  "recorded_at": "2026-09-29T16:28:10.400Z"
+}

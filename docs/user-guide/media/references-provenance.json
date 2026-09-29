@@ -1,0 +1,100 @@
+{
+  "schema": "docs-scenario.v1",
+  "scenario_id": "references-param-passport-basis",
+  "role": "inspector",
+  "fixture_id": "isolated-public-reference-seed",
+  "api_revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+  "source_web_image": "e1c9dc4f61d29e71212dda8ad5fa69f9b1cda68a",
+  "ui_source_parity": "not claimed: deployed overlay; actual asset hashes",
+  "ui_asset_hashes": [
+    {
+      "path": "/assets/index-D77tWavi.css",
+      "sha256": "28d1bf35c3007319799ffa5ecd56d25b626802f1ee9fabe2eeeb11d5274630b0",
+      "bytes": 32091
+    },
+    {
+      "path": "/assets/index-JNMiEqrR.js",
+      "sha256": "5719a6eee9744d568afd917dc286e99dfb35cb4cae6cd67331c536cbab0cfefa",
+      "bytes": 867951
+    }
+  ],
+  "health_revision": "c0851cc7b78e28e7bd7a477be2d3274010d42144",
+  "data": "Public reference seed in isolated memory database; no private documents",
+  "production_api_calls": 0,
+  "production_writes": 0,
+  "fixture_api_calls": 8,
+  "check_id": "M-023-passport-basis",
+  "outcome": "Parameter found; actual passport and basis opened; normative list viewed; domain DB unchanged",
+  "validated": [
+    "parameter_filter",
+    "real_passport_response",
+    "passport_basis_123FZ",
+    "normative_list",
+    "legal_acts",
+    "no_domain_mutations",
+    "full_video_playback"
+  ],
+  "not_demonstrated": [
+    "normative_search: no search control in deployed Normative UI",
+    "legal edition verification"
+  ],
+  "db_counts": {
+    "params": 132,
+    "norms": 3,
+    "inspections": 0,
+    "decisions": 0
+  },
+  "duration_seconds": 15.84,
+  "chapters": [
+    {
+      "seconds": 0.391,
+      "title": "Откройте Матрицу: справочник параметров и правил сравнения"
+    },
+    {
+      "seconds": 3.478,
+      "title": "Найдите M-023 по коду: класс конструктивной пожарной опасности"
+    },
+    {
+      "seconds": 6.658,
+      "title": "Откройте паспорт параметра: описание, правило и нормативное основание"
+    },
+    {
+      "seconds": 9.783,
+      "title": "В паспорте указаны основания; это справочная информация, а не проверка редакции закона"
+    },
+    {
+      "seconds": 12.919,
+      "title": "Откройте Нормы: документы, пределы, сроки действия и правовые акты"
+    }
+  ],
+  "video_review": {
+    "width": 1440,
+    "height": 1000,
+    "duration": 15.84,
+    "error": null,
+    "frames": [
+      {
+        "seconds": 4.478,
+        "file": "decoded-search.png",
+        "sha256": "9707dfd8c034417c987893479a79375038797e85ce0db1b07d28b70ed04dd758"
+      },
+      {
+        "seconds": 7.658,
+        "file": "decoded-passport.png",
+        "sha256": "bb14ddf1370c009d098d02daf9edf36f8500501a6ab69820f10c060071158d98"
+      },
+      {
+        "seconds": 10.783,
+        "file": "decoded-basis.png",
+        "sha256": "eb484f9d4f9324e2d52affbc95782e46381ee2b9ff11d7ebd8db7b477a107f85"
+      },
+      {
+        "seconds": 13.919,
+        "file": "decoded-norms.png",
+        "sha256": "23ff631ccd0a6e8dc83a6825fb07480891ced7eef5ba2fd6b75292695ce21445"
+      }
+    ]
+  },
+  "page_errors": [],
+  "recorded_at": "2026-09-29T16:15:15.423Z"
+}

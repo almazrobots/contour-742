@@ -1,0 +1,35 @@
+{
+  "name": "inspector-ai",
+  "private": true,
+  "description": "Инспектор ИИ — сверка ПД/РД/ИД (ЛЦТ-2026, кейс Мосстройнадзора)",
+  "type": "module",
+  "packageManager": "pnpm@10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316",
+  "engines": {
+    "node": ">=24 <27"
+  },
+  "scripts": {
+    "trace": "node scripts/gera-trace.mjs",
+    "trace:check": "node scripts/gera-trace.mjs --check",
+    "dev": "node scripts/dev.mjs",
+    "test": "pnpm check:promises && pnpm -r --if-present test && pnpm test:deploy && pnpm trace:check",
+    "demo": "node scripts/demo.mjs",
+    "build": "pnpm --filter @inspector/web build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "trace:tz": "node scripts/tz-passages.mjs && node scripts/tz-fulltext.mjs && node scripts/tz-layout.mjs",
+    "test:ui": "node --test apps/web/tests/dialogs.test.mjs",
+    "blobs:encrypt": "node apps/api/src/cli/blobs-encrypt.ts",
+    "test:deploy": "node --test scripts/deploy.test.mjs scripts/check-floating-promises.test.mjs scripts/ops-tools.test.mjs scripts/tz-coverage.test.mjs scripts/trace-audit.test.mjs scripts/audit-provenance.test.mjs scripts/at-rest.test.mjs scripts/slo.test.mjs scripts/load-100.test.mjs scripts/backup.test.mjs scripts/perimeter-live.test.mjs",
+    "check:promises": "node scripts/check-floating-promises.mjs",
+    "load": "node apps/api/src/cli/load-package.ts",
+    "output-set": "node apps/api/src/cli/output-set.ts"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0",
+    "yaml": "^2.8.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "qs": ">=6.16.0"
+    }
+  }
+}

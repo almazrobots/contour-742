@@ -1,0 +1,141 @@
+# NFR-SLA (ТЗ 11-12): модульные тесты правил rules/slo.yml — promtool test rules rules/slo.test.yml
+# (образ Prometheus из .env.example; прогон — scripts/slo.test.mjs). Нотация серий: «1x98» — 99 отсчётов по 1.
+# Три сценария задачи T-137: быстрое сгорание (авария), медленное (1 % отказов), норма 99,95 % — тишина.
+rule_files: [slo.yml]
+evaluation_interval: 1m
+
+tests:
+  # 1. Авария: час норма, затем /ready отвечает 503 (ML лежит) 10 минут, потом восстановление
+  - interval: 1m
+    input_series:
+      - series: 'probe_success{job="blackbox", instance="https://api:8810/ready", module="http_ready"}'
+        values: '1x60 0x9 1x80'
+    alert_rule_test:
+      # через минуту после начала аварии for: 2m ещё не истёк
+      - eval_time: 62m
+        alertname: InspectorProbeDown
+        exp_alerts: []
+      - eval_time: 64m
+        alertname: InspectorProbeDown
+        exp_alerts:
+          - exp_labels: { severity: page, slo: availability-99.9, job: blackbox, instance: "https://api:8810/ready", module: http_ready }
+            exp_annotations:
+              summary: "Проба доступности не проходит 2 минуты: https://api:8810/ready"
+              description: "blackbox-exporter не получает ответ 200. Для /ready тело ответа 503 называет отказавшую зависимость: db или ml."
+      - eval_time: 65m
+        alertname: InspectorSloBurnFast
+        exp_alerts:
+          - exp_labels: { severity: page, slo: availability-99.9, sli: availability, job: blackbox, instance: "https://api:8810/ready", module: http_ready }
+            exp_annotations:
+              summary: "Бюджет доступности 99,9 % сгорает в 14,4 раза быстрее допустимого (availability, https://api:8810/ready)"
+              description: "За час и за последние 5 минут доля отказов выше 1,44 %. Так месячный бюджет (43 мин) кончится за двое суток. Проверьте /ready: какая зависимость отказала — база или ML."
+      # медленный на 65-й минуте ещё в pending (for: 15m), к 80-й — firing
+      - eval_time: 65m
+        alertname: InspectorSloBurnSlow
+        exp_alerts: []
+      - eval_time: 80m
+        alertname: InspectorSloBurnSlow
+        exp_alerts:
+          - exp_labels: { severity: ticket, slo: availability-99.9, sli: availability, job: blackbox, instance: "https://api:8810/ready", module: http_ready }
+            exp_annotations:
+              summary: "Бюджет доступности 99,9 % сгорает в 6 раз быстрее допустимого (availability, https://api:8810/ready)"
+              description: "За 6 часов и за последние 30 минут доля отказов выше 0,6 %. Месячный бюджет кончится за 5 суток — нужна заявка на разбор."
+      # 10 минут отказа из 80 — 30-дневная доступность ниже 99,9 %, бюджет исчерпан
+      - eval_time: 80m
+        alertname: InspectorSloBudgetExhausted
+        exp_alerts:
+          - exp_labels: { severity: ticket, slo: availability-99.9, sli: availability, job: blackbox, instance: "https://api:8810/ready", module: http_ready }
+            exp_annotations:
+              summary: "Бюджет ошибок 99,9 % за 30 дней исчерпан (availability, https://api:8810/ready)"
+              description: "Доступность за скользящие 30 дней ниже 99,9 % (больше 43 минут отказов). Отчёт: node scripts/availability-report.mjs."
+      # короткое окно гасит быстрый алерт и ProbeDown через несколько минут после восстановления
+      - eval_time: 80m
+        alertname: InspectorSloBurnFast
+        exp_alerts: []
+      - eval_time: 80m
+        alertname: InspectorProbeDown
+        exp_alerts: []
+    promql_expr_test:
+      - expr: slo:probe_success:ratio_rate5m
+        eval_time: 60m
+        exp_samples:
+          - labels: 'slo:probe_success:ratio_rate5m{sli="availability", job="blackbox", instance="https://api:8810/ready", module="http_ready"}'
+            value: 1
+
+  # 2. Медленное сгорание: 1 отказ на 100 проб (1 %) — больше ×6 (0,6 %), меньше ×14,4 (1,44 %)
+  - interval: 15s
+    input_series:
+      - series: 'probe_success{job="blackbox", instance="https://api:8810/ready", module="http_ready"}'
+        values: '1x98 0 1x98 0 1x98 0 1x98 0 1x98 0 1x98 0 1x98 0 1x98 0 1x98 0 1x98 0 1x98 0 1x98 0 1x98 0 1x98 0 1x98 0 1x98 0'
+    alert_rule_test:
+      - eval_time: 390m
+        alertname: InspectorSloBurnSlow
+        exp_alerts:
+          - exp_labels: { severity: ticket, slo: availability-99.9, sli: availability, job: blackbox, instance: "https://api:8810/ready", module: http_ready }
+            exp_annotations:
+              summary: "Бюджет доступности 99,9 % сгорает в 6 раз быстрее допустимого (availability, https://api:8810/ready)"
+              description: "За 6 часов и за последние 30 минут доля отказов выше 0,6 %. Месячный бюджет кончится за 5 суток — нужна заявка на разбор."
+      - eval_time: 390m
+        alertname: InspectorSloBurnFast
+        exp_alerts: []
+      - eval_time: 390m
+        alertname: InspectorProbeDown
+        exp_alerts: []
+
+  # 3. Норма 99,95 %: один отказ пробы за 10 часов, API без 5xx — ни одного алерта
+  - interval: 15s
+    input_series:
+      - series: 'probe_success{job="blackbox", instance="https://api:8810/ready", module="http_ready"}'
+        values: '1x998 0 1x1998 0'
+      - series: 'inspector_http_requests_total{job="inspector-api", instance="api:8810"}'
+        values: '0+25x3000'
+      - series: 'inspector_http_errors_5xx_total{job="inspector-api", instance="api:8810"}'
+        values: '0x3000'
+    alert_rule_test:
+      - { eval_time: 600m, alertname: InspectorSloBurnFast, exp_alerts: [] }
+      - { eval_time: 600m, alertname: InspectorSloBurnSlow, exp_alerts: [] }
+      - { eval_time: 600m, alertname: InspectorSloBudgetExhausted, exp_alerts: [] }
+      - { eval_time: 600m, alertname: InspectorProbeDown, exp_alerts: [] }
+    promql_expr_test:
+      - expr: slo:api_errors:ratio_rate1h
+        eval_time: 600m
+        exp_samples:
+          - labels: 'slo:api_errors:ratio_rate1h{sli="api_errors", job="inspector-api", instance="api:8810"}'
+            value: 0
+
+  # 4. API отвечает 5xx на 5 % запросов (проба при этом проходит) — быстрый алерт по SLI api_errors
+  - interval: 1m
+    input_series:
+      - series: 'inspector_http_requests_total{job="inspector-api", instance="api:8810"}'
+        values: '0+100x120'
+      - series: 'inspector_http_errors_5xx_total{job="inspector-api", instance="api:8810"}'
+        values: '0x60 5+5x59'
+    alert_rule_test:
+      # 15 минут по 5 % — за час только 1,25 %: длинное окно ещё не пробито
+      - eval_time: 75m
+        alertname: InspectorSloBurnFast
+        exp_alerts: []
+      # 30 минут по 5 % — за час 2,5 % > 1,44 %, за 5 минут 5 % > 1,44 %
+      - eval_time: 90m
+        alertname: InspectorSloBurnFast
+        exp_alerts:
+          - exp_labels: { severity: page, slo: availability-99.9, sli: api_errors, job: inspector-api, instance: "api:8810" }
+            exp_annotations:
+              summary: "Бюджет доступности 99,9 % сгорает в 14,4 раза быстрее допустимого (api_errors, api:8810)"
+              description: "За час и за последние 5 минут доля отказов выше 1,44 %. Так месячный бюджет (43 мин) кончится за двое суток. Проверьте /ready: какая зависимость отказала — база или ML."
+
+  # 5. Тихое сгорание 99,8 %: 1 отказ на 500 проб — окна ×6 и ×14,4 молчат, но 30 дней ниже 99,9 % — бюджет исчерпан
+  - interval: 15s
+    input_series:
+      - series: 'probe_success{job="blackbox", instance="https://api:8810/ready", module="http_ready"}'
+        values: '1x498 0 1x498 0 1x498 0 1x498 0 1x498 0'
+    alert_rule_test:
+      - { eval_time: 600m, alertname: InspectorSloBurnFast, exp_alerts: [] }
+      - { eval_time: 600m, alertname: InspectorSloBurnSlow, exp_alerts: [] }
+      - eval_time: 600m
+        alertname: InspectorSloBudgetExhausted
+        exp_alerts:
+          - exp_labels: { severity: ticket, slo: availability-99.9, sli: availability, job: blackbox, instance: "https://api:8810/ready", module: http_ready }
+            exp_annotations:
+              summary: "Бюджет ошибок 99,9 % за 30 дней исчерпан (availability, https://api:8810/ready)"
+              description: "Доступность за скользящие 30 дней ниже 99,9 % (больше 43 минут отказов). Отчёт: node scripts/availability-report.mjs."

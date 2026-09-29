@@ -1,0 +1,61 @@
+# Контекст сборки — корень репозитория. В образ не едет ничего, что там не исполняется,
+# и ничего из корпуса/данных проверок (ADR-0002): var/ целиком, включая модели, — вне контекста.
+**/node_modules
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.stryker-tmp
+**/reports
+**/coverage
+**/dist
+**/.DS_Store
+.git
+.claude
+var
+# выход стендов ML (наборы мутаций, блобы, метки judge/ — T-179, OWASP T179-9)
+ml/var
+ml/mutants
+ml/tests
+ml/eval
+# печати скрытого теста — только хеши и роли; без них гарды OS-INSP-6.1.6/6.1.8/6.1.9 в образе слепы (OWASP T-137 E3-H1)
+!ml/eval/seals/*.json
+ml/synth
+apps/api/tests
+apps/web/tests
+docs
+tasks
+deploy
+scripts
+data/synth
+# Секреты — на любой глубине контекста (OWASP T-140: T088-L12, E2-L1)
+**/*.env
+**/.env*
+!deploy/gpu/.env.example
+**/*.key
+**/*.pem
+**/*.p12
+**/*.pfx
+.secrets
+# Корпус, ТЗ, чат задачи, материалы организаторов — никогда в образ (ADR-0002)
+INPUT
+ТЗ
+Презентация
+corpus*
+# data — только seed (COPY data/seed в apps/api/Dockerfile)
+data/*
+!data/seed
+
+# Explicit public knowledge-base inputs only; corpus/docs outside user-guide remain excluded.
+!docs/
+docs/*
+!docs/user-guide/
+!docs/user-guide/**
+!scripts/
+scripts/*
+!scripts/user-guide.mjs
+!scripts/demo-docs.mjs
+
+!scripts/doc-nav.mjs
+
+!scripts/docs-material-shell.mjs

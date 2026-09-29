@@ -1,0 +1,29 @@
+# Надстройка профиля gpu: блобы в S3-совместимом хранилище (ADR-0006, T-129).
+#   docker compose -f compose.yml -f compose.s3.yml up -d
+# Без неё блобы живут на томе api-blobs (стенд без выхода в интернет — например, стенд жюри до ответа организатора).
+# С ней том api-blobs становится кэшем: запись идёт в бакет шифротекстом AES-256-GCM (ключ — файл-секрет, на клиенте),
+# а сам кэш на томе — тоже шифротекст (IBE1, ключ хранения blob_encryption_key из compose.yml, NFR-CRYPTO),
+# чтение — из кэша, промах поднимается из бакета со сверкой SHA-256. Ключи S3 и ключ шифрования — только файлами.
+# У API — свой сервисный аккаунт с ролью только на свой префикс (ADR-0004 п. 6), не общий ключ заливки владельца.
+services:
+  api:
+    environment:
+      INSPECTOR_BLOB_STORE: s3
+      INSPECTOR_S3_ENDPOINT: ${S3_ENDPOINT:-https://storage.yandexcloud.net}
+      INSPECTOR_S3_REGION: ${S3_REGION:-ru-central1}
+      INSPECTOR_S3_BUCKET: ${S3_BUCKET:?S3_BUCKET — бакет блобов}
+      INSPECTOR_S3_PREFIX: ${S3_PREFIX:-blobs/}
+      INSPECTOR_S3_FORCE_PATH_STYLE: "false"
+      INSPECTOR_S3_ACCESS_KEY_ID_FILE: /run/secrets/s3_access_key_id
+      INSPECTOR_S3_SECRET_ACCESS_KEY_FILE: /run/secrets/s3_secret_access_key
+      INSPECTOR_S3_KEY_FILE: /run/secrets/s3_encryption_key
+    secrets: [pg_app_password, rabbitmq_password, blob_encryption_key, ukep_cert, ukep_key, s3_access_key_id, s3_secret_access_key, s3_encryption_key]
+
+secrets:
+  s3_access_key_id:
+    file: ${S3_ACCESS_KEY_ID_FILE:?S3_ACCESS_KEY_ID_FILE — идентификатор статического ключа сервисного аккаунта API}
+  s3_secret_access_key:
+    file: ${S3_SECRET_ACCESS_KEY_FILE:?S3_SECRET_ACCESS_KEY_FILE — секрет статического ключа}
+  # потеря файла = потеря данных в бакете: хранить вместе с резервной копией секретов
+  s3_encryption_key:
+    file: ${S3_ENCRYPTION_KEY_FILE:?S3_ENCRYPTION_KEY_FILE — ключ AES-256 шифрования блобов (64 hex)}

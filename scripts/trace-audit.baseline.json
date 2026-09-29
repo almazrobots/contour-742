@@ -1,0 +1,11 @@
+{
+ "_about": "База храповика scripts/trace-audit.mjs. Уменьшается сама при pnpm trace; руками не повышать.",
+ "counts": {
+  "atom_no_lane": 0,
+  "atom_green_broken": 0,
+  "item_status_mismatch": 0,
+  "model_tz_unreached": 0,
+  "gap_open_unmarked": 0,
+  "registry_open": 0
+ }
+}

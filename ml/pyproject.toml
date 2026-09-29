@@ -1,0 +1,59 @@
+[project]
+name = "inspector-ml"
+version = "0.1.0"
+description = "ML-модули Инспектора ИИ: разбор документов, OCR, извлечение параметров, синтетика"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn>=0.30",
+  "pdfplumber>=0.11.10,<0.12",  # таблицы по сетке линий (tables.py, OS-INSP-2.2.5); <0.12 — ключи TableSettings и геометрия поворота
+  "pypdfium2>=5.0",
+  "rapidfuzz>=3.9",
+  "python-docx>=1.1",
+  "reportlab>=5.0",
+  "pillow>=12.0",
+  "openpyxl>=3.1",
+  "defusedxml>=0.7",
+  "numpy>=2.2",
+  "opencv-python-headless>=5.0",
+  "rank-bm25>=0.2.2",  # поиск по нормативам (T-035), чистый Python
+  "scikit-image>=0.23",  # дифф листов (OS-INSP-3.4): карта изменений SSIM
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov>=5", "pytest-xdist>=3.6,<4", "httpx>=0.27", "mutmut>=3", "pyyaml>=6"]  # pyyaml — гейт реестра моделей models.yaml (T-129)
+# Кэш разбора (ТЗ 9.1.5) — стенд gpu; образ ML ставит его из lock вместе с semantic (T-083).
+cache = ["redis>=5,<9"]
+# Профиль GPU (ADR-0001): ставится только на сервере с CUDA, на маке — никогда.
+# T-184: OCR сканов на видеокарте — PP-OCRv5 через RapidOCR на ONNX Runtime CUDA (колёса CUDA 13 и cuDNN 9 из PyPI,
+# драйвер ≥ 580); мёртвый адаптер paddleocr 2.x убран. Читатель VL — отдельный сервер vLLM, не пакет.
+# T-230: sentence-transformers убран — в коде не используется (семантика — ONNX, semantic.py), а тянул torch с CUDA (~5 ГБ)
+# в образ gpu; tokenizers — для той же семантики: onnxruntime-gpu несёт и CPU-провайдер, extra semantic (onnxruntime CPU,
+# тот же модуль) в образ gpu не ставится.
+gpu = ["rapidocr==3.9.2", "onnxruntime-gpu[cuda,cudnn]==1.30.0", "tokenizers>=0.21,<1", "inspector-ml[cache]"]
+# OS-INSP-2.2.8: семантические якоря без torch — ONNX-модель paraphrase-multilingual-MiniLM-L12-v2 (qint8, arm64)
+semantic = ["onnxruntime>=1.20,<2", "tokenizers>=0.21,<1"]
+# T-129: локальные VLM на маке (Apple Silicon, MLX) — чтение сканов PaddleOCR-VL-1.5 и GLM-OCR, судья упоминаний Qwen3.5-9B (выбор — по реестру ml/models.yaml);
+# детектор строк PP-OCRv5 (RapidOCR, ONNX). На стенде жюри (H100) те же модели идут через vLLM — эта опция в образ не ставится.
+mlx = ["mlx-vlm==0.7.3", "rapidocr==3.9.2"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]  # пакеты стенда eval/ и фабрики synth/ — рядом с inspector_ml
+markers = [
+  "performance: wall-clock acceptance and adversarial time budgets; run serially without competing workload",
+  "l1_functional", "l2_differential", "l3_boundary", "l4_fault",
+  "l5_property", "l6_adversarial", "l7_discipline", "l8_regression",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["inspector_ml"]
+
+[tool.mutmut]
+paths_to_mutate = ["inspector_ml/readers.py", "inspector_ml/change_marks.py", "inspector_ml/tables.py", "inspector_ml/vlm_verify.py", "inspector_ml/parse.py", "inspector_ml/normalize.py", "inspector_ml/extract.py", "inspector_ml/class_mentions.py", "inspector_ml/quantity_mentions.py", "inspector_ml/cipher.py", "inspector_ml/doctype.py", "inspector_ml/measure.py", "inspector_ml/cache.py", "inspector_ml/semantic.py", "inspector_ml/reread.py", "eval/submission.py", "inspector_ml/safe_markup.py", "eval/composition.py", "eval/hidden_seal.py", "eval/score_run.py", "eval/integrity.py", "eval/ci.py", "inspector_ml/filehash.py", "eval/mutation_score.py", "inspector_ml/presence_mentions.py", "inspector_ml/vlm_claim.py", "eval/w2_corpus.py", "inspector_ml/plan_geom.py", "inspector_ml/geom_mentions.py", "inspector_ml/pagekind.py", "inspector_ml/category_mentions.py", "inspector_ml/layer_mentions.py", "inspector_ml/identity.py", "inspector_ml/table_reader.py", "inspector_ml/mentions.py", "inspector_ml/page_passport.py"]
+tests_dir = ["tests/"]
+also_copy = ["inspector_ml", "eval", "synth", "teacher", "models.yaml"]  # тесты стенда, фабрики и учителя (T-076) импортируют их; гейт реестра моделей читает models.yaml

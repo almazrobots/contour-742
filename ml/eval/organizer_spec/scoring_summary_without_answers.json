@@ -1,0 +1,10 @@
+{
+  "weights_points": {
+    "finding_detection_f1": 60,
+    "source_localization_exact_file_page": 15,
+    "normalized_value_and_status_accuracy": 15,
+    "document_integrity_and_split_handling": 10
+  },
+  "critical_miss_gate": "При пропуске любой утверждённой критической контрольной точки итоговый балл ограничивается 59 из 100.",
+  "submission_schema": "submission_schema.json"
+}

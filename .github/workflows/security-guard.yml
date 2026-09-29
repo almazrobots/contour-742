@@ -1,0 +1,32 @@
+# Страж настроек безопасности для PR (T-060). pull_request_target: GitHub исполняет ВЕРСИЮ ИЗ main, а не из PR —
+# поэтому правка этого файла, гейта или .gitleaksignore в PR не отключает проверку. Код PR здесь не исполняется:
+# checkout — базы (доверенный скрипт), голова PR только скачивается как данные для git diff.
+# Секретов и прав на запись нет. Гейт ci-gate.yml на PR обязан ждать этой проверки (см. README раннера).
+
+name: security guard
+
+on:
+  pull_request_target:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: [self-hosted, "${{ vars.RUNNER_LABEL }}"]
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: голова PR — только как данные
+        env: { PR: "${{ github.event.pull_request.number }}" }
+        run: git fetch --no-tags origin "pull/${PR}/head"
+      - name: защищённые файлы и gitleaks:allow
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node scripts/security-guard.mjs "$BASE" "$HEAD_SHA"

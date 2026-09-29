@@ -1,0 +1,30 @@
+import {afterAll,beforeAll,expect,it} from "vitest";
+import {openDb,type DB} from "../src/db.ts";
+import {ingestAnnotations,nextAnnotation,prefetchAnnotations,submitAnnotation,annotationStats} from "../src/services/data-verification.ts";
+let db:DB;
+const users=Array.from({length:10},(_,i)=>`concurrent-verifier-${i}`);
+beforeAll(async()=>{
+ db=await openDb('memory');
+ for(const user of users)await db.run("insert into users(id,login,name,role,password_hash) values($1,$1,$1,'verifier','unused')",[user]);
+ const tasks=Array.from({length:100},(_,i)=>({parameter:`M-${String(i%10+1).padStart(3,'0')}`,operation:'reading',source_version:'synthetic-concurrency-v1',sides:[{sha256:String(i).padStart(64,'a'),file_name:'synthetic.pdf',kind:'pdf',page:1,object_key:`synthetic-${i}`,value:'11'}]}));
+ await ingestAnnotations(db,users[0],{id:'concurrency-synthetic',source_version:'synthetic-concurrency-v1',tasks});
+});
+afterAll(async()=>{await db?.close();});
+it('10 simultaneous operators receive distinct tasks and same-user races resume one lease',async()=>{
+ if(process.env.INSPECTOR_TEST_DATABASE_URL)expect(db.kind).toBe('postgres');
+ const assignments=await Promise.all(users.map(user=>nextAnnotation(db,user)));
+ expect(new Set(assignments.map(r=>r.assignment!.task.id)).size).toBe(10);
+ const buffers=await Promise.all(users.map(user=>prefetchAnnotations(db,user)));
+ expect(buffers.every(b=>b.assignments.length===3)).toBe(true);
+ const ids=[...assignments.map(a=>a.assignment!.task.id),...buffers.flatMap(b=>b.assignments.map(a=>a.task.id))];expect(new Set(ids).size).toBe(40);
+ const bufferRaces=await Promise.all(Array.from({length:10},()=>prefetchAnnotations(db,users[0])));
+ expect(bufferRaces.every(b=>b.assignments.map(a=>a.id).join()===buffers[0].assignments.map(a=>a.id).join())).toBe(true);
+ const repeats=await Promise.all(Array.from({length:10},()=>nextAnnotation(db,users[0])));
+ expect(repeats.every(r=>r.assignment!.id===assignments[0].assignment!.id)).toBe(true);
+ const a=assignments[0].assignment!;
+ const payload={token:a.token,idempotency_key:'synthetic-race-idempotency',answer:'YES'};
+ const replies=await Promise.all(Array.from({length:10},()=>submitAnnotation(db,users[0],a.id,payload)));
+ expect(replies.filter(r=>!r.replay)).toHaveLength(1);
+ expect((await annotationStats(db,users[0])).saved).toBe(1);
+ expect(Number((await db.get<any>("select count(*) n from verification_assignments where user_id=$1 and state='active'",[users[0]]))!.n)).toBe(0);
+});

@@ -1,0 +1,105 @@
+# Реестр локальных моделей (T-129, решение CTO после замечания владельца 27.09 «8B вместо 9B»).
+# Единственный источник выбора модели для роли. Гейт tests/test_model_registry.py роняет сборку, если:
+#   - модель по умолчанию в коде (inspector_ml/vlm.py) не совпадает с chosen;
+#   - у chosen нет замера на ручной разметке проекта (measure);
+#   - кандидат из рекомендаций проекта (source) не померен и не отклонён с причиной (rejected);
+#   - проверка версий на Hugging Face (checked) старше 14 дней — модели выходят каждый месяц.
+# Процедура выбора: документы проекта (ML-CONCEPT, research) → живая проверка HF (версии, лицензия, MLX/vLLM-сборки)
+# → замер не меньше двух кандидатов на ручной разметке → выбор и запись сюда. Только открытые веса, только локально.
+roles:
+  judge:
+    what: "VER-09: закрытый вопрос по кропу листа — класс и субъект упоминания (объект, сосед, норма); только понижает"
+    env: INSPECTOR_VLM_JUDGE
+    source: ["docs/architecture/ML-CONCEPT.md §4, §8.1, §11 (Qwen3.5-9B)", "ТЗ/research «мировые подходы» А:10, А:14 (Qwen-VL 7–8B)"]
+    checked: 2026-09-27
+    golden: "М-023, «Алтуфьевское 79Б»: 24 упоминания чистого прогона стенда (PARSER_REV 4): ПД, РД, OCR-скан ОПЗ, 2 ловушки «соседнее здание»; разметка сессии CTO (вне репо, ADR-0002)"
+    chosen: mlx-community/Qwen3.5-9B-MLX-4bit
+    gpu_equivalent: Qwen/Qwen3.5-9B  # vLLM на H100, backend openai
+    # ревизия Hugging Face gpu_equivalent — vLLM стенда gpu запускает ровно её (deploy/gpu-stand/vllm.sh, OWASP-0212); проверено API HF 28.09
+    revision: c202236235762e1c871ad0ccb60c8ee5ba337b9a
+    candidates:
+      - model: mlx-community/Qwen3.5-9B-MLX-4bit
+        license: apache-2.0
+        released: 2026-03-02
+        # первый замер 27.09 — 19/19 на 19 упоминаниях, 4,9 с/кроп; ниже — полный набор после исправления переносов
+        measure: {date: 2026-09-27, correct: 24, total: 24, sec_per_crop: 4.2, peak_rss_gb: 5.1}
+      - model: mlx-community/Qwen3-VL-8B-Instruct-4bit
+        license: apache-2.0
+        released: 2025-10-15
+        measure: {date: 2026-09-27, correct: 18, total: 19, sec_per_crop: 5.2, peak_rss_gb: 8.3}
+        rejected: "точность ниже (сосед на стр. 12 ПБ 2024 принят за объект), память вдвое больше; поколение старше"
+  reader:
+    what: "PRM-14: чтение области скана (кириллица) — первичный OCR страниц без текстового слоя"
+    env: INSPECTOR_VLM_READER
+    source: ["docs/architecture/ML-CONCEPT.md §4, §11 (PaddleOCR-VL-1.5, не 1.6 — регрессия кириллицы #18088)", "ТЗ/research А:10 (PaddleOCR основным)"]
+    checked: 2026-09-27
+    chosen: mlx-community/PaddleOCR-VL-1.5-bf16
+    gpu_equivalent: PaddlePaddle/PaddleOCR-VL-1.5
+    # ревизия Hugging Face gpu_equivalent (deploy/gpu-stand/vllm.sh, OWASP-0212); vLLM 0.30 грузит её без --trust-remote-code (T-230)
+    revision: 2a4195faa5e7914c12f2fc601d72c81caf8d2da5
+    candidates:
+      - model: mlx-community/PaddleOCR-VL-1.5-bf16
+        license: apache-2.0
+        released: 2026-01-29
+        # сканы ОПЗ 2024 «Алтуфьево»: стр. 23 (оборот М-023 прочитан «С0» кириллицей; Tesseract дал «Со») + 10 страниц без
+        # оборота (ложных оборотов нет); ошибка — стр. 90: блок подписей потерян, прочитан только заголовок. Выборка мала —
+        # расширить до 50 страниц с разметкой перед включением читателя в конвейер
+        measure: {date: 2026-09-27, correct: 10, total: 11, sec_per_crop: 6.7, peak_rss_gb: 2.7}
+      - model: mlx-community/PaddleOCR-VL-1.6-4bit
+        rejected: "регрессия кириллицы в 1.6 (PaddleOCR issue #18088) — по ML-CONCEPT §11"
+  ocr_anchor:
+    what: "OS-INSP-2.1.17: OCR сканов профиля gpu на видеокарте — слова с рамками (якорь геометрии), PaddleOCR-VL голосует по строкам якоря (T-184)"
+    env: INSPECTOR_PPOCR_DET, INSPECTOR_PPOCR_REC
+    source: ["решение владельца 28.09: OCR на видеокарте, без Tesseract", "совет экспертов T-184: PP-OCRv5 eslav + PaddleOCR-VL-1.5 вторым голосом", "ТЗ/research А:10 (PaddleOCR основным)"]
+    checked: 2026-09-28
+    # замер 28.09 на сервере (RTX 4090 рядом с vLLM, ядра 0–7): синтетический стенд eval/ocr_bench (12 док × 3 стр, 300/400 dpi,
+    # наклон, размытие, JPEG; 165 ключевых полей штампа). correct/total — точные совпадения ключевых полей (EM, ТЗ 14.3-02);
+    # CA — точность символов (ТЗ 14.3-01); sec_per_crop — с на страницу стенда (36 стр.); peak_rss_gb — память видеокарты процесса PP-OCR с контекстом CUDA.
+    # Базовая линия Tesseract ×3 (CPU, тот же стенд): EM 138/165 (0,836), CA 0,978, 163 с — в gpu запрещён решением владельца.
+    golden: "eval/ocr_bench seed 1 (синтетика, ADR-0002) + 10 файлов пробного прогона T-165 (сравнение с r4 без эталона, вне репо)"
+    chosen: PaddlePaddle/PP-OCRv6_medium_det+eslav_PP-OCRv5_mobile_rec
+    # веса chosen в образе ML gpu (ml/Dockerfile, ADD --checksum; адреса и хеши — rapidocr 3.9.2 default_models.yaml,
+    # сверены с файлами на сервере 28.09); при старте ocr_gpu.local_model_paths сверяет SHA-256 и без совпадения отказывает (OWASP-0211)
+    files:
+      - file: PP-OCRv6_det_medium.onnx
+        sha256: 92078b7355007ccfffcd4c8cd441a3afd4538904d06881b29a155e1e679907c2
+        url: https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.9.2/onnx/PP-OCRv6/det/PP-OCRv6_det_medium.onnx
+      - file: ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx
+        sha256: 54379ae5174d026780215fc748a7f31910dee36818e63d49e17dc598ecc82df7
+        url: https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.9.2/onnx/PP-OCRv5/cls/ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx
+      - file: eslav_PP-OCRv5_rec_mobile.onnx
+        sha256: 08705d6721849b1347d26187f15a5e362c431963a2a62bfff4feac578c489aab
+        url: https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.9.2/onnx/PP-OCRv5/rec/eslav_PP-OCRv5_rec_mobile.onnx
+    candidates:
+      - model: PaddlePaddle/PP-OCRv6_medium_det+eslav_PP-OCRv5_mobile_rec
+        license: apache-2.0
+        released: 2026-06-22
+        # + PaddleOCR-VL-1.5 построчно: CA 0,945, 40 с; реальные сканы: 78/78 OK (r4 — 60), согласие 0,85 (r4 — 0,72)
+        measure: {date: 2026-09-28, correct: 148, total: 165, sec_per_crop: 1.11, peak_rss_gb: 2.8}
+      - model: PaddlePaddle/PP-OCRv5_server_det+eslav_PP-OCRv5_mobile_rec
+        license: apache-2.0
+        released: 2025-05-20
+        # + VL построчно: CA 0,939, 43 с
+        measure: {date: 2026-09-28, correct: 140, total: 165, sec_per_crop: 1.19, peak_rss_gb: 2.6}
+      - model: PaddlePaddle/PP-OCRv6_medium_det+cyrillic_PP-OCRv5_mobile_rec
+        license: apache-2.0
+        released: 2026-06-22
+        # + VL полосами по 8 строк: CA 0,971, 53 с; EM теряет на шифрах — латиница транслитерируется (ALT → АЛТ, 3 → З)
+        measure: {date: 2026-09-28, correct: 123, total: 165, sec_per_crop: 1.47, peak_rss_gb: 2.8}
+      - model: PaddlePaddle/PP-OCRv6_medium_rec
+        rejected: "словарь 18 708 знаков без кириллицы (проверено по метаданным ONNX 28.09) — не читает русский текст"
+      - model: PaddlePaddle/PaddleOCR-VL-1.5
+        rejected: "рамок слов не даёт — в ансамбле вторым голосом по строкам якоря (vl-reader), а не якорем"
+  reader2:
+    what: "второе мнение на спорных словах скана — другое семейство, ошибки не коррелируют"
+    env: INSPECTOR_VLM_READER2
+    source: ["docs/architecture/ML-CONCEPT.md §4 (GLM-OCR арбитр)"]
+    checked: 2026-09-27
+    chosen: mlx-community/GLM-OCR-bf16
+    gpu_equivalent: zai-org/GLM-OCR
+    candidates:
+      - model: mlx-community/GLM-OCR-bf16
+        license: mit
+        released: 2026-02-04
+        # тот же набор, что у reader: 11/11, блок подписей стр. 90 прочитан; ложных оборотов нет
+        measure: {date: 2026-09-27, correct: 11, total: 11, sec_per_crop: 7.7, peak_rss_gb: 3.2}

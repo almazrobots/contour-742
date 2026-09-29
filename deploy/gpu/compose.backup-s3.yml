@@ -1,0 +1,59 @@
+# NFR-BACKUP (T-072, ТЗ 12.8): надстройка профиля gpu — копии бэкапов и архива WAL вне хоста, в S3-совместимом бакете.
+#   docker compose -f compose.yml -f compose.backup-s3.yml up -d
+# Только добавление (rclone copy --immutable): удалённое локально чисткой pg-backup в бакете остаётся; срок хранения и
+# неизменяемость — свойства бакета (правило жизненного цикла 30 дней и object lock), а не этой службы.
+# У службы — свой сервисный аккаунт с ролью только на запись в префикс backups/ (ADR-0004 п. 6), ключи — файлами.
+# Якоря compose.yml в надстройку не наследуются — те же ключи hardened выписаны здесь
+x-hardened-s3: &hardened-s3
+  restart: unless-stopped
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  pids_limit: 64
+  networks: [internal]
+
+services:
+  pg-backup-s3:
+    <<: *hardened-s3
+    image: ${RCLONE_IMAGE:?RCLONE_IMAGE — rclone по digest}
+    user: "70:70" # читает бэкапы и архив WAL (владелец uid 70, 0700); на запись они ей не нужны
+    entrypoint: ["sh", "-c"]
+    # Ключи — в окружение процесса rclone из файлов-секретов, не в окружение контейнера (docker inspect их не видит).
+    # WAL — каждые 5 минут (как archive_timeout): копия вне хоста отстаёт от архива не больше чем на цикл.
+    command:
+      - |
+        set -eu
+        export RCLONE_CONFIG_BK_ACCESS_KEY_ID="$$(cat /run/secrets/backup_s3_access_key_id)"
+        export RCLONE_CONFIG_BK_SECRET_ACCESS_KEY="$$(cat /run/secrets/backup_s3_secret_access_key)"
+        while :; do
+          rclone copy --immutable --exclude '.*' --exclude '*.partial/**' /backups/base "bk:$$BUCKET/$${PREFIX}base" || echo "pg-backup-s3: ошибка копирования бэкапов"
+          rclone copy --immutable --exclude '.*' /wal-archive "bk:$$BUCKET/$${PREFIX}wal" || echo "pg-backup-s3: ошибка копирования WAL"
+          sleep 300
+        done
+    environment:
+      BUCKET: ${BACKUP_S3_BUCKET:?BACKUP_S3_BUCKET — бакет резервных копий}
+      PREFIX: backups/
+      HOME: /tmp
+      RCLONE_CONFIG: /tmp/rclone.conf # пустой: удалённое хранилище задаётся переменными RCLONE_CONFIG_BK_*
+      RCLONE_CONFIG_BK_TYPE: s3
+      RCLONE_CONFIG_BK_PROVIDER: Other
+      RCLONE_CONFIG_BK_ENDPOINT: ${S3_ENDPOINT:-https://storage.yandexcloud.net}
+      RCLONE_CONFIG_BK_REGION: ${S3_REGION:-ru-central1}
+      RCLONE_CONFIG_BK_NO_CHECK_BUCKET: "true"
+    secrets: [backup_s3_access_key_id, backup_s3_secret_access_key]
+    tmpfs: [/tmp]
+    volumes:
+      - pg-backups:/backups:ro
+      - pg-wal-archive:/wal-archive:ro
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:12201
+        tag: "{{.Name}}"
+    depends_on: [pg-backup]
+
+secrets:
+  backup_s3_access_key_id:
+    file: ${BACKUP_S3_ACCESS_KEY_ID_FILE:?BACKUP_S3_ACCESS_KEY_ID_FILE — идентификатор ключа сервисного аккаунта бэкапов}
+  backup_s3_secret_access_key:
+    file: ${BACKUP_S3_SECRET_ACCESS_KEY_FILE:?BACKUP_S3_SECRET_ACCESS_KEY_FILE — секрет ключа сервисного аккаунта бэкапов}

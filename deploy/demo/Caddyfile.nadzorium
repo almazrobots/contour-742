@@ -1,0 +1,30 @@
+# Надзориум — демо-стенд Инспектора ИИ, только просмотр (T-131, building-tech deploy/demo). Копия vhost с hk-ru (/etc/caddy/Caddyfile),
+# ставится командой `scripts/demo.sh access` (T-152, NFR-DEMO-ACCESS): блок nadzorium заменяется этим, validate → reload.
+# Вход — два замка: пароль прокси (basic auth) и логин приложения; гостевого входа нет (владелец 27.09, OWASP T-140 E2-H2).
+# /api/* и /health — без пароля прокси: пароль прокси и Bearer-токен приложения идут в одном заголовке Authorization,
+# а API и так ничего не отдаёт без входа (401). Хеш пароля — в /etc/caddy/nadzorium-users.caddy (не в git), пароль —
+# var/demo/secrets/basic_auth_password на маке.
+nadzorium.almazrobots.ru {
+	encode zstd gzip
+	header {
+		X-Robots-Tag "noindex, nofollow"
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	@locked not path /api/* /health
+	basic_auth @locked bcrypt "Nadzorium" {
+		import /etc/caddy/nadzorium-users.caddy
+	}
+	# Documentation is published independently of the application deployment.
+	handle_path /docs/* {
+		root * /opt/nadzorium/var/docs
+		header Cache-Control "no-store"
+		file_server
+	}
+	reverse_proxy https://127.0.0.1:45900 {
+		transport http {
+			tls_trusted_ca_certs /etc/caddy/nadzorium-ca.crt
+			tls_server_name web
+		}
+	}
+}

@@ -1,0 +1,32 @@
+# T-231, вариант А закрытия OWASP-0191: шифрование файлов пакетов на диске стенда nadzorium-gpu (NFR-CRYPTO, ТЗ 12.3-01).
+# Надстройка над compose.yml, включается ТОЛЬКО когда на сервере есть ключ /opt/stand-gpu/secrets/blob_encryption_key
+# (scripts/gpu-stand.sh добавляет -f этого файла сам; ключ создаёт scripts/pdn-at-rest-a.sh migrate --apply после «да» владельца).
+# Без ключа файла как будто нет: влитие в main ничего на стенде не меняет.
+#
+# Схема — как в проде (deploy/gpu/compose.yml, HIGH-4): в /opt/stand-gpu/blobs шифротекст IBE1 (AES-256-GCM с key_id,
+# apps/api/src/domain/at-rest.ts); ключа у ML нет — перед разбором API выкладывает открытый текст в blob-work (tmpfs,
+# в памяти), ML видит только его и только на чтение, по прежнему пути /app/var/blobs.
+services:
+  api:
+    environment:
+      INSPECTOR_BLOB_KEY_FILE: /run/secrets/blob_encryption_key
+      INSPECTOR_BLOB_WORK_DIR: /app/var/blob-work
+      # 8 файлов разом (GPU_PARSE_CONCURRENCY) до ~1 ГБ каждый (самый большой блоб 28.09 — 956 МБ); вытеснение — API
+      INSPECTOR_BLOB_WORK_MAX_MB: ${GPU_BLOB_WORK_MB:-8192}
+    secrets: [pg_app_password, rabbitmq_password, blob_encryption_key]
+    volumes:
+      - blob-work:/app/var/blob-work
+  ml:
+    # заменяет ${STAND_VAR}/blobs:/app/var/blobs:ro (слияние compose — по пути в контейнере): шифротекста ML не видит
+    volumes:
+      - blob-work:/app/var/blobs:ro
+
+volumes:
+  # открытый текст для ML — в памяти; владелец — uid API (1000), ML (10001) читает как «прочие». Размер с запасом к
+  # INSPECTOR_BLOB_WORK_MAX_MB. Страницы tmpfs могут уйти в своп — своп стенда открытый (закрывает шаг swap варианта Б).
+  blob-work:
+    driver_opts: { type: tmpfs, device: tmpfs, o: "size=${GPU_BLOB_WORK_TMPFS:-9g},uid=1000,gid=1000,mode=0755,noexec,nosuid,nodev" }
+
+secrets:
+  # 600, владелец 1000:1000 (uid API): compose монтирует файл с правами хоста
+  blob_encryption_key: { file: "${STAND_VAR:?}/secrets/blob_encryption_key" }

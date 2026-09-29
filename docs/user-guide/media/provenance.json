@@ -1,0 +1,47 @@
+{
+  "schema": "docs-scenario.v1",
+  "scenario": "annotation-correction-library",
+  "ui_revision": "df65e1884788b64ecdec76b73134d9eb75faec2d",
+  "api_revision": "df65e1884788b64ecdec76b73134d9eb75faec2d",
+  "environment": "Deployed UI static assets; pinned real API with isolated PGlite memory DB",
+  "data": "synthetic only",
+  "production_api_calls": 0,
+  "fixture_api_calls": 11,
+  "labels_persisted": 1,
+  "validated": [
+    "NO",
+    "corrected_value",
+    "comment",
+    "library",
+    "starred_filter"
+  ],
+  "duration_seconds": 23.427,
+  "chapters": [
+    {
+      "seconds": 0.361,
+      "title": "Получите задание в разделе «Разметка данных»"
+    },
+    {
+      "seconds": 4.165,
+      "title": "Сравните предложенное значение 12 с оригиналом: в нём написано 11"
+    },
+    {
+      "seconds": 7.757,
+      "title": "Выберите «Нет», добавьте комментарий и правильное значение"
+    },
+    {
+      "seconds": 11.47,
+      "title": "Ответ сохранён настоящим API в отдельной учебной базе"
+    },
+    {
+      "seconds": 15.041,
+      "title": "Откройте «Витрина разметки» и проверьте ответ, комментарий и исправление"
+    },
+    {
+      "seconds": 18.755,
+      "title": "Отметьте хороший пример и найдите его в личном отборе"
+    }
+  ],
+  "page_errors": [],
+  "recorded_at": "2026-09-29T15:29:17.124Z"
+}

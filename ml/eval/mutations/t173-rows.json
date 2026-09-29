@@ -1,0 +1,18 @@
+{
+  "_about": "T-173 → стенд мутаций T-179 (ml/eval/mutations/w1.json → params): строки пар «параметр × оператор» для влития координатором. Стенд T-179 на момент T-173 не влит в plan/t171-w1, поэтому строки лежат отдельно. Для M-008, M-019, M-020 и M-132 нужен вид правила истины «increase» (рост — нарушение, снижение — improve) и «pct» с direction increase — в synth/mutations.py rule_breaks и _q_mutation; для M-013 — существующий «decrease». Подписи — наименования, которые читает паспорт T-173 (тест test_matrix_name_rows_and_colon_form). Счёт: по 100 положительных и 100 отрицательных MUT-05 на пару.",
+  "requires_rule_types": {
+    "increase": "rule_breaks: d > tol; _q_mutation: pos — sign +1, neg — format | improve (снижение)",
+    "pct+increase": "rule_breaks: d > max(tol, pct·|ref|/100); neg — format | within | improve"
+  },
+  "params": [
+    {"code": "M-004", "operator": "CMP-02", "wired": true, "kind": "quantity", "label": "Строительный объем здания", "unit": "м³", "range": [10000, 90000], "rule": {"type": "abs", "tol": 0.05}, "counts": {"MUT-05": {"pos": 100, "neg": 100}}},
+    {"code": "M-005", "operator": "CMP-03", "wired": true, "kind": "quantity", "label": "Строительный объем подземной части", "unit": "м³", "range_of": ["M-004", 0.08, 0.3], "rule": {"type": "abs", "tol": 0.05}, "counts": {"MUT-05": {"pos": 100, "neg": 100}}},
+    {"code": "M-006", "operator": "CMP-03", "wired": true, "kind": "quantity", "label": "Строительный объем надземной части", "unit": "м³", "range_of": ["M-004", 0.7, 0.92], "rule": {"type": "abs", "tol": 0.05}, "counts": {"MUT-05": {"pos": 100, "neg": 100}}},
+    {"code": "M-008", "operator": "CMP-03", "wired": true, "kind": "quantity", "label": "Высота здания", "unit": "м", "range": [9, 150], "rule": {"type": "increase", "tol": 0.005}, "counts": {"MUT-05": {"pos": 100, "neg": 100}}},
+    {"code": "M-009", "operator": "CMP-01", "wired": true, "kind": "quantity", "label": "Абсолютная отметка 0.000", "unit": "м", "range": [110, 190], "rule": {"type": "abs", "tol": 0.005}, "counts": {"MUT-05": {"pos": 100, "neg": 100}}},
+    {"code": "M-013", "operator": "CMP-03", "wired": true, "kind": "quantity", "label": "Вместимость", "unit": "мест", "range": [50, 1500], "rule": {"type": "decrease", "tol": 0.5}, "counts": {"MUT-05": {"pos": 100, "neg": 100}}},
+    {"code": "M-019", "operator": "CMP-03", "wired": true, "kind": "quantity", "label": "Коэффициент застройки", "unit": "%", "range": [15, 65], "rule": {"type": "increase", "tol": 0.05}, "counts": {"MUT-05": {"pos": 100, "neg": 100}}},
+    {"code": "M-020", "operator": "CMP-03", "wired": true, "kind": "quantity", "label": "Коэффициент использования территории", "unit": "%", "range": [60, 450], "rule": {"type": "increase", "tol": 0.05}, "counts": {"MUT-05": {"pos": 100, "neg": 100}}},
+    {"code": "M-132", "operator": "CMP-02", "wired": true, "kind": "quantity", "label": "Итоговая стоимость по сводному сметному расчету", "unit": "тыс. руб.", "range": [150000, 9000000], "rule": {"type": "pct", "pct": 5.0, "tol": 0.005, "direction": "increase"}, "counts": {"MUT-05": {"pos": 100, "neg": 100}}}
+  ]
+}

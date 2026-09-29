@@ -1,0 +1,884 @@
+{
+  "_about": "Эшелоны qa-standard (L1–L8) по тестовым файлам API. Тест tests/echelons.test.ts не даёт завести файл без разметки. L8 — мутационные прогоны Stryker (reports/mutation) и регрессионные тесты на найденные дефекты.",
+  "files": {
+    "advisor.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "av-route.test.ts": [
+      "L4",
+      "L6",
+      "L7"
+    ],
+    "domain-ai-usage.test.ts": [
+      "L1",
+      "L2",
+      "L6"
+    ],
+    "health-revision.test.ts": [
+      "L1",
+      "L7"
+    ],
+    "domain-antivirus.test.ts": [
+      "L1",
+      "L4",
+      "L6"
+    ],
+    "domain-boundaries.test.ts": [
+      "L3"
+    ],
+    "domain-changes.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "domain-doctype.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "domain-feedback-logs.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "domain-formats.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "domain-hidden-works.test.ts": [
+      "L1"
+    ],
+    "domain-prescriptions.test.ts": [
+      "L1",
+      "L3",
+      "L5"
+    ],
+    "domain-requisites.test.ts": [
+      "L1",
+      "L3",
+      "L6"
+    ],
+    "domain-schedule.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "domain-verify-timing.test.ts": [
+      "L1",
+      "L3",
+      "L5"
+    ],
+    "domain.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "e2e.test.ts": [
+      "L2",
+      "L6",
+      "L8"
+    ],
+    "echelons.test.ts": [
+      "L7"
+    ],
+    "legal-acts.test.ts": [
+      "L1",
+      "L2"
+    ],
+    "prescriptions-route.test.ts": [
+      "L2",
+      "L4",
+      "L6"
+    ],
+    "property.test.ts": [
+      "L5"
+    ],
+    "queue-contract.test.ts": [
+      "L2",
+      "L4"
+    ],
+    "queue-profile.test.ts": [
+      "L7"
+    ],
+    "queue.test.ts": [
+      "L4"
+    ],
+    "rin-mtls.test.ts": [
+      "L1",
+      "L4",
+      "L6",
+      "L7"
+    ],
+    "sheetdiff.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "throttle.test.ts": [
+      "L4",
+      "L6"
+    ],
+    "usability-route.test.ts": [
+      "L2",
+      "L6"
+    ],
+    "tls.test.ts": [
+      "L1",
+      "L6",
+      "L7"
+    ],
+    "domain-signature.test.ts": [
+      "L1",
+      "L3",
+      "L6"
+    ],
+    "signature.test.ts": [
+      "L1",
+      "L2",
+      "L6",
+      "L7"
+    ],
+    "signature-route.test.ts": [
+      "L1",
+      "L4",
+      "L7"
+    ],
+    "domain-rin-pull.test.ts": [
+      "L1",
+      "L3",
+      "L6"
+    ],
+    "rin-sync.test.ts": [
+      "L4",
+      "L6"
+    ],
+    "rin-pull.test.ts": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L6",
+      "L7"
+    ],
+    "domain-access-log.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "rin-pull-mtls.test.ts": [
+      "L1",
+      "L4",
+      "L6",
+      "L7"
+    ],
+    "domain-patterns.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L8"
+    ],
+    "patterns.test.ts": [
+      "L1",
+      "L2"
+    ],
+    "domain-retrain.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L8"
+    ],
+    "retrain-route.test.ts": [
+      "L1",
+      "L4",
+      "L7"
+    ],
+    "domain-monitoring.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L8"
+    ],
+    "monitoring-route.test.ts": [
+      "L1",
+      "L4",
+      "L7"
+    ],
+    "domain-db.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6",
+      "L8"
+    ],
+    "db.test.ts": [
+      "L1",
+      "L2",
+      "L4",
+      "L6"
+    ],
+    "domain-security.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "db-hardening.test.ts": [
+      "L4",
+      "L6"
+    ],
+    "domain-sample-accept.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "sample-accept-route.test.ts": [
+      "L4",
+      "L6"
+    ],
+    "domain-decision-flow.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "reopen-route.test.ts": [
+      "L4",
+      "L6"
+    ],
+    "domain-common-root.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "common-root-route.test.ts": [
+      "L4",
+      "L6"
+    ],
+    "domain-evidence-fingerprint.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "domain-class-param.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "passport-route.test.ts": [
+      "L1",
+      "L2",
+      "L6",
+      "L7"
+    ],
+    "domain-blob-crypto.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "blobstore.test.ts": [
+      "L1",
+      "L4",
+      "L6"
+    ],
+    "blobstore-minio.test.ts": [
+      "L2"
+    ],
+    "class-param-pipeline.test.ts": [
+      "L2",
+      "L6",
+      "L8"
+    ],
+    "config-internal-tls.test.ts": [
+      "L3",
+      "L7"
+    ],
+    "openapi-contract.test.ts": [
+      "L2",
+      "L7"
+    ],
+    "domain-cipher.test.ts": [
+      "L1",
+      "L3",
+      "L5"
+    ],
+    "domain-archive.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "archive-reader.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "load-package.test.ts": [
+      "L2",
+      "L6"
+    ],
+    "s3-proxy.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "recover-parsing.test.ts": [
+      "L3",
+      "L4"
+    ],
+    "ml-client-timeout.test.ts": [
+      "L4",
+      "L8"
+    ],
+    "domain-passport.test.ts": [
+      "L1",
+      "L3",
+      "L8"
+    ],
+    "domain-quantity-param.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-discipline-fit.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "domain-byte-range.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "file-range-route.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "readonly-demo.test.ts": [
+      "L1",
+      "L3",
+      "L4"
+    ],
+    "domain-rules-version.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "rules-recompute.test.ts": [
+      "L3",
+      "L4"
+    ],
+    "decision-integrity-route.test.ts": [
+      "L4",
+      "L6",
+      "L8"
+    ],
+    "domain-reason-code.test.ts": [
+      "L1",
+      "L6",
+      "L8"
+    ],
+    "domain-access.test.ts": [
+      "L1",
+      "L3",
+      "L6"
+    ],
+    "access-matrix-route.test.ts": [
+      "L1",
+      "L3",
+      "L6",
+      "L7"
+    ],
+    "export-xml.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "domain-pressure-class.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "perf-11.test.ts": [
+      "L3",
+      "L7"
+    ],
+    "domain-pages-brief.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "domain-submission.test.ts": [
+      "L1",
+      "L2",
+      "L6"
+    ],
+    "submission-route.test.ts": [
+      "L3",
+      "L6"
+    ],
+    "domain-appendix2.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "trust-proxy.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "domain-synthetic.test.ts": [
+      "L1",
+      "L3",
+      "L6"
+    ],
+    "domain-request-signing.test.ts": [
+      "L1",
+      "L3",
+      "L6",
+      "L7"
+    ],
+    "ukep-signing.test.ts": [
+      "L1",
+      "L4",
+      "L6",
+      "L7"
+    ],
+    "domain-slo.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "ready-route.test.ts": [
+      "L4",
+      "L7"
+    ],
+    "domain-hidden-seal.test.ts": [
+      "L1",
+      "L2",
+      "L3",
+      "L6"
+    ],
+    "hidden-seal-route.test.ts": [
+      "L2",
+      "L4",
+      "L6"
+    ],
+    "blobstore-at-rest.test.ts": [
+      "L1",
+      "L4",
+      "L6"
+    ],
+    "domain-at-rest.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "config-at-rest.test.ts": [
+      "L3",
+      "L7"
+    ],
+    "cli-blobs-encrypt.test.ts": [
+      "L1",
+      "L4",
+      "L6",
+      "L7"
+    ],
+    "domain-pdn.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6",
+      "L7"
+    ],
+    "pdn-route.test.ts": [
+      "L4",
+      "L6",
+      "L7"
+    ],
+    "config-pdn.test.ts": [
+      "L3",
+      "L7"
+    ],
+    "hidden-seal-sync.test.ts": [
+      "L1",
+      "L6",
+      "L7"
+    ],
+    "domain-critical-points.test.ts": [
+      "L1"
+    ],
+    "domain-integrity-report.test.ts": [
+      "L1",
+      "L8"
+    ],
+    "finalize-critical-route.test.ts": [
+      "L4",
+      "L6"
+    ],
+    "integrity-route.test.ts": [
+      "L4",
+      "L6"
+    ],
+    "inspection-card-route.test.ts": [
+      "L4",
+      "L8"
+    ],
+    "domain-dashboard-color.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "domain-histogram.test.ts": [
+      "L1",
+      "L3",
+      "L5"
+    ],
+    "rin-deadline.test.ts": [
+      "L1",
+      "L3",
+      "L4"
+    ],
+    "perf-runtime.test.ts": [
+      "L1",
+      "L7"
+    ],
+    "domain-ids.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "ids-route.test.ts": [
+      "L1",
+      "L3",
+      "L4",
+      "L6",
+      "L7",
+      "L8"
+    ],
+    "domain-ocr-quality.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "ocr-quality-route.test.ts": [
+      "L1",
+      "L3",
+      "L7"
+    ],
+    "domain-server-import.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-stream-crypto.test.ts": [
+      "L1",
+      "L5",
+      "L6"
+    ],
+    "blobstore-staged.test.ts": [
+      "L1",
+      "L4",
+      "L6"
+    ],
+    "server-import-route.test.ts": [
+      "L2",
+      "L4",
+      "L6",
+      "L7"
+    ],
+    "stage-blob.test.ts": [
+      "L1",
+      "L4",
+      "L6"
+    ],
+    "domain-count-param.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-aggregate-param.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "stryker-config.test.ts": [
+      "L7"
+    ],
+    "domain-quantity-w1.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-quantity-w3.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-direction-param.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "direction-param-pipeline.test.ts": [
+      "L2",
+      "L6"
+    ],
+    "domain-stage-schedule.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-doc-requirements.test.ts": [
+      "L1",
+      "L3",
+      "L6"
+    ],
+    "domain-presence-param.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-param-kinds.test.ts": [
+      "L1",
+      "L3",
+      "L6"
+    ],
+    "param-kinds-pipeline.test.ts": [
+      "L2",
+      "L6"
+    ],
+    "domain-objects.test.ts": [
+      "L1",
+      "L3",
+      "L6"
+    ],
+    "domain-dedup-key.test.ts": [
+      "L1",
+      "L2",
+      "L3"
+    ],
+    "domain-parse-parts.test.ts": [
+      "L1",
+      "L3",
+      "L4"
+    ],
+    "files-list-route.test.ts": [
+      "L1",
+      "L3",
+      "L7"
+    ],
+    "files-params-route.test.ts": [
+      "L1",
+      "L3",
+      "L6",
+      "L7"
+    ],
+    "objects-route.test.ts": [
+      "L1",
+      "L2",
+      "L6",
+      "L7"
+    ],
+    "domain-verify-l8.test.ts": [
+      "L1",
+      "L3",
+      "L5"
+    ],
+    "l8-pipeline.test.ts": [
+      "L2",
+      "L4",
+      "L6"
+    ],
+    "l8-quality.test.ts": [
+      "L5",
+      "L6"
+    ],
+    "domain-verify-geom.test.ts": [
+      "L1",
+      "L2",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-xdisc.test.ts": [
+      "L1",
+      "L2",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "vlm-claim.test.ts": [
+      "L1",
+      "L4",
+      "L6"
+    ],
+    "domain-mutation-bench.test.ts": [
+      "L1",
+      "L3",
+      "L6"
+    ],
+    "mutation-bench-pipeline.test.ts": [
+      "L2",
+      "L4",
+      "L6"
+    ],
+    "rin-queue.test.ts": [
+      "L1",
+      "L3",
+      "L4",
+      "L6",
+      "L8"
+    ],
+    "domain-w2-text.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-geom-core.test.ts": [
+      "L1",
+      "L2",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-geom-ops.test.ts": [
+      "L1",
+      "L2",
+      "L3",
+      "L6"
+    ],
+    "domain-geom-param.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-geom-edges.test.ts": [
+      "L3",
+      "L6",
+      "L8"
+    ],
+    "domain-analogs.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-category-param.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "domain-layers-param.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "subst-layers-pipeline.test.ts": [
+      "L2",
+      "L6"
+    ],
+    "domain-t176-parts.test.ts": [
+      "L2",
+      "L6"
+    ],
+    "domain-w1-real.test.ts": [
+      "L1",
+      "L6"
+    ],
+    "domain-class-scales.test.ts": [
+      "L1",
+      "L3",
+      "L5",
+      "L6"
+    ],
+    "class-scales-pipeline.test.ts": [
+      "L2",
+      "L6"
+    ],
+    "domain-tz10-model.test.ts": [
+      "L1",
+      "L3",
+      "L6"
+    ],
+    "tz10-model-route.test.ts": [
+      "L2",
+      "L4",
+      "L6"
+    ],
+    "domain-pipeline-graph.test.ts": [
+      "L1",
+      "L3",
+      "L6"
+    ],
+    "pipeline-runs.test.ts": [
+      "L2",
+      "L6"
+    ],
+    "pipeline-source-pins.test.ts": [
+      "L4",
+      "L6"
+    ],
+    "stage-artifacts.test.ts": [
+      "L2",
+      "L4",
+      "L6"
+    ],
+    "stage-coordinator.test.ts": [
+      "L2",
+      "L4"
+    ],
+    "stage-execution-client.test.ts": [
+      "L2",
+      "L4",
+      "L6"
+    ],
+    "stage-graph.test.ts": [
+      "L1",
+      "L3"
+    ],
+    "stage-jobs.test.ts": [
+      "L2",
+      "L4"
+    ],
+    "stage-notification-recovery.test.ts": [
+      "L2",
+      "L4"
+    ],
+    "stage-recovery-live.test.ts": [
+      "L2",
+      "L4"
+    ],
+    "file-result-snapshots.test.ts": [
+      "L2",
+      "L4",
+      "L6"
+    ],
+    "domain-data-verification.test.ts": [
+      "L1"
+    ],
+    "data-verification.test.ts": [
+      "L2"
+    ],
+    "verification-concurrency.test.ts": [
+      "L2"
+    ],
+    "verification-http.test.ts": [
+      "L3"
+    ],
+    "domain-annotation-comments.test.ts": [
+      "L1"
+    ],
+    "annotation-library.test.ts": [
+      "L2"
+    ],
+    "domain-m022-quality.test.ts": [
+      "L1"
+    ],
+    "domain-m022-review.test.ts": [
+      "L1"
+    ],
+    "m022-http.test.ts": [
+      "L3"
+    ],
+    "domain-annotation-preview.test.ts": [
+      "L1",
+      "L4",
+      "L6"
+    ]
+  }
+}

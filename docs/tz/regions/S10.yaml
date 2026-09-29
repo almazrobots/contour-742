@@ -1,0 +1,24 @@
+# Области ТЗ для «Детальной трассы» — поля описаны в docs/tz/regions/README.md.
+id: "S10"
+title: "10. Таблицы базы данных"
+scope: [{page: 26, y: [233, 9999]}, {page: 27}]
+regions:
+  - {page: 26, from: "10. Таблицы базы данных (сводка)", head: TZ-10}
+  - {page: 26, band: true, from: "№", to: "Ключевые поля", none: "Шапка таблицы"}
+  - {page: 26, band: true, from: "id, code, parameter_name, source_pd,", to: "gost_reference, fz_reference", atoms: [TZA-10-01]}
+  - {page: 26, band: true, from: "id, param_id, object_id, expected_value,", to: "evidence_group_id", atoms: [TZA-10-02], note: "Назначение обрывается запятой («Результаты извлечения и сопоставления,») — текст ТЗ усечён"}
+  - {page: 26, band: true, from: "Объекты", to: "строительства", atoms: [TZA-10-03]}
+  - {page: 26, band: true, from: "id, object_id, doc_stage, discipline,", to: "file_path, uploaded_at", atoms: [TZA-10-04]}
+  - {page: 26, band: true, from: "id, object_id, version, matrix_version,", to: "finalized_at", atoms: [TZA-10-05]}
+  - {page: 26, band: true, from: "Rejection_", to: "suggested_fix, retraining_status", atoms: [TZA-10-06], note: "violation_id ссылается на сущность «нарушение», которой в сводке нет: результаты сопоставления лежат в Checks"}
+  - {page: 26, band: true, from: "id, violation_id, inspector_comment,", to: "ai_comment, resolution_status, resolved_by", atoms: [TZA-10-07], note: "violation_id — ссылка на таблицу, отсутствующую в сводке (см. Rejection_Log)"}
+  - {page: 27, band: true, from: "№", to: "Ключевые поля", none: "Шапка таблицы на новой странице"}
+  - {page: 27, band: true, from: "id, object_id, discovery_method, confidence,", to: "description, inspector_status", atoms: [TZA-10-08]}
+  - {page: 27, band: true, from: "Logical_", to: "normative_base, is_active", atoms: [TZA-10-09]}
+  - {page: 27, band: true, from: "id, document_name, document_number,", to: "max_value, effective_from, effective_to", atoms: [TZA-10-10]}
+  - {page: 27, band: true, from: "id, model_version, dataset_version, split_hashes,", to: "approved_by", atoms: [TZA-10-11], note: "Пересекается с Model_Versions (строка 16): model_version, dataset_version, approval_status, approved_by в обеих таблицах"}
+  - {page: 27, band: true, from: "Журнал аудита", to: "пользователей", atoms: [TZA-10-12]}
+  - {page: 27, band: true, from: "Monitoring_", to: "service_name, tags", atoms: [TZA-10-13], note: "Метрики отдаются в формате Prometheus и раз в минуту пишутся в таблицу monitoring_metrics (NFR-METRICS-STORE, хранение 90 дней)"}
+  - {page: 27, band: true, from: "id, evidence_group_id, file_id, stage, sheet_page,", to: "role_expected_actual", atoms: [TZA-10-14]}
+  - {page: 27, band: true, from: "id, evidence_group_id, gold_label, expert_id,", to: "object_group_id", atoms: [TZA-10-15]}
+  - {page: 27, band: true, from: "model_version, artifact_hash, dataset_version,", to: "deployed_at, rollback_to", atoms: [TZA-10-16], note: "Единственная таблица без поля id: ключ — model_version"}

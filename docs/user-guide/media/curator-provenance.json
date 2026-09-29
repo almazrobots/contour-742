@@ -1,0 +1,124 @@
+{
+  "schema": "docs-scenario.v1",
+  "scenario_id": "operator-independent-curator-release",
+  "ui_revision": "df65e1884788b64ecdec76b73134d9eb75faec2d",
+  "api_revision": "df65e1884788b64ecdec76b73134d9eb75faec2d",
+  "ui_asset_hashes": [
+    {
+      "path": "/verification/assets/index-6VY0B75I.css",
+      "sha256": "dbb2277047aa8bf8e1b82f331f35c31c5dc0b94bb65c7055c654cd2817e1e4c7"
+    },
+    {
+      "path": "/verification/assets/index-BWROzH5A.js",
+      "sha256": "a617632d07520af5c273d8edd446f40871e1bc1eb21e9106f27e265d62fe5b02"
+    }
+  ],
+  "roles": [
+    "inspector",
+    "curator"
+  ],
+  "fixture_id": "synthetic-single-png-11-vs-12",
+  "data": "synthetic only; separate operator and curator; not OCR or model training",
+  "production_api_calls": 0,
+  "production_writes": 0,
+  "fixture_api_calls": 16,
+  "label": {
+    "task_id": "vt-38caeb0720b23a0a8c68aa7e9762fa1fdf18e70f9aedca54970cd1baff45fc2f",
+    "answer": "NO",
+    "corrected_value": "11"
+  },
+  "adjudication": {
+    "task_id": "vt-38caeb0720b23a0a8c68aa7e9762fa1fdf18e70f9aedca54970cd1baff45fc2f",
+    "answer": "NO",
+    "author_is_distinct": true,
+    "has_reason": true,
+    "corrected_value": "11"
+  },
+  "dataset": {
+    "id": "annotations-2355ef10f93a5da1a1ec7b35",
+    "manifest": {
+      "schema": "annotation-dataset.v1",
+      "count": 1,
+      "digest": "2355ef10f93a5da1a1ec7b35ca04fd8dad99ec7e579beb4e2f1a567d9b4a854a",
+      "type": "human_verified_tasks_not_ocr_transcriptions",
+      "split_method": "objects_and_shared_sources",
+      "comment_policy": "masked-profanity.v1"
+    },
+    "item_count": 1
+  },
+  "validated": [
+    "operator_label_real_API",
+    "independent_review_real_API",
+    "mandatory_reason_supplied",
+    "dataset_release_real_API",
+    "dataset_item_saved"
+  ],
+  "duration_seconds": 23.24,
+  "chapters": [
+    {
+      "seconds": 0.394,
+      "title": "Первый оператор получает синтетическое задание и проверяет оригинал"
+    },
+    {
+      "seconds": 3.769,
+      "title": "Оператор отвечает «Нет» с исправлением 11 и пояснением"
+    },
+    {
+      "seconds": 7.595,
+      "title": "Другой куратор получает независимый разбор по сохранённому ответу"
+    },
+    {
+      "seconds": 10.807,
+      "title": "Куратор выбирает «Нет», указывает обязательное основание и исправление"
+    },
+    {
+      "seconds": 14.093,
+      "title": "Основание сохранено настоящим API; исходный ответ другого оператора остаётся отдельным"
+    },
+    {
+      "seconds": 17.26,
+      "title": "Куратор выпускает проверенный набор: идентификатор и один разобранный пример"
+    }
+  ],
+  "page_errors": [],
+  "recorded_at": "2026-09-29T17:04:10.619Z",
+  "capture_wall_clock_seconds": 21.276,
+  "video_review": {
+    "duration": 23.24,
+    "width": 1440,
+    "height": 1000,
+    "playback": "complete without decoder error",
+    "frames": [
+      {
+        "seconds": 1.3940000000000001,
+        "file": "decoded-0.png",
+        "sha256": "5076e98a2141ca1b54828e9afd235740454d3332bcc6bb1997d4bb87554a30f8"
+      },
+      {
+        "seconds": 4.769,
+        "file": "decoded-1.png",
+        "sha256": "c07e56543965fd4bf579581fb168e81ab91a25d623882e46ed161f08d527d2a5"
+      },
+      {
+        "seconds": 8.594999999999999,
+        "file": "decoded-2.png",
+        "sha256": "1e660d58e655615af14494e77356f4c6d2ea541dde07327a2bdcdc06b8174710"
+      },
+      {
+        "seconds": 11.807,
+        "file": "decoded-3.png",
+        "sha256": "cc31b7a2503a76caf292e4c3ac87f7e183a59c7bfc76a1e9d74fc011389859cf"
+      },
+      {
+        "seconds": 15.093,
+        "file": "decoded-4.png",
+        "sha256": "eaca74166ae7ebf8bc26fc0baea60ce9c40f96e7858c9ec62e2b093990bd8160"
+      },
+      {
+        "seconds": 18.26,
+        "file": "decoded-5.png",
+        "sha256": "9136781ee6f19788ea5a144dfbbe970ebe928bd63fc0ac7ac6949f118feeed78"
+      }
+    ]
+  }
+}

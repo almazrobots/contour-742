@@ -1,0 +1,169 @@
+# Демо-стенд «Надзориум» (T-131, NFR-DEMO-READONLY): nadzorium.almazrobots.ru на hk-ru — только просмотр результатов,
+# посчитанных на MacBook. Без ML, очереди и антивируса: сервер ничего не разбирает и не принимает. База приходит
+# дампом со стенда мака (scripts/demo.sh publish), файлы читаются из Object Storage тем же ключом шифрования.
+# Наружу — только 127.0.0.1:45900; TLS Let's Encrypt и basic auth — host-Caddy (/etc/caddy/Caddyfile).
+# Рядом на хосте PINATOR LIVE (реальные деньги): у каждого контейнера жёсткий лимит памяти, в сумме ≤ 1,2 ГБ.
+# Образы — готовые inspector-{api,web}:<git-sha>-amd64 (scripts/demo.sh build/ship), postgres — по digest.
+# Переменные задаёт var/demo.env (scripts/demo.sh ship): DEMO_API_IMAGE, DEMO_WEB_IMAGE, DEMO_PG_IMAGE, DEMO_S3_*.
+name: nadzorium
+
+x-hardened: &hardened
+  restart: unless-stopped
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  pids_limit: 128
+
+services:
+  postgres:
+    <<: *hardened
+    image: ${DEMO_PG_IMAGE:?DEMO_PG_IMAGE — postgres по digest}
+    user: "70:70"
+    mem_limit: 384m
+    command:
+      - postgres
+      - -c
+      - listen_addresses=*
+      - -c
+      - hba_file=/etc/postgresql/pg_hba.conf
+      - -c
+      - password_encryption=scram-sha-256
+      - -c
+      - ssl=on
+      - -c
+      - ssl_cert_file=/run/pg-tls/server.crt
+      - -c
+      - ssl_key_file=/run/pg-tls/server.key
+      - -c
+      - ssl_min_protocol_version=TLSv1.3
+      - -c
+      - shared_buffers=64MB
+      - -c
+      - log_statement=ddl
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: inspector
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_superuser_password
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=peer --encoding=UTF8 --locale=C.UTF-8"
+    secrets: [pg_superuser_password, pg_migrator_password, pg_app_password]
+    tmpfs: [/tmp, /var/run/postgresql]
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      - ./var/tls/postgres:/run/pg-tls:ro
+      - ./var/publish:/publish:ro # дамп данных для scripts/demo.sh publish (восстанавливается внутри контейнера)
+    shm_size: 128m
+    networks: [db]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "inspector_app", "-d", "inspector"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+
+  # схема — той же службой миграций из того же образа: данные с мака ложатся в точно такую же схему
+  api-migrate:
+    <<: *hardened
+    restart: "no"
+    image: ${DEMO_API_IMAGE:?DEMO_API_IMAGE — inspector-api:<sha>-amd64}
+    mem_limit: 256m
+    command: ["node", "apps/api/dist/migrate.mjs"]
+    environment:
+      INSPECTOR_PROFILE: dev
+      INSPECTOR_DATABASE_URL: postgres://inspector_migrator@postgres:5432/inspector
+      INSPECTOR_DATABASE_PASSWORD_FILE: /run/secrets/pg_migrator_password
+      INSPECTOR_DATABASE_SSL_CA_FILE: /run/tls/ca.crt
+      INSPECTOR_BOOTSTRAP_ADMIN_LOGIN: admin
+      INSPECTOR_BOOTSTRAP_ADMIN_PASSWORD_FILE: /run/secrets/bootstrap_admin_password
+    secrets: [pg_migrator_password, bootstrap_admin_password]
+    healthcheck: { disable: true }
+    tmpfs: [/tmp]
+    volumes:
+      - ./var/tls/ca.crt:/run/tls/ca.crt:ro
+      - ./var/secrets/demo_password:/app/var/demo-password.txt:ro
+    networks: [db]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  api:
+    <<: *hardened
+    image: ${DEMO_API_IMAGE:?}
+    mem_limit: 512m
+    environment:
+      INSPECTOR_PROFILE: dev
+      INSPECTOR_READONLY: "1" # NFR-DEMO-READONLY: изменяющие запросы — 403, вход гостевой
+      # OWASP T-140 E1-H1: адрес клиента из X-Forwarded-For только от своих прокси (Caddy на хосте → nginx в сети compose);
+      # без этого все клиенты для API один адрес, и 20 неверных входов анонима закрывали вход всем на 15 минут
+      INSPECTOR_TRUST_PROXY: "loopback, uniquelocal"
+      INSPECTOR_GUEST_LOGIN: "" # владелец 27.09: пароль прокси снят — гостевой вход выключен, вход только по логину и паролю приложения
+      INSPECTOR_QUEUE: inproc
+      INSPECTOR_AV: "off"
+      INSPECTOR_RIN_MOCK: "1"
+      INSPECTOR_RIN_PULL: "off"
+      INSPECTOR_SHEET_DIFF_AUTO: "0"
+      HOST: 0.0.0.0
+      INSPECTOR_TLS_CERT: /run/tls/server.crt
+      INSPECTOR_TLS_KEY: /run/tls/server.key
+      INSPECTOR_HEALTH_CA_FILE: /run/tls/ca.crt
+      INSPECTOR_DATABASE_URL: postgres://inspector_app@postgres:5432/inspector
+      INSPECTOR_DATABASE_PASSWORD_FILE: /run/secrets/pg_app_password
+      INSPECTOR_DATABASE_SSL_CA_FILE: /run/tls/ca.crt
+      INSPECTOR_MIGRATIONS: verify
+      INSPECTOR_INTERNAL_TLS: required
+      INSPECTOR_ML_URL: https://ml.invalid:8811 # ML на демо-стенде нет: сервер ничего не разбирает
+      NODE_EXTRA_CA_CERTS: /run/tls/ca.crt
+      INSPECTOR_BLOB_DIR: /app/var/blobs
+      # файлы — из Object Storage: пишущего префикса нет в работе (всё изменяющее — 403), читаются префиксы стендов мака
+      INSPECTOR_BLOB_STORE: s3
+      INSPECTOR_S3_ENDPOINT: https://storage.yandexcloud.net
+      INSPECTOR_S3_REGION: ru-central1
+      INSPECTOR_S3_BUCKET: ${DEMO_S3_BUCKET:-nadzorium}
+      INSPECTOR_S3_PREFIX: ${DEMO_S3_PREFIX:-demo-view/}
+      INSPECTOR_S3_READ_PREFIXES: ${DEMO_S3_READ_PREFIXES:?DEMO_S3_READ_PREFIXES — префиксы стендов мака через запятую}
+      INSPECTOR_S3_FORCE_PATH_STYLE: "false"
+      INSPECTOR_S3_ACCESS_KEY_ID_FILE: /run/secrets/s3_access_key_id
+      INSPECTOR_S3_SECRET_ACCESS_KEY_FILE: /run/secrets/s3_secret_access_key
+      INSPECTOR_S3_KEY_FILE: /run/secrets/s3_encryption_key
+    secrets: [pg_app_password, s3_access_key_id, s3_secret_access_key, s3_encryption_key]
+    tmpfs: [/tmp]
+    volumes:
+      - api-blobs:/app/var/blobs
+      - ./var/tls/api:/run/tls:ro
+    networks: [edge, db]
+    depends_on:
+      postgres: { condition: service_healthy }
+      api-migrate: { condition: service_completed_successfully }
+
+  web:
+    <<: *hardened
+    image: ${DEMO_WEB_IMAGE:?DEMO_WEB_IMAGE — inspector-web:<sha>-amd64}
+    user: "101:101"
+    mem_limit: 64m
+    tmpfs: [/tmp]
+    volumes:
+      - ./var/tls/web:/run/tls:ro
+      # карта требований, пайплайн, архитектура, отчёты и publication.json — публикуются с мака (scripts/demo.sh publish)
+      - ./var/docs:/usr/share/nginx/html/docs:ro
+    ports: ["127.0.0.1:45900:8443"]
+    networks: [edge]
+    depends_on:
+      api: { condition: service_healthy }
+
+networks:
+  edge: {}
+  db: { internal: true }
+
+volumes:
+  postgres-data: {}
+  api-blobs: {}
+
+secrets:
+  pg_superuser_password: { file: ./var/secrets/pg_superuser_password }
+  pg_migrator_password: { file: ./var/secrets/pg_migrator_password }
+  pg_app_password: { file: ./var/secrets/pg_app_password }
+  bootstrap_admin_password: { file: ./var/secrets/bootstrap_admin_password }
+  s3_access_key_id: { file: ./var/secrets/s3_access_key_id }
+  s3_secret_access_key: { file: ./var/secrets/s3_secret_access_key }
+  # тот же ключ AES-256-GCM, что у стенда мака: файлы в бакете зашифрованы им
+  s3_encryption_key: { file: ./var/secrets/s3_encryption_key }

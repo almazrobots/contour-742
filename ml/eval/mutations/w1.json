@@ -1,0 +1,97 @@
+{
+  "schema": "inspector-mutation-params/1",
+  "about": "Стенд мутаций L11 (T-179, каталог TO-BE §15, OS-INSP-6.5.40–6.5.49). Пара «параметр × оператор» — строка данных: как параметр пишется в документах и какие мутации к нему применимы. Истина считается по правилу Матрицы из этого файла, а не по паспорту системы: ошибка паспорта должна быть видна как расхождение с истиной. wired — оператор подключён в конвейере (сравнение идёт по паспорту); false — мутации генерируются, но в метрики идут отдельным разделом «ожидает оператора».",
+  "params": [
+    {
+      "code": "M-001", "operator": "CMP-01", "wired": true, "kind": "quantity",
+      "label": "Площадь застройки", "unit": "м²", "range": [600, 4000],
+      "rule": {"type": "abs", "tol": 0.05},
+      "counts": {"MUT-05": {"pos": 34, "neg": 12}, "MUT-18": {"stale": 4, "conflict": 2, "swap": 2}, "MUT-17": 2}
+    },
+    {
+      "code": "M-002", "operator": "CMP-02", "wired": true, "kind": "quantity",
+      "label": "Общая площадь здания", "unit": "м²", "range": [3000, 25000],
+      "rule": {"type": "pct", "pct": 1.0, "tol": 0.05},
+      "counts": {"MUT-05": {"pos": 60, "neg": 24}, "MUT-12": {"pos": 40, "neg": 12}, "MUT-18": {"stale": 4, "conflict": 2, "swap": 2}, "MUT-17": 2}
+    },
+    {
+      "code": "M-003", "operator": "CMP-03", "wired": true, "kind": "quantity",
+      "label": "Полезная площадь здания", "unit": "м²", "range_of": ["M-002", 0.55, 0.85],
+      "rule": {"type": "decrease", "tol": 0.05},
+      "counts": {"MUT-05": {"pos": 100, "neg": 24}, "MUT-18": {"stale": 4, "conflict": 2, "swap": 2}, "MUT-17": 2}
+    },
+    {
+      "code": "M-004", "operator": "CMP-01", "wired": true, "kind": "quantity",
+      "label": "Строительный объем здания", "unit": "м³", "range": [10000, 90000],
+      "rule": {"type": "abs", "tol": 0.05},
+      "counts": {"MUT-05": {"pos": 34, "neg": 12}, "MUT-18": {"stale": 4, "conflict": 2, "swap": 2}, "MUT-17": 2}
+    },
+    {
+      "code": "M-005", "operator": "CMP-01", "wired": true, "kind": "quantity",
+      "label": "Строительный объем подземной части", "unit": "м³", "range_of": ["M-004", 0.08, 0.3],
+      "rule": {"type": "abs", "tol": 0.05},
+      "counts": {"MUT-05": {"pos": 34, "neg": 12}, "MUT-18": {"stale": 4, "conflict": 2, "swap": 2}, "MUT-17": 2}
+    },
+    {
+      "code": "M-023", "operator": "CMP-04", "wired": true, "kind": "class",
+      "label": "Класс конструктивной пожарной опасности здания", "scale": ["С3", "С2", "С1", "С0"],
+      "rule": {"type": "rank_decrease"},
+      "counts": {"MUT-06": {"pos": 100, "neg": 30}, "MUT-18": {"stale": 4, "conflict": 2, "swap": 2}, "MUT-17": 2}
+    },
+    {
+      "code": "M-007", "operator": "CMP-07", "wired": false, "kind": "count",
+      "label": "Этажность здания", "unit": "эт.", "range": [3, 25],
+      "rule": {"type": "abs", "tol": 0},
+      "counts": {"MUT-05": {"pos": 4, "neg": 2}}
+    },
+    {
+      "code": "M-010", "operator": "CMP-07", "wired": false, "kind": "count",
+      "label": "Количество квартир", "unit": "шт.", "range": [20, 400],
+      "breakdown": ["1-комнатные", "2-комнатные", "3-комнатные"], "breakdown_title": "Квартирография", "extra_row": "4-комнатные",
+      "rule": {"type": "abs", "tol": 0},
+      "counts": {"MUT-05": {"pos": 4, "neg": 2}, "MUT-12": {"pos": 4, "neg": 2}}
+    },
+    {
+      "code": "M-002", "operator": "CMP-10", "wired": false, "kind": "rooms_total",
+      "label": "Итог экспликации помещений", "requires": ["CMP-10"],
+      "counts": {}
+    },
+    {
+      "code": "M-003", "operator": "CMP-23", "wired": false, "kind": "room_purpose",
+      "label": "Назначение помещения", "requires": ["CMP-23"],
+      "counts": {"MUT-11": 10}
+    },
+    {
+      "code": "M-109", "operator": "CMP-04", "wired": false, "kind": "mark",
+      "label": "Кабельные линии систем противопожарной защиты выполняются кабелем", "value": "ВВГнг(А)-FRLS", "downgrade": ["ВВГнг(А)-LS", "ВВГнг(А)"],
+      "requires": ["CMP-04:M-109"],
+      "counts": {"MUT-07": 10}
+    },
+    {
+      "code": "M-125", "operator": "CMP-21", "wired": false, "kind": "layers",
+      "label": "Наружные стены: состав", "layers": [["кладка из керамического кирпича", 250], ["утеплитель минераловатный", 150], ["воздушный зазор", 40], ["облицовка фиброцементными панелями", 8]],
+      "requires": ["CMP-21", "CMP-03:M-125"],
+      "counts": {"MUT-08": {"thin": 6, "drop": 6}}
+    },
+    {
+      "code": "M-077", "operator": "CMP-20", "wired": false, "kind": "branches",
+      "label": "Ветви системы В2", "requires": ["CMP-20", "LNK-05"],
+      "counts": {"MUT-01": 8, "MUT-02": 8}
+    }
+  ],
+  "negatives": {"NEG-01": 30, "NEG-02": 30, "NEG-03": 30},
+  "modifiers": {
+    "MUT-17": {"requires": ["CMP-29"], "expect": ["NEGATIVE_VERIFIED", "CLARIFICATION_REQUIRED"]},
+    "MUT-18": {"swap_requires": ["IDN-12", "VER-03"]}
+  },
+  "not_in_w1": {
+    "MUT-03": "удаление путей змеевика тёплого пола — геометрия векторного плана, волна W2 (CMP-20, CMP-09 по геометрии)",
+    "MUT-04": "удаление группы путей установки в венткамере — топология схемы, волна W2 (CMP-19)",
+    "MUT-09": "сдвиг двери или перегородки — W2 (CMP-14, CMP-15)",
+    "MUT-10": "сужение коридора или двери — W2 (CMP-06, CMP-12 по геометрии)",
+    "MUT-13": "удаление символа ОЗК — W2 (CMP-16)",
+    "MUT-14": "удаление строки спецификации при символе на чертеже — W2 (CMP-30 по чертежу)",
+    "MUT-15": "поворот страницы и CropBox — не входит в список W1 каталога §16",
+    "MUT-16": "растеризация и шум скана — растровая ветка, не входит в список W1 каталога §16"
+  }
+}

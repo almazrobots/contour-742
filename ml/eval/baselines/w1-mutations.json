@@ -1,0 +1,365 @@
+{
+ "schema": "inspector-mutation-baseline/1",
+ "profiles": {
+  "adversarial@parser4": {
+   "dataset_version": "mutations-w1:adv:seed=29:scale=1.0:n=744",
+   "registry_sha256": "a053f52831507e2e",
+   "parser_rev": 4,
+   "extract_rev": 13,
+   "categories": {
+    "op:CMP-01": {
+     "n_pos": 102,
+     "n_neg": 2052,
+     "recall": 0.5392,
+     "fpr": 0.095,
+     "fpr_superseded": 0.0556,
+     "precision": 0.22
+    },
+    "op:CMP-02": {
+     "n_pos": 100,
+     "n_neg": 618,
+     "recall": 0.14,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "op:CMP-03": {
+     "n_pos": 100,
+     "n_neg": 618,
+     "recall": 0.32,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "op:CMP-04": {
+     "n_pos": 100,
+     "n_neg": 618,
+     "recall": 0.75,
+     "fpr": 0.0016,
+     "fpr_superseded": 0.0,
+     "precision": 0.9868
+    },
+    "pair:M-001×CMP-01": {
+     "n_pos": 34,
+     "n_neg": 684,
+     "recall": 0.5882,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-002×CMP-02": {
+     "n_pos": 100,
+     "n_neg": 618,
+     "recall": 0.14,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-003×CMP-03": {
+     "n_pos": 100,
+     "n_neg": 618,
+     "recall": 0.32,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-004×CMP-01": {
+     "n_pos": 34,
+     "n_neg": 684,
+     "recall": 0.7059,
+     "fpr": 0.2851,
+     "fpr_superseded": 0.1667,
+     "precision": 0.1096
+    },
+    "pair:M-005×CMP-01": {
+     "n_pos": 34,
+     "n_neg": 684,
+     "recall": 0.3235,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-023×CMP-04": {
+     "n_pos": 100,
+     "n_neg": 618,
+     "recall": 0.75,
+     "fpr": 0.0016,
+     "fpr_superseded": 0.0,
+     "precision": 0.9868
+    },
+    "target:MUT-05": {
+     "n_pos": 262,
+     "n_neg": 84,
+     "recall": 0.3588,
+     "fpr": 0.0357,
+     "fpr_superseded": null,
+     "precision": 0.9691
+    },
+    "target:MUT-06": {
+     "n_pos": 100,
+     "n_neg": 30,
+     "recall": 0.75,
+     "fpr": 0.0,
+     "fpr_superseded": null,
+     "precision": 1.0
+    },
+    "target:MUT-12": {
+     "n_pos": 40,
+     "n_neg": 12,
+     "recall": 0.175,
+     "fpr": 0.0,
+     "fpr_superseded": null,
+     "precision": 1.0
+    },
+    "all": {
+     "n_pos": 402,
+     "n_neg": 3906,
+     "recall": 0.4378,
+     "fpr": 0.0502,
+     "fpr_superseded": 0.0278,
+     "precision": 0.4731
+    }
+   }
+  },
+  "light@parser4": {
+   "dataset_version": "mutations-w1:seed=1:scale=0.05:n=71",
+   "registry_sha256": "a053f52831507e2e",
+   "parser_rev": 4,
+   "extract_rev": 13,
+   "categories": {
+    "op:CMP-01": {
+     "n_pos": 6,
+     "n_neg": 168,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "op:CMP-02": {
+     "n_pos": 5,
+     "n_neg": 53,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "op:CMP-03": {
+     "n_pos": 5,
+     "n_neg": 53,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "op:CMP-04": {
+     "n_pos": 5,
+     "n_neg": 53,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-001×CMP-01": {
+     "n_pos": 2,
+     "n_neg": 56,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-002×CMP-02": {
+     "n_pos": 5,
+     "n_neg": 53,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-003×CMP-03": {
+     "n_pos": 5,
+     "n_neg": 53,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-004×CMP-01": {
+     "n_pos": 2,
+     "n_neg": 56,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-005×CMP-01": {
+     "n_pos": 2,
+     "n_neg": 56,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-023×CMP-04": {
+     "n_pos": 5,
+     "n_neg": 53,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "target:MUT-05": {
+     "n_pos": 14,
+     "n_neg": 5,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": null,
+     "precision": 1.0
+    },
+    "target:MUT-06": {
+     "n_pos": 5,
+     "n_neg": 2,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": null,
+     "precision": 1.0
+    },
+    "target:MUT-12": {
+     "n_pos": 2,
+     "n_neg": 1,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": null,
+     "precision": 1.0
+    },
+    "all": {
+     "n_pos": 21,
+     "n_neg": 327,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    }
+   }
+  },
+  "structural@parser4": {
+   "dataset_version": "mutations-w1:seed=7:scale=1.0:n=744",
+   "registry_sha256": "a053f52831507e2e",
+   "parser_rev": 4,
+   "extract_rev": 13,
+   "categories": {
+    "op:CMP-01": {
+     "n_pos": 102,
+     "n_neg": 2052,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "op:CMP-02": {
+     "n_pos": 100,
+     "n_neg": 618,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "op:CMP-03": {
+     "n_pos": 100,
+     "n_neg": 618,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "op:CMP-04": {
+     "n_pos": 100,
+     "n_neg": 618,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-001×CMP-01": {
+     "n_pos": 34,
+     "n_neg": 684,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-002×CMP-02": {
+     "n_pos": 100,
+     "n_neg": 618,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-003×CMP-03": {
+     "n_pos": 100,
+     "n_neg": 618,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-004×CMP-01": {
+     "n_pos": 34,
+     "n_neg": 684,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-005×CMP-01": {
+     "n_pos": 34,
+     "n_neg": 684,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "pair:M-023×CMP-04": {
+     "n_pos": 100,
+     "n_neg": 618,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    },
+    "target:MUT-05": {
+     "n_pos": 262,
+     "n_neg": 84,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": null,
+     "precision": 1.0
+    },
+    "target:MUT-06": {
+     "n_pos": 100,
+     "n_neg": 30,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": null,
+     "precision": 1.0
+    },
+    "target:MUT-12": {
+     "n_pos": 40,
+     "n_neg": 12,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": null,
+     "precision": 1.0
+    },
+    "all": {
+     "n_pos": 402,
+     "n_neg": 3906,
+     "recall": 1.0,
+     "fpr": 0.0,
+     "fpr_superseded": 0.0,
+     "precision": 1.0
+    }
+   }
+  }
+ }
+}

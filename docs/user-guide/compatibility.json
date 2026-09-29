@@ -1,0 +1,567 @@
+{
+  "schema": "user-guide-compatibility.v1",
+  "reviewed_at": "2026-09-29",
+  "evidence_scope": {
+    "cpu": "cfb0ebc6 live health metadata and read-only profile confirmed; main application workflows not verified in this docs session",
+    "verification": "Deployed df65 module with real isolated API: normal NO/comment/correction/save/library/mark, plus distinct curator adjudication with reason and dataset release. Synthetic data only; failure branches and structured originals not covered.",
+    "documentation": "Source-reviewed articles recorded at documentation commit 9bc; no inference of live workflow verification from source review",
+    "audience": "Intended readers, not a blanket grant of permissions for every operation in an article",
+    "gpu_main": "Deployed main web assets captured with real isolated API c0851cc7: two synthetic PDFs, confirm decision, actual 10-second finalization, protocol FINALIZED/PENDING_SYNC. UI asset hashes in inspector-provenance.json; UI source parity not claimed. OCR/upload/external RIN not tested."
+  },
+  "articles": [
+    {
+      "slug": "index",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin",
+        "verifier",
+        "curator",
+        "ml_engineer"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review",
+      "verified_scenarios": [],
+      "pending_scenarios": [
+        "Role-specific first-use routes on deployed main application"
+      ]
+    },
+    {
+      "slug": "getting-started",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin",
+        "verifier",
+        "curator",
+        "ml_engineer"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review",
+      "verified_scenarios": [],
+      "pending_scenarios": [
+        "Authenticated login and first-five-minutes navigation for each deployed profile"
+      ]
+    },
+    {
+      "slug": "roles",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin",
+        "verifier",
+        "curator",
+        "ml_engineer"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review",
+      "verified_scenarios": [],
+      "pending_scenarios": [
+        "Main application role access and refusals",
+        "Verification role matrix beyond captured normal verifier flow"
+      ]
+    },
+    {
+      "slug": "inspections",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review_and_partial_live_isolated_api",
+      "verified_scenarios": [
+        {
+          "scenario": "inspector-decision-finalize",
+          "evidence": "media/inspector-provenance.json",
+          "scope": "Open prepared READY inspection"
+        },
+        {
+          "scenario": "inspection-search-row-decision",
+          "evidence": "media/inspection-navigation-provenance.json",
+          "scope": "Search by inspection ID, open matching row, read PDFs and persist decisions; runner 20260929-204932 RC0"
+        }
+      ],
+      "pending_scenarios": [
+        "Search and filters",
+        "Inspection status and tabs",
+        "Objects navigation on deployed working main application"
+      ]
+    },
+    {
+      "slug": "documents",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review_and_partial_live_isolated_api",
+      "verified_scenarios": [
+        {
+          "scenario": "upload-real-cpu-textlayer-documents",
+          "evidence": "media/upload-provenance.json",
+          "scope": "Real UI multipart upload, private pinned CPU text-layer parser DONE, two extractions, original SHA; not scan OCR/GPU/AV/external RIN"
+        },
+        {
+          "scenario": "upload-and-supplement-real-cpu",
+          "evidence": "media/supplement-provenance.json",
+          "scope": "Same inspection, two files DONE, original retained; no manifest or stage correctness claimed"
+        },
+        {
+          "scenario": "single-manifest-upload",
+          "evidence": "media/manifest-validation.json",
+          "scope": "PD, revision 1, APPROVED and CURRENT persisted; runner 20260929-205302 RC0; conflict resolution not tested"
+        }
+      ],
+      "pending_scenarios": [
+        "Upload rejection and parser failure recovery",
+        "Conflicting manifest revisions",
+        "Finalized-package supplementary upload refusal"
+      ]
+    },
+    {
+      "slug": "comparison",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review_and_partial_live_isolated_api",
+      "verified_scenarios": [
+        {
+          "scenario": "inspector-decision-finalize",
+          "evidence": "media/inspector-provenance.json",
+          "scope": "Read both synthetic PDF originals: PD11/RD12"
+        }
+      ],
+      "pending_scenarios": [
+        "Parameter-to-source trace",
+        "Comparison status interpretation in UI",
+        "Sampling acceptance and broken-batch result"
+      ]
+    },
+    {
+      "slug": "decisions",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review_and_partial_live_isolated_api",
+      "verified_scenarios": [
+        {
+          "scenario": "inspector-decision-finalize",
+          "evidence": "media/inspector-provenance.json",
+          "scope": "Confirm candidate, persisted inspector decision and audit"
+        },
+        {
+          "scenario": "inspector-reject-undo-clarify",
+          "evidence": "media/decisions-provenance.json",
+          "scope": "Reject with reason, reopen before queue completion, clarify; isolated API, synthetic inputs"
+        },
+        {
+          "scenario": "decision-prewrite-503-recovery",
+          "evidence": "media/decision-recovery-provenance.json",
+          "scope": "Injected 503 before API write; no persisted decision; card restored; subsequent reject/reopen/clarify saved"
+        }
+      ],
+      "pending_scenarios": [
+        "Lost response after possible commit",
+        "Atomic split and grouped rejection"
+      ]
+    },
+    {
+      "slug": "finalization",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review_and_partial_live_isolated_api",
+      "verified_scenarios": [
+        {
+          "scenario": "inspector-decision-finalize",
+          "evidence": "media/inspector-provenance.json",
+          "scope": "Real 10-second commit, finalized protocol and pending delivery"
+        }
+      ],
+      "pending_scenarios": [
+        "Critical-unresolved review",
+        "Finalize cancellation window and protocol version",
+        "Real versus simulated external transfer",
+        "Unfinalize with reason"
+      ]
+    },
+    {
+      "slug": "annotation",
+      "audience": [
+        "verifier",
+        "inspector",
+        "supervisor",
+        "admin",
+        "curator"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review_and_partial_live_isolated_api",
+      "verified_scenarios": [
+        "Deployed df65 normal verifier assignment: NO → comment and corrected value → save through real isolated API"
+      ],
+      "pending_scenarios": [
+        "YES and UNSURE answers",
+        "Structured XLSX/DOCX/XML originals",
+        "Two-source assignment",
+        "Source/save/prefetch failure recovery",
+        "Expired assignment"
+      ]
+    },
+    {
+      "slug": "library",
+      "audience": [
+        "verifier",
+        "inspector",
+        "supervisor",
+        "admin",
+        "curator"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review_and_partial_live_isolated_api",
+      "verified_scenarios": [
+        "Deployed df65 saved NO answer, comment and correction displayed in library through real isolated API",
+        "Deployed df65 personal good-example mark on saved answer",
+        {
+          "scenario": "operator-independent-curator-release",
+          "evidence": "media/curator-provenance.json",
+          "scope": "Distinct author, reason, correction and released dataset item on real isolated API; synthetic PNG"
+        }
+      ],
+      "pending_scenarios": [
+        "All-operator curator scope",
+        "Pagination and empty/starred-empty states",
+        "Source failure",
+        "Quality report download",
+        "Verifier account creation"
+      ]
+    },
+    {
+      "slug": "references",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin",
+        "curator",
+        "ml_engineer"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review_and_partial_live_isolated_api",
+      "verified_scenarios": [
+        {
+          "scenario": "references-param-passport-basis",
+          "evidence": "media/references-provenance.json",
+          "scope": "Parameter filter, passport and normative list; no legal edition or admin change validation"
+        }
+      ],
+      "pending_scenarios": [
+        "Normative applicability and dates",
+        "Administrator edit and matrix version"
+      ]
+    },
+    {
+      "slug": "models",
+      "audience": [
+        "curator",
+        "ml_engineer",
+        "admin",
+        "supervisor"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review_and_partial_live_isolated_api",
+      "verified_scenarios": [
+        {
+          "scenario": "gold-ranking-gate-audit",
+          "evidence": "media/models-provenance.json",
+          "scope": "Synthetic GOLD release, CPU ranking, actual passing gate, approval, audit filter DATASET_RELEASED"
+        }
+      ],
+      "pending_scenarios": [
+        "Main-platform GOLD release",
+        "Failed gate and failed publication recovery",
+        "Publication signature and access",
+        "Independent evaluation dataset provenance"
+      ]
+    },
+    {
+      "slug": "operations",
+      "audience": [
+        "supervisor",
+        "admin"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review_and_partial_live_isolated_api",
+      "verified_scenarios": [
+        {
+          "scenario": "gold-ranking-gate-audit",
+          "evidence": "media/models-provenance.json",
+          "scope": "Audit filter DATASET_RELEASED; metrics monitoring not demonstrated"
+        }
+      ],
+      "pending_scenarios": [
+        "Audit action filtering",
+        "Monitoring series and no-measurement states"
+      ]
+    },
+    {
+      "slug": "documentation",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin",
+        "verifier",
+        "curator",
+        "ml_engineer"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review",
+      "verified_scenarios": [],
+      "pending_scenarios": [
+        "Published registry and Trace Map navigation",
+        "Active versus archived document status"
+      ]
+    },
+    {
+      "slug": "faq",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin",
+        "verifier",
+        "curator",
+        "ml_engineer"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review",
+      "verified_scenarios": [],
+      "pending_scenarios": [
+        "Observed error/recovery paths referenced by FAQ beyond normal captured flow"
+      ]
+    },
+    {
+      "slug": "glossary",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin",
+        "verifier",
+        "curator",
+        "ml_engineer"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review",
+      "verified_scenarios": [],
+      "pending_scenarios": [
+        "Terminology consistency with next main-application live release"
+      ]
+    },
+    {
+      "slug": "videos",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin",
+        "verifier",
+        "curator",
+        "ml_engineer"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review_and_partial_live_isolated_api",
+      "verified_scenarios": [
+        {
+          "scenario": "annotation-walkthrough",
+          "evidence": "media/provenance.json",
+          "scope": "Учебный документ · роль инспектора · отдельная демонстрационная база"
+        },
+        {
+          "scenario": "inspector-walkthrough",
+          "evidence": "media/inspector-provenance.json",
+          "scope": "Учебные PDF · инспектор · заранее подготовленная сводка, OCR не демонстрируется"
+        },
+        {
+          "scenario": "references-walkthrough",
+          "evidence": "media/references-provenance.json",
+          "scope": "Роль инспектора · справочники отдельной учебной базы"
+        },
+        {
+          "scenario": "models-walkthrough",
+          "evidence": "media/models-provenance.json",
+          "scope": "Синтетические экспертные решения · CPU-ранжирование · не обучение OCR или LLM"
+        },
+        {
+          "scenario": "upload-walkthrough",
+          "evidence": "media/upload-provenance.json",
+          "scope": "Учебный PDF с текстовым слоем · настоящий отдельный CPU-разбор"
+        },
+        {
+          "scenario": "curator-walkthrough",
+          "evidence": "media/curator-provenance.json",
+          "scope": "Синтетический документ · инспектор и другой куратор · отдельная учебная база; OCR и обучение не показаны"
+        },
+        {
+          "scenario": "materials-walkthrough",
+          "evidence": "media/materials-provenance.json",
+          "scope": "Опубликованный сайт; просмотр без изменения данных. Числа выпусков в записи относятся к моменту съёмки."
+        },
+        {
+          "scenario": "decisions-walkthrough",
+          "evidence": "media/decisions-provenance.json",
+          "scope": "Учебная база, два подготовленных кандидата. Возврат до завершения очереди. OCR не запускался."
+        },
+        {
+          "scenario": "upload-and-supplement-real-cpu",
+          "evidence": "media/supplement-provenance.json",
+          "scope": "Upload and supplement, real private CPU parser"
+        }
+      ],
+      "pending_scenarios": [
+        "Additional error/recovery and role-specific workflows in coverage plan"
+      ]
+    },
+    {
+      "slug": "materials",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin",
+        "verifier",
+        "curator",
+        "ml_engineer"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "published_site_read_only",
+      "verified_scenarios": [
+        {
+          "scenario": "materials-navigation",
+          "evidence": "media/materials-provenance.json",
+          "scope": "Search, registry status and current plan navigation"
+        }
+      ],
+      "pending_scenarios": [
+        "All registry filters and archived document link audit"
+      ]
+    },
+    {
+      "slug": "release",
+      "audience": [
+        "inspector",
+        "supervisor",
+        "admin",
+        "verifier",
+        "curator",
+        "ml_engineer"
+      ],
+      "source_revision": {
+        "documentation": "9bc",
+        "cpu_main": "cfb0ebc6",
+        "verification": "df65",
+        "gpu_main": "c0851cc7"
+      },
+      "verification_kind": "source_review",
+      "verified_scenarios": [],
+      "pending_scenarios": [
+        "Release-page version mapping against all published main-application profiles"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# gitleaks: разобранные срабатывания по истории (2026-09-26).
+# Тестовые TLS-ключи T-068 — выпущены одноразовым тестовым УЦ, нигде не доверены, из дерева удалены (PKI генерируется при запуске тестов).
+# generic-api-key в mermaid-12.0.0.min.js и во встроенной копии в ARCHITECTURE.html — ложное: строка минифицированного кода, не ключ.
+0cffb91962c859ac4df88443cf906fd19f19039b:apps/api/tests/fixtures/tls/client.key:private-key:1
+0cffb91962c859ac4df88443cf906fd19f19039b:apps/api/tests/fixtures/tls/other-client.key:private-key:1
+0cffb91962c859ac4df88443cf906fd19f19039b:apps/api/tests/fixtures/tls/rogue-server.key:private-key:1
+0cffb91962c859ac4df88443cf906fd19f19039b:apps/api/tests/fixtures/tls/server.key:private-key:1
+44fe833163910ba6cd3caf2dd3711eee8c902310:scripts/vendor/mermaid-12.0.0.min.js:generic-api-key:635
+44fe833163910ba6cd3caf2dd3711eee8c902310:docs/gera/ARCHITECTURE.html:generic-api-key:1093
+# T-131/T-132 (2026-09-27): scripts/demo.sh:50 — пары ИМЁН файлов секретов (s3-yandex/access_key_id → s3_access_key_id), значений нет; ложное срабатывание generic-api-key. Внесено по поручению владельца.
+301fbbac6ffb2faf13569d27113718fdd1c36ee1:scripts/demo.sh:generic-api-key:50

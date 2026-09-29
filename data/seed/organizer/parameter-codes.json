@@ -1,0 +1,798 @@
+{
+ "source": "SRC-INSP-08: пакет участника, data/parameter_catalog_132.jsonl (публичная часть, УЧАСТНИКАМ_БЕЗ_ОТВЕТОВ)",
+ "note": "М-NNN Матрицы = parameter_id каталога (сверено по наименованиям 132/132, T-134)",
+ "params": [
+  {
+   "id": 1,
+   "code": "PZ-001",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 2,
+   "code": "PZ-002",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 3,
+   "code": "PZ-003",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 4,
+   "code": "PZ-004",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 5,
+   "code": "PZ-005",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 6,
+   "code": "PZ-006",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 7,
+   "code": "PZ-007",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 8,
+   "code": "PZ-008",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 9,
+   "code": "PZ-009",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 10,
+   "code": "PZ-010",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 11,
+   "code": "PZ-011",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 12,
+   "code": "PZ-012",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 13,
+   "code": "PZ-013",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 14,
+   "code": "PZ-014",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 15,
+   "code": "PZ-015",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 16,
+   "code": "PZ-016",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 17,
+   "code": "PZ-017",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 18,
+   "code": "PZ-018",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 19,
+   "code": "PZ-019",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 20,
+   "code": "PZ-020",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 21,
+   "code": "PZ-021",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 22,
+   "code": "PZ-022",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 23,
+   "code": "PZ-023",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 24,
+   "code": "SPZU-024",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 25,
+   "code": "SPZU-025",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 26,
+   "code": "SPZU-026",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 27,
+   "code": "SPZU-027",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 28,
+   "code": "SPZU-028",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 29,
+   "code": "SPZU-029",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 30,
+   "code": "SPZU-030",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 31,
+   "code": "SPZU-031",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 32,
+   "code": "SPZU-032",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 33,
+   "code": "SPZU-033",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 34,
+   "code": "SPZU-034",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 35,
+   "code": "SPZU-035",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 36,
+   "code": "SPZU-036",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 37,
+   "code": "SPZU-037",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 38,
+   "code": "SPZU-038",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 39,
+   "code": "SPZU-039",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 40,
+   "code": "AR-040",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 41,
+   "code": "AR-041",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 42,
+   "code": "AR-042",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 43,
+   "code": "AR-043",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 44,
+   "code": "AR-044",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 45,
+   "code": "AR-045",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 46,
+   "code": "AR-046",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 47,
+   "code": "AR-047",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 48,
+   "code": "AR-048",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 49,
+   "code": "AR-049",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 50,
+   "code": "AR-050",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 51,
+   "code": "AR-051",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 52,
+   "code": "AR-052",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 53,
+   "code": "AR-053",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 54,
+   "code": "KR-054",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 55,
+   "code": "KR-055",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 56,
+   "code": "KR-056",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 57,
+   "code": "KR-057",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 58,
+   "code": "KR-058",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 59,
+   "code": "KR-059",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 60,
+   "code": "KR-060",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 61,
+   "code": "KR-061",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 62,
+   "code": "KR-062",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 63,
+   "code": "KR-063",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 64,
+   "code": "KR-064",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 65,
+   "code": "KR-065",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 66,
+   "code": "KR-066",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 67,
+   "code": "KR-067",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 68,
+   "code": "IOS1-068",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 69,
+   "code": "IOS1-069",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 70,
+   "code": "IOS1-070",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 71,
+   "code": "IOS2-071",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 72,
+   "code": "IOS2-072",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 73,
+   "code": "IOS2-073",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 74,
+   "code": "IOS3-074",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 75,
+   "code": "IOS3-075",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 76,
+   "code": "IOS4-076",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 77,
+   "code": "IOS4-077",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 78,
+   "code": "IOS4-078",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 79,
+   "code": "IOS4-079",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 80,
+   "code": "IOS5-080",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 81,
+   "code": "POS-081",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 82,
+   "code": "POS-082",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 83,
+   "code": "POS-083",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 84,
+   "code": "POS-084",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 85,
+   "code": "POS-085",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 86,
+   "code": "POS-086",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 87,
+   "code": "POS-087",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 88,
+   "code": "POS-088",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 89,
+   "code": "POS-089",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 90,
+   "code": "POD-090",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 91,
+   "code": "POD-091",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 92,
+   "code": "POD-092",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 93,
+   "code": "POD-093",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 94,
+   "code": "POD-094",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 95,
+   "code": "POD-095",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 96,
+   "code": "POD-096",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 97,
+   "code": "POD-097",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 98,
+   "code": "OOS-098",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 99,
+   "code": "OOS-099",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 100,
+   "code": "OOS-100",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 101,
+   "code": "OOS-101",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 102,
+   "code": "PPM-102",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 103,
+   "code": "PPM-103",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 104,
+   "code": "PPM-104",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 105,
+   "code": "PPM-105",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 106,
+   "code": "PPM-106",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 107,
+   "code": "PPM-107",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 108,
+   "code": "PPM-108",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 109,
+   "code": "PPM-109",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 110,
+   "code": "PPM-110",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 111,
+   "code": "PPM-111",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 112,
+   "code": "PPM-112",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 113,
+   "code": "PPM-113",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 114,
+   "code": "PPM-114",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 115,
+   "code": "ODI-115",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 116,
+   "code": "ODI-116",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 117,
+   "code": "ODI-117",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 118,
+   "code": "ODI-118",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 119,
+   "code": "ODI-119",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 120,
+   "code": "ODI-120",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 121,
+   "code": "ODI-121",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 122,
+   "code": "ODI-122",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 123,
+   "code": "ODI-123",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 124,
+   "code": "ZU-124",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 125,
+   "code": "ZU-125",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 126,
+   "code": "ZU-126",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 127,
+   "code": "ZU-127",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 128,
+   "code": "ZU-128",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 129,
+   "code": "ZU-129",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 130,
+   "code": "ZU-130",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  },
+  {
+   "id": 131,
+   "code": "ZU-131",
+   "critical": true,
+   "criticality": "Критическое (приостановка работ)"
+  },
+  {
+   "id": 132,
+   "code": "SM-132",
+   "critical": false,
+   "criticality": "Существенное (предписание)"
+  }
+ ]
+}

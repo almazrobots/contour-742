@@ -1,0 +1,24 @@
+# T-130: стенд с ML на маке — scripts/stand.sh up --ml-host (накладывается поверх compose.yml).
+# MLX (Metal) внутри Docker Desktop не работает — у Linux-машины Docker нет доступа к GPU мака. Поэтому сервис ML
+# запускается на самом маке (scripts/heavy.sh scripts/ml-host.sh run): модели читателей сканов и судьи идут на Metal,
+# по одной за раз. Сервис слушает https://127.0.0.1:8811 (TLS 1.3, сертификат CA стенда с SAN host.docker.internal);
+# API ходит к нему из контейнера по имени host.docker.internal. Контейнер ml в этом режиме не поднимается.
+# Файлы пакета — каталог var/stand/blobs на маке вместо тома api-blobs: API кладёт туда файл (поднимая из S3),
+# ML на маке читает его оттуда же. Остальные сервисы, секреты и hardening — как в compose.yml.
+services:
+  ml:
+    profiles: [ml-docker] # в режиме --ml-host не поднимается
+
+  api:
+    environment:
+      INSPECTOR_ML_URL: https://host.docker.internal:8811
+      # одна модель за раз (одна модель — один процесс, опыт T-129): параллельный разбор гонял бы модели туда-сюда
+      INSPECTOR_PARSE_CONCURRENCY: "1"
+    volumes: !override
+      - ${STAND_VAR:?}/blobs:/app/var/blobs
+      - ${STAND_VAR:?}/tls/api:/run/tls:ro
+    depends_on: !override
+      postgres: { condition: service_healthy }
+      api-migrate: { condition: service_completed_successfully }
+      rabbitmq: { condition: service_healthy }
+      minio-init: { condition: service_completed_successfully, required: false }

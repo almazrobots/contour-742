@@ -1,0 +1,49 @@
+# Материалы организаторов — вне git (тяжёлые, чужие)
+ТЗ/
+Презентация/
+# Корпус corpus-ABC — никогда в репозиторий (см. docs/adr/ADR-0002)
+corpus*/
+node_modules/
+dist/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+var/
+*.sqlite
+*.sqlite-*
+coverage/
+reports/mutation/
+.stryker-tmp/
+ml/mutants/
+apps/api/reports/
+ml/mutants/
+.mutmut-cache
+ml/.coverage
+apps/web/dist/
+.claude/
+apps/api/tests/fixtures/tls-api/*.pem
+apps/api/tests/fixtures/mtls/*
+!apps/api/tests/fixtures/mtls/README.md
+# Экспорт TG-чата задачи — чужие персональные данные, вне git
+INPUT/
+
+# состояние планировщика сессий Claude — служебный замок, не код
+.claude/scheduled_tasks.lock
+
+# Креды внешних сервисов (S3 и т.п.) — только локально, никогда в git
+.secrets/
+
+# Стенд «stand» (scripts/stand.sh): секреты, CA и ключи TLS, данные MinIO — только локально (var/ уже вне git,
+# строка — явная страховка на случай сужения правила выше)
+var/stand/
+var/demo/
+
+# Секреты по шаблону имени — где бы ни лежали (OWASP T-140: T088-M6). Примеры и тестовые сертификаты (*.crt) — в git.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx

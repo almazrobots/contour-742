@@ -1,0 +1,229 @@
+{
+ "_about": "Синтетика T-194 (не корпус, ADR-0002): листы вида PlanGeometry (ADR-0010) и таблицы стадии для CMP-30/31. Координаты — мм листа, to_bld — матрица PDF [a,b,c,d,e,f], 1:100. Внутренняя согласованность: ИП-1 — 4 по спецификации, 3 знака; ВПВ-1 — знак без позиции (MUT-14); ОП-1 — согласовано; Д1 900 = 900; Д2 1000 по ведомости, 1200 по плану; ТЭП 120,5 м² против 118,0 м² по экспликациям; экспликация 2 этажа: строки 58,0, итог 60,0.",
+ "stage": "RD",
+ "sheets": [
+  {
+   "file_id": "F-РД-ПС-1",
+   "document_code": "РД-ПС-1",
+   "stage": "RD",
+   "discipline": "ПС",
+   "floor": "1",
+   "page": 3,
+   "frame": {
+    "to_bld": null,
+    "residual_mm": null
+   },
+   "rooms": [],
+   "walls": [],
+   "routes": [],
+   "symbols": [
+    {
+     "kind": "detector",
+     "mark": "ИП-1",
+     "at": [
+      10,
+      10
+     ],
+     "bbox": [
+      0.1,
+      0.1,
+      0.12,
+      0.12
+     ]
+    },
+    {
+     "kind": "detector",
+     "mark": "ИП-1",
+     "at": [
+      30,
+      10
+     ],
+     "bbox": null
+    },
+    {
+     "kind": "detector",
+     "mark": "ИП-1",
+     "at": [
+      50,
+      10
+     ],
+     "bbox": null
+    },
+    {
+     "kind": "alarm",
+     "mark": "ОП-1",
+     "at": [
+      70,
+      10
+     ],
+     "bbox": null
+    },
+    {
+     "kind": "hydrant",
+     "mark": "ВПВ-1",
+     "at": [
+      90,
+      10
+     ],
+     "bbox": null
+    }
+   ],
+   "openings": []
+  },
+  {
+   "file_id": "F-РД-АР-1",
+   "document_code": "РД-АР-1",
+   "stage": "RD",
+   "discipline": "АР",
+   "floor": "1",
+   "page": 4,
+   "frame": {
+    "to_bld": null,
+    "residual_mm": null
+   },
+   "rooms": [],
+   "walls": [],
+   "routes": [],
+   "symbols": [],
+   "openings": [
+    {
+     "mark": "Д1",
+     "width_mm": 900,
+     "bbox": [
+      0.2,
+      0.2,
+      0.25,
+      0.25
+     ]
+    },
+    {
+     "mark": "Д2",
+     "width_mm": 1200,
+     "bbox": [
+      0.3,
+      0.3,
+      0.35,
+      0.35
+     ]
+    }
+   ]
+  },
+  {
+   "file_id": "F-ПД-АР-1",
+   "document_code": "ПД-АР-1",
+   "stage": "PD",
+   "discipline": "АР",
+   "floor": "1",
+   "page": 4,
+   "frame": {
+    "to_bld": null,
+    "residual_mm": null
+   },
+   "rooms": [],
+   "walls": [],
+   "routes": [],
+   "symbols": [],
+   "openings": [
+    {
+     "mark": "Д2",
+     "width_mm": 700,
+     "bbox": null
+    }
+   ]
+  }
+ ],
+ "tables": {
+  "spec": [
+   {
+    "key": "ИП-1",
+    "qty": 4,
+    "document_code": "РД-ПС-С",
+    "page": 2,
+    "bbox": [
+     0.1,
+     0.5,
+     0.9,
+     0.52
+    ]
+   },
+   {
+    "key": "ОП-1",
+    "qty": 1,
+    "document_code": "РД-ПС-С",
+    "page": 2,
+    "bbox": null
+   }
+  ],
+  "tep": [
+   {
+    "kind": "total_area",
+    "value": 120.5,
+    "document_code": "РД-АР-ТЭП",
+    "page": 1,
+    "bbox": [
+     0.5,
+     0.5,
+     0.6,
+     0.52
+    ]
+   }
+  ],
+  "explications": [
+   {
+    "floor": "1",
+    "rows": [
+     {
+      "number": "101",
+      "area": 30.0
+     },
+     {
+      "number": "102",
+      "area": 30.0
+     }
+    ],
+    "total": 60.0,
+    "document_code": "РД-АР-1",
+    "page": 5,
+    "bbox": null
+   },
+   {
+    "floor": "2",
+    "rows": [
+     {
+      "number": "201",
+      "area": 28.0
+     },
+     {
+      "number": "202",
+      "area": 30.0
+     }
+    ],
+    "total": 60.0,
+    "document_code": "РД-АР-2",
+    "page": 6,
+    "bbox": null
+   }
+  ],
+  "schedule": [
+   {
+    "mark": "Д1",
+    "width_mm": 900,
+    "document_code": "РД-АР-ВП",
+    "page": 12,
+    "bbox": null
+   },
+   {
+    "mark": "Д2",
+    "width_mm": 1000,
+    "document_code": "РД-АР-ВП",
+    "page": 12,
+    "bbox": [
+     0.1,
+     0.3,
+     0.9,
+     0.32
+    ]
+   }
+  ]
+ }
+}

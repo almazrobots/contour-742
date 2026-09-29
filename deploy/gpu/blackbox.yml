@@ -1,0 +1,34 @@
+# NFR-SLA (ТЗ 11-12, TZA-11-12): внешняя проба доступности 99,9 %. Prometheus (задача blackbox в prometheus.yml)
+# каждые 15 с просит blackbox-exporter проверить цель; probe_success — основа правил записи rules/slo.yml.
+# NFR-TLS (ТЗ 12.3): пробы только по https, TLS 1.3, сертификат проверяется по ca.crt стенда (как у Prometheus).
+# server_name api: у api и web один server.crt из ${TLS_DIR} (SAN DNS:api, …) — web отдаёт тот же сертификат.
+modules:
+  # API готов: БД и ML ответили (GET /ready → 200 {"status":"ready"}); 503 — проба провалена
+  http_ready:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      valid_status_codes: [200]
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      fail_if_not_ssl: true
+      fail_if_body_not_matches_regexp: ['"status":"ready"']
+      preferred_ip_protocol: ip4
+      tls_config:
+        ca_file: /etc/blackbox/tls/ca.crt
+        server_name: api
+        min_version: TLS13
+  # Интерфейс инспектора: статика nginx отдаётся (index.html → 200)
+  http_web:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      valid_status_codes: [200]
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      fail_if_not_ssl: true
+      preferred_ip_protocol: ip4
+      tls_config:
+        ca_file: /etc/blackbox/tls/ca.crt
+        server_name: api
+        min_version: TLS13

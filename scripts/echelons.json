@@ -1,0 +1,21 @@
+{
+  "_about": "Эшелоны qa-standard (L1–L8) по тестам скриптов и деплоя (T-129).",
+  "files": {
+    "deploy.test.mjs": [
+      "L7"
+    ],
+    "check-floating-promises.test.mjs": [
+      "L1",
+      "L7"
+    ],
+    "ops-tools.test.mjs": [
+      "L1",
+      "L4"
+    ],
+    "slo.test.mjs": [
+      "L1",
+      "L2",
+      "L4"
+    ]
+  }
+}

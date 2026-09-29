@@ -1,0 +1,1371 @@
+_about: "Реестр находок аудита «Детальной трассы» 28.09 (docs/audit/2026-09-28-детальная-трасса-аудит.md). Статус: open · closed (commit) · moved (T-NNN). Этап — по плану docs/plan/ДЕТАЛЬНАЯ-ТРАССА-ЧЕСТНЫЕ-ЦВЕТА.md."
+task: T-164
+findings:
+  - id: Д-A01
+    sev: В
+    cls: система
+    stage: 1
+    what: "Статус пункта ТЗ на карте ≠ статус его атомов. 23 пункта «реализовано» при атомах «вне прототипа»/«частично»: TZ-1.2 (partial), 1.3, 1.5, 7.6, 7.11, 9.1.1, 9.1.5, 9.3.6, 9.4.2, 9.6.2, 9.6.4, **11 (15 из 15 outside)**, 12.3, 12.5, 12.6, 12.8, 12.9, 12.10, 12.11, 13.3, 13.5, 13.6, 13.7"
+    where: Шапка «77 реализовано · 1 вне прототипа» vs «атомов 195 · 2 · 0 · 55»; вкладка «Карта ТЗ» vs заголовки пунктов в «Детальной трассе»
+    evidence: "`D.counts.tzBy` vs `D.counts.atomsBy`; `gera-trace.mjs:106–124` (вердикт атома) и статус узла TZ по правилам `model.yaml → tz`"
+    status: closed
+    resolution: "этап 1: статус пункта ТЗ везде — честный цвет его атомов (scripts/tz-color.mjs → aggColor); храповик item_status_mismatch = 0"
+  - id: Д-A02
+    sev: Н
+    cls: система
+    stage: 1
+    what: Счётчик «57 в пробелах» = атомы не «реализовано» (2 частично + 55 вне прототипа). Открытых пробелов модели 13, областей с `gap` — 7. Подпись вводит в заблуждение
+    where: Шапка страницы
+    evidence: "`scripts/trace-map.mjs:438`: `C.atoms - C.atomsBy.done`"
+    status: closed
+    resolution: "этап 1: «57 в пробелах» убрано; в шапке — доля «реализовано и проверено» и раскладка по цветам пунктов и атомов"
+  - id: Д-A03
+    sev: В
+    cls: система
+    stage: 1
+    what: "7 атомов «реализовано» показаны как «обрыв: атом ни во что не разложен»: TZA-8.1-01, 8.1-02, 8.1-03, 8.1-05, 10-01, 10-09, 10-10. Трасса ведёт в объекты данных `class: predefined` (DO-PARAM, DO-RULE, DO-NORM) с пустым `new_in`, а дорожка данных строится только по `new_in`"
+    where: Области S8 (таблица Params), S10
+    evidence: '`trace-detail.client.js` `lanesOf` → `o.new_in.map(...)`; `D.dataIndex["DO-PARAM"].new_in = []`. То же у DO-METRIC (`class: new`, `new_in: []`) — дорожки NFR у TZA-10-13 спасают атом'
+    status: closed
+    resolution: "этап 1: справочник без new_in ведёт дорожки по читающим операциям (used_by); храповик atom_no_lane = 0"
+  - id: Д-A04
+    sev: С
+    cls: система
+    stage: 1
+    what: "26 атомов «реализовано» с дорожкой «обрыв: код без теста»: все ссылки на объекты данных (DO-FILE, DO-MANIFEST, DO-CHECK, DO-FRAGMENT, DO-PROTOCOL, DO-MODEL, DO-SUSPICION, DO-OBJECT, DO-REJECTION, DO-DISPUTE, DO-AUDIT ×6, DO-DATASET, DO-RETRAIN-REPORT). У объектов данных в модели нет поля тестов вовсе"
+    where: TZA-4-01, 4-02, 5-01, 7.10-03, 9.1.0-01, 9.1.0-03, 9.1.4-01, 9.1.6-01, 9.2.0-01, 9.2.5-01, 9.4.2-06, 9.5-05, 10-02…10-08, 10-11, 10-12, 10-14…10-16, 14.1-01, 14.1-03
+    evidence: "`lanesOf`: у данных `tests: []`; сводка раздела «цепочек дошли до теста» занижена по этой причине"
+    status: closed
+    resolution: "этап 1: у объектов данных в model.yaml поле tests (db.test.ts «все таблицы ТЗ §10 на месте» — только для проверяемых там таблиц); объект без теста — «частично», атом на нём не зеленеет; atom_green_broken = 0"
+  - id: Д-A05
+    sev: Н
+    cls: система
+    stage: 1
+    what: Диалог DLG-INSP-01 «Вход» без сервиса — показан как «сквозное ограничение» у TZA-1.1-01, 1.5-02, 12.1-01
+    where: S1, S12
+    evidence: '`D.dialogIndex["DLG-INSP-01"].services = []`'
+    status: closed
+    resolution: "не расхождение: «Вход» — сквозной диалог без сервиса операции (аутентификация), показ «сквозное ограничение» верен"
+  - id: Д-A06
+    sev: С
+    cls: система
+    stage: 2
+    what: "Обратная сверка `model.yaml → tz[].to` с трассой атомов пункта: модель связывает пункт с узлом, до которого не доходит ни один его атом — TZ-1.3 → NFR-API-VALIDATE, NFR-API-JSON, NFR-TLS-INTERNAL; 7.1 → OS-INSP-2.1; 7.2 → 3.1; 7.3 → 4.3; **7.4 → 6.4.9…6.4.15** (T-138); 7.11 → NFR-METRICS-STORE; **7.12 → 2.1.4, 2.1.9…2.1.12**; 8.1 → 7.1; 9.1.3 → NFR-CV; **9.6.2 → NFR-UKEP** (T-137); **10 → 3.3, 6.1, 8.2, NFR-DB**; 12.2 → 4.4.1; 12.8 → NFR-RECOVERY; 14.2 → 6.1.8. И наоборот: у 45 пунктов атомы ведут в сервисы, которых нет в `tz[].to` (напр. TZ-5.N2 → 2.3 при `to: [2.1]`)"
+    where: Две карты «пункт → модель» в одном репозитории не согласованы
+    evidence: "`model.yaml:1131–1209` vs `tz-decomposition.yaml` trace"
+    status: closed
+    resolution: "этап 2: model.yaml → tz выровнена с трассой атомов (TZ-1.4, 3, 6, 7.3, 7.12, 9.1.3, 9.6.1, 10, 12.2), недостающие узлы добавлены в атомы; храповик model_tz_unreached 79 → 0"
+  - id: Д-A07
+    sev: С
+    cls: система
+    stage: 1
+    what: "128 из 263 правил не достижимы ни из одного атома. Крупнее всего: OS-INSP-1.2 (18 правил), 2.2 (23), 4.1 (15, в т.ч. выборочная приёмка 4.1.8–4.1.11), 6.4 (11), 3.1 (3.1.10–3.1.20), 2.1 (11), 6.5 (9). **Сервис OS-INSP-3.4 «Выявить изменения листа между редакциями» — ни одного атома**, хотя это прямо предмет ТЗ («анализ изменений между стадиями»). Также без атома: НФТ ×16 (NFR-API-VALIDATE, NFR-API-JSON, NFR-TLS-INTERNAL, NFR-DB, NFR-CV, NFR-IMAGES, NFR-STAND, NFR-QA-ECHELONS, NFR-RESILIENCE, NFR-ML-HOST, NFR-MODEL-REGISTRY, NFR-DEMO-* ×4, NFR-C01), диалоги ×15 (DLG-INSP-05, 07, 08, 10, 12…22), данные ×13"
+    where: «Детальная трасса» не показывает эти узлы ни у одного фрагмента ТЗ
+    evidence: скрипт обратной сверки по `D.atoms[].trace`
+    status: closed
+    resolution: "этап 1: раздел «Сверх ТЗ» в конце детальной трассы и счётчик в шапке (172 узла); разбор неподвязанных — этап 2"
+  - id: Д-A08
+    sev: С
+    cls: система
+    stage: 4
+    what: "Открытые пробелы модели не подняты в разметку полем `gap`: **GAP-INSP-06** (акт №13) — только в тексте `note` строки S2 «О статусе столицы», метки GAP на странице нет; **GAP-INSP-14** (ПП РФ №2078 не существует, даты редакций №87/№2161, устаревший 397-ПП) — не упомянут ни в одной области и ни в атоме; **GAP-INSP-04/05** (XLSX/изображения в реальной ИД; скан > 50 МБ) — не привязаны к строкам S9.1 о форматах и лимитах; **GAP-INSP-13** (редакция ТЗ: разметка по PDF от 12.09, не по версии 1.0 пакета) — не отражён на странице вообще"
+    where: S2, S9.1, весь документ
+    evidence: "`grep gap: docs/tz/regions/*.yaml` — только GAP-08…12"
+    status: closed
+    resolution: "этап 4: поле gap на фрагментах: GAP-01 (S1 процесс), 03 (14.3), 04 (формат), 05 (размер файла), 06 (акт № 13), 13 (S0 заголовок), 14 (ПП № 2078); храповик gap_open_unmarked 8 → 0"
+  - id: Д-A09
+    sev: С
+    cls: система
+    stage: 4
+    what: "**GAP-INSP-02 открыт и держит TZA-9.2.0-02 в «частично»**, хотя OS-INSP-5.1.6 выполнено (T-121 в `04-done`, «семь разделов образца»)"
+    where: S9.2-07 (№246)
+    evidence: "`model.yaml:1213`; `tz-decomposition.yaml:301` `partial: true`, note «ещё не выровнен»; `03-services.md:246`"
+    status: closed
+    resolution: "этап 4: GAP-INSP-02 закрыт (T-121, 5.1.6 выполнено); TZA-9.2.0-02 без partial, трасса → 5.1.6"
+  - id: Д-A10
+    sev: Н
+    cls: система
+    stage: 1
+    what: "Ссылка на код с «:» в имени символа обрезается на странице: `app.ts::/api/v1/params/:code` → «:code», `app.ts::/api/v1/ml/report` → «report»"
+    where: S7-11 (№145), S7-13 (№147)
+    evidence: '`cellFile()` в `trace-detail.client.js` — `split("::")` + обрезка; `model.yaml:623, 632`'
+    status: closed
+    resolution: "не подтверждено: страница режет ссылку по «::» и ссылку не обрезает; «:code» появилось в выгрузке аудитора (split('/'))"
+  - id: Д-A11
+    sev: Н
+    cls: система
+    stage: 1
+    what: "Атомы размечены вне своего раздела и в нескольких областях (64 атома; 20 — в чужих разделах; 30 областей смешивают атомы разных пунктов). Само по себе допустимо, но это источник части К1/К6 ниже: у повторной строки страница пишет «Трасса та же, что у строки выше» и прячет примечание"
+    where: S9.2-42…50, S9.3-05…10, S9.1-35…38
+    evidence: "`dtRegion()`: при совпадении `prevAtoms` цепочка и `note` не выводятся"
+    status: closed
+    resolution: "этап 1: у повторной строки таблицы примечание разметки больше не прячется"
+  - id: Д-001
+    sev: В
+    cls: К4
+    stage: 3
+    regions: "114"
+    area: S5-23
+    node: TZA-5.N2-02 → 2.3.1/2.3.2/2.3.4
+    what: "ТЗ: проверка **всех** реквизитов скана (подпись, печать, дата, номер). Дату и номер ML распознаёт, но находкой становится только отсутствие подписи: скан без печати, даты или номера проходит"
+    evidence: '`apps/api/src/domain/requisites.ts:46` `REQUIRED = ["signature"]`; правил о дате в 2.3.x нет'
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-5.N2-02 — partial с примечанием: находку даёт только отсутствие подписи; атом жёлтый. Доработка кода — T-170"
+  - id: Д-002
+    sev: В
+    cls: К3/К4
+    stage: 3
+    regions: 61, 66, 69
+    area: S3-09/14/17
+    node: TZA-3-01 → 7.1.1
+    what: Атом «Матрица охватывает … ТХ, БЭ, ИН» — «реализовано» без `partial`, хотя его же note и GAP-INSP-08 говорят, что параметров ТХ, БЭ, ИН нет; ПОД и ЗУ в Матрице есть, в атоме — нет
+    evidence: "`tz-decomposition.yaml:75`; `regions/S3.yaml` `gap: GAP-INSP-08`; `model.yaml:1220`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-3-01 — partial с примечанием GAP-INSP-08; атом жёлтый"
+  - id: Д-003
+    sev: В
+    cls: К4
+    stage: 3
+    regions: 214, 248
+    area: S9.1-27, S9.2-09
+    node: TZA-9.1.6-01 → OS-INSP-1.2.6, DO-MANIFEST
+    what: "Приёмка «реестр без обязательных полей не принимается», а правило 1.2.6 — обратное: пакет без реестра **принимается** (CLARIFICATION_REQUIRED). В коде поля реестра `nullable().optional()`"
+    evidence: "`tz-decomposition.yaml:263`; `03-services.md:38`; `apps/api/src/domain/upload.ts:69–78, 98`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "владелец: реестр без обязательных полей — отклонять (ТЗ) или CLARIFICATION_REQUIRED (1.2.6); атом красный по вердикту критиков"
+  - id: Д-004
+    sev: В
+    cls: К4
+    stage: 3
+    regions: 347, 348, 350
+    area: S9.4-22/23/25
+    node: TZA-9.4.1-04 → OS-INSP-4.1.3
+    what: Атом о системных комментариях ИИ держится на правиле «отклонение требует reason_code». Комментарии есть в коде (`systemComment`), но нет ни правила, ни теста
+    evidence: "`inspections.ts:910–915`; `apps/api/tests` — нет упоминаний"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: правила для системных комментариев ИИ в модели нет; атом жёлтый"
+  - id: Д-005
+    sev: В
+    cls: К4/К7
+    stage: 3
+    regions: 357, 358
+    area: S9.5-07/08
+    node: TZA-9.5-02, 9.5-03 → OS-INSP-3.2.1
+    what: Семантический и нормативный анализ трассированы в правило логических правил «если A, то B». Реализованы отдельно (`semantic()`, `normative()`) с тестами вне трассы; своих правил 3.2.x нет
+    evidence: "`03-services.md:165`; `domain/suspicions.ts:103–155`; `tests/domain-boundaries.test.ts:105–124`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: правил семантического и нормативного анализа (3.2.x) нет; атомы жёлтые"
+  - id: Д-006
+    sev: В
+    cls: К7/К4
+    stage: 2
+    regions: "475"
+    area: S14-25
+    node: TZA-14.3-08 → OS-INSP-6.3.1
+    what: «Недостижение любого порога — не принято» трассировано на ворота публикации модели (регрессия > 2 п.п.). Реализует OS-INSP-6.5.3 с тестом `test_verdict_fails_on_single_threshold_despite_high_f1` — вне трассы
+    evidence: "`03-services.md:279`; `ml/eval/thresholds.py:3`; `tz-decomposition.yaml:627`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-14.3-08 → OS-INSP-6.5.3 (тест test_verdict_fails_on_single_threshold_despite_high_f1)"
+  - id: Д-007
+    sev: В
+    cls: К4/К7
+    stage: 3
+    regions: 467–473
+    area: S14-17…23
+    node: TZA-14.3-01…06 → NFR-OCR-Q / NFR-QUALITY
+    what: Все шесть приёмочных метрик ведут в НФТ **без кода и тестов**, хотя реализованы и покрыты в OS-INSP-6.5.1/6.5.3/6.5.18 (`THRESHOLDS` с пометками «14.3-01…06»)
+    evidence: "`tz-decomposition.yaml:620–625`; `model.yaml:1091, 1126`; `ml/eval/thresholds.py:15–24`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-14.3-01…06 → НФТ + OS-INSP-6.5.1/6.5.3 (03, 04, 05, 06) и 6.5.18 (01, 02); код виден, жёлтые до замера на скрытой выборке"
+  - id: Д-008
+    sev: В
+    cls: К8
+    stage: 3
+    regions: 467, 468
+    area: S14-17/18
+    node: TZA-14.3-01/02 vs TZA-9.1.1-02/03
+    what: "Одна метрика трассирована по-разному: в S9 — на 6.5.18 с note о непройденном пороге («EM 0,855 … НЕ»), в S14 — на пустое НФТ без оговорки. Страница показывает противоречивую картину"
+    evidence: "`tz-decomposition.yaml:234–235` vs `620–621`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-14.3-01/02 трассированы как 9.1.1-02/03; у 14.3-02 — тот же факт о непройденном EM"
+  - id: Д-009
+    sev: В
+    cls: К4
+    stage: 3
+    regions: "455"
+    area: S14-05
+    node: TZA-14.1-03 → DO-DATASET
+    what: "«Для каждой метки — решение, причина, **дата и версии источников**»: в `dataset_items` нет ни даты метки, ни версий источников"
+    evidence: "`migrations/0001_init.sql:131–134`; `app.ts:903`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: даты метки и версий источников в dataset_items нет (новая миграция); атом красный"
+  - id: Д-010
+    sev: В
+    cls: К6/К4
+    stage: 4
+    regions: "430"
+    area: S12-05
+    node: TZA-12.3-01 → NFR-CRYPTO
+    what: "Note: «подключение фильтра к бэкапу — при слиянии с T-136», а T-136 — про срезы метрик. `archive_command` вызывает обычный `wal-archive.sh`, `*-encrypted.sh` не подключены; при этом NFR-CRYPTO «done» заявляет «бэкап и WAL — CMS AuthEnveloped»"
+    evidence: "`tz-decomposition.yaml:520`; `deploy/gpu/compose.yml:212`; `deploy/gpu/postgres/backup.conf:9`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 4: TZA-12.3-01 — примечание без ссылки на T-136, partial: фильтр шифрования бэкапа и WAL не подключён; атом жёлтый; доработка — T-170"
+  - id: Д-011
+    sev: С
+    cls: К4/К7
+    stage: 3
+    regions: "18"
+    area: S1-16
+    node: TZA-1.3-02 → NFR-API
+    what: 'Валидация по OpenAPI трассирована на NFR-API (строка `openapi: "3.0.3"`, тест про метрики); узел NFR-API-VALIDATE с тестом «не по схеме — 400» есть, но не в трассе'
+    evidence: "`tz-decomposition.yaml:41`; `model.yaml:970–972`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-1.3-02 → NFR-API + NFR-API-VALIDATE («тело не по схеме OpenAPI — 400»)"
+  - id: Д-012
+    sev: С
+    cls: К7
+    stage: 2
+    regions: 26–28
+    area: S1-24…26
+    node: TZA-1.5-02/03/04
+    what: React → диалог «Вход», Node.js → NFR-API, Python ≥ 3.11 → правило OCR. Профильный NFR-STACK (`react`, `requires-python`, fastify) привязан только к 1.5-05
+    evidence: "`tz-decomposition.yaml:53–55`; `model.yaml:658–660`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-1.5-02/03/04 → NFR-STACK"
+  - id: Д-013
+    sev: С
+    cls: К4
+    stage: 3
+    regions: 93, 95–108
+    area: S5-02, S5-04…17
+    node: TZA-5-01 → 1.4.1, DO-FILE
+    what: "«Принимаются 13 видов ИД»: классификатора видов ИД нет, узнаётся только АОСР; приёмка «пакет ИД принимается» перечень не проверяет"
+    evidence: "`tz-decomposition.yaml:91`; grep АОСР → `hidden-works.ts`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: классификатора 13 видов ИД нет; атом жёлтый"
+  - id: Д-014
+    sev: С
+    cls: К6
+    stage: 4
+    regions: 31–47
+    area: S2-*
+    node: TZA-2-01 (note)
+    what: Note ссылается только на GAP-INSP-06; GAP-INSP-14 (ПП РФ №2078 не существует и др.) не упомянут — «в редакциях на июль 2026» с «реализовано» не подтверждено
+    evidence: "`tz-decomposition.yaml:65`; `model.yaml:1226`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 4: примечание TZA-2-01 называет GAP-INSP-14"
+  - id: Д-015
+    sev: С
+    cls: К8
+    stage: 3
+    regions: 112, 114
+    area: S5-21/23
+    node: узел TZ-5.N2
+    what: "В модели пункт `mode: gpu` и `to: [OS-INSP-2.1]`, а атомы — prototype «реализовано» и ведут в 2.3.*"
+    evidence: "`model.yaml` блок `tz`; `tz-decomposition.yaml:101–102`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: model.yaml TZ-5.N2 → [OS-INSP-2.1, OS-INSP-2.3], mode: gpu снят — атомы проверяются на прототипе"
+  - id: Д-016
+    sev: С
+    cls: К4
+    stage: 3
+    regions: "149"
+    area: S7-15
+    node: TZA-7.12-05 → 1.2.6, NFR-API
+    what: «Некорректный реестр отклоняется с описанием ошибки» ← правило о приёме пакета без реестра (обратное). zod-валидация реестра есть в коде, правила нет
+    evidence: "`tz-decomposition.yaml:197`; `upload.ts:66–98`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: правила о валидации реестра по схеме нет; атом жёлтый"
+  - id: Д-017
+    sev: С
+    cls: К7/К4
+    stage: 2
+    regions: 179–187
+    area: S8-30…38
+    node: TZA-8.2-02 → 3.1.5/3.1.6
+    what: «Понижение класса» ← общее правило порога и тест 1 % на M-002. Профильные 3.1.13/3.1.14 и тест «B30→B25» вне трассы
+    evidence: "`03-services.md:152–153`; `tests/domain.test.ts:185–197, 220–226`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-8.2-02 → OS-INSP-3.1.13/3.1.14 (тест «понижение класса в РД»)"
+  - id: Д-018
+    sev: С
+    cls: К7/К4
+    stage: 2
+    regions: 179–187
+    area: S8-30…38
+    node: TZA-8.2-03 → 3.1.5
+    what: «< 0,9 м» — нормативный минимум (`compare.kind=min`); правила о min нет, тест «порог min по каждой стадии» вне трассы
+    evidence: "`matrix.json` M-041; `domain.test.ts:210–214`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: правила о нормативном минимуме (compare.kind=min) в модели нет — этап 5
+  - id: Д-019
+    sev: С
+    cls: К3/К4
+    stage: 3
+    regions: 179–187
+    area: S8-30…38
+    node: TZA-8.2-01 → 3.1.5
+    what: ТЗ «расхождение > 0»; фактически M-001 по 3.1.20 с допуском 0,05 м² — отступление от ТЗ в карте не отражено, 3.1.20 вне трассы
+    evidence: "`03-services.md:159`; `quantity-param.ts:91–100`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-8.2-01 — partial: допуск 0,05 м² по 3.1.20 против «> 0» в ТЗ; атом жёлтый"
+  - id: Д-020
+    sev: С
+    cls: К4
+    stage: 3
+    regions: "203"
+    area: S9.1-16
+    node: TZA-9.1.1-05 → 2.1.2
+    what: "Атом: LOW_QUALITY **или ABSTAIN** для рукописных/нечитаемых **зон**; правило — только LOW_QUALITY для страницы. ABSTAIN в коде есть, в правилах нет"
+    evidence: "`03-services.md:88`; `ml/inspector_ml/parse.py:286`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: ABSTAIN и зонная обработка не описаны правилом; атом жёлтый"
+  - id: Д-021
+    sev: С
+    cls: К4
+    stage: 3
+    regions: "205"
+    area: S9.1-18
+    node: TZA-9.1.2-01 → 2.2.1
+    what: Атом про поиск по `regex_pattern`, правило — про хранение file_id/SHA/bbox; правила о regex нет (только описание сервиса)
+    evidence: "`03-services.md:106–107`; `extract.py:170–172`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: правила поиска по regex_pattern нет; атом жёлтый"
+  - id: Д-022
+    sev: С
+    cls: К2
+    stage: 3
+    regions: "193"
+    area: S9.1-06
+    node: TZA-9.1.2-01
+    what: Фрагмент «извлечение значений и координат… по 132 параметрам» не про regex; по смыслу — TZA-7.1-02 / 9.1.4-01
+    evidence: "`regions/S9.1.yaml:11`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: область S9.1-06: вместо regex-атома 9.1.2-01 — TZA-7.1-02"
+  - id: Д-023
+    sev: С
+    cls: К5/К6
+    stage: 3
+    regions: "243"
+    area: S9.2-04
+    node: candidate / GAP-INSP-11
+    what: "Кандидат «есть только измерение на одном чертеже» устарел: OS-INSP-3.4.1–3.4.4 (совмещение растров двух листов, bbox изменений) реализованы, но ни один атом на них не ссылается. Покрытие пар ПД↔РД↔ИД — вероятно частичное"
+    evidence: "`regions/S9.2.yaml:9`; `model.yaml:1223`; `03-services.md:328–331`; `services/sheetdiff.ts:91`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 4: GAP-INSP-11 и кандидат S9.2-04 переписаны: сравнение листов между редакциями есть (3.4), между стадиями — нет; фрагмент остаётся красным"
+  - id: Д-024
+    sev: С
+    cls: К6/К7
+    stage: 4
+    regions: "246"
+    area: S9.2-07
+    node: TZA-9.2.0-02 (partial)
+    what: "См. A-09: «частично» устарело; в трассе ещё и 3.3.2, не относящееся к Приложению № 2"
+    evidence: "`tz-decomposition.yaml:301`; T-121"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 4: TZA-9.2.0-02: partial снят, 3.3.2 из трассы убрано (см. Д-A09)"
+  - id: Д-025
+    sev: С
+    cls: К6/К1
+    stage: 4
+    regions: "289"
+    area: S9.2-50
+    node: note, TZA-7.5-02
+    what: "Note: «переход SUSPICION → CANDIDATE отдельным атомом не выделен» — выделен: TZA-9.5-07 → OS-INSP-3.2.7, но на область не повешен"
+    evidence: "`regions/S9.2.yaml:55`; `tz-decomposition.yaml:429`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 4: область S9.2-50: + TZA-9.5-07, примечание исправлено"
+  - id: Д-026
+    sev: С
+    cls: К1
+    stage: 3
+    regions: "281"
+    area: S9.2-42
+    node: TZA-9.2.7-02, 7.4-01
+    what: «Просмотр по выборке» потерян; реализован правилами 4.1.8–4.1.11 (выборочная приёмка), которых нет ни в одном атоме
+    evidence: "`03-services.md:197–200`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: новый атом TZA-9.2.7-03 «Просмотр по выборке» → 4.1.8–4.1.11 на строке NEGATIVE_VERIFIED"
+  - id: Д-027
+    sev: С
+    cls: К5
+    stage: 3
+    regions: 285, 287
+    area: S9.2-46/48
+    node: TZA-9.2.7-02
+    what: Note самой разметки «Не разложено» (подтвердить применимость; выбрать авторитетную редакцию), но вид `atoms` и статус «реализовано» — неразложенное спрятано за зелёным
+    evidence: "`regions/S9.2.yaml:51, 53`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: новый атом TZA-9.2.7-04 (действия инспектора, правил нет — красный) на строках «Подтвердить», «Выбрать», «Уточнить», «Определить»"
+  - id: Д-028
+    sev: С
+    cls: К4
+    stage: 3
+    regions: 281–289
+    area: S9.2-42…50
+    node: TZA-9.2.7-02 → 3.1.7, 3.2.2
+    what: "Приёмка «в число нарушений входит только CONFIRMED_VIOLATION»: исключение NOT_COMPARABLE / CLARIFICATION / NOT_APPLICABLE / NEGATIVE ни одним правилом трассы не выражено, тесты этого не проверяют (в коде реализовано)"
+    evidence: "`tz-decomposition.yaml:344`; `protocol.ts:124`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: исключение прочих статусов из числа нарушений правилом не выражено; атом красный"
+  - id: Д-029
+    sev: С
+    cls: К1
+    stage: 3
+    regions: 295, 296
+    area: S9.3-06/07
+    node: TZA-9.3.0-01, 9.3.3-01
+    what: «положительная / отрицательная GOLD-метка» потеряны; атомы 9.4.1-01/-03, 7.4-01 есть, но не повешены
+    evidence: "`tz-decomposition.yaml:402, 404`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: области S9.3 «Нарушение подтверждено» и «Кандидат отклонён» — атомы GOLD-меток 9.4.1-03 и 9.4.1-01"
+  - id: Д-030
+    sev: С
+    cls: К4
+    stage: 3
+    regions: 294–299
+    area: S9.3-05…10
+    node: TZA-9.3.0-01 → 4.1.2, 4.3.3
+    what: Шесть статусов жизненного цикла; правила «всё обработано → VERIFICATION_COMPLETED» нет (есть в коде), PENDING/NEGATIVE/CLARIFICATION вне трассы; имена статусов ТЗ ≠ коду (`COMPLETED`, `FINALIZED`)
+    evidence: "`lifecycle.ts:69`; `types.ts:20`; `03-services.md:237`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: правила VERIFICATION_COMPLETED и перехода статусов нет, имена ТЗ ≠ коду; атом жёлтый"
+  - id: Д-031
+    sev: С
+    cls: К4
+    stage: 3
+    regions: 268, 269
+    area: S9.2-29/30
+    node: TZA-9.2.4-02 → 3.3.2
+    what: Правило перечисляет 5 таблиц протокола без «Статуса загрузки» и «Типа проверки»; тест их не проверяет (в коде есть)
+    evidence: "`03-services.md:181`; `protocol.ts:135–136`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: в тексте правила 3.3.2 нет «Статуса загрузки» и «Типа проверки»; атом жёлтый"
+  - id: Д-032
+    sev: С
+    cls: К4
+    stage: 3
+    regions: 244, 271
+    area: S9.2-05/32
+    node: TZA-9.2.4-04
+    what: "«Все поля карточки заполнены»: обоснование, риск, решение, причина — вне правил и тестов"
+    evidence: "`protocol.ts:90–93`; `e2e.test.ts:162–168`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5/6: поля карточки (обоснование, риск, решение, причина) вне правил и тестов; атом жёлтый"
+  - id: Д-033
+    sev: С
+    cls: К7/К4
+    stage: 3
+    regions: 272–274
+    area: S9.2-33…35
+    node: TZA-9.2.5-01/02
+    what: «Сохранение с версией» ← правило про READY и уведомление; уведомление инспектору тестом не проверяется
+    evidence: "`03-services.md:182`; `e2e.test.ts:123–140`"
+    confidence: подтв.
+    status: moved
+    resolution: "этап 6: уведомление инспектору тестом не проверяется; атомы жёлтые"
+    moved_to: T-170
+  - id: Д-034
+    sev: С
+    cls: К4
+    stage: 3
+    regions: "262"
+    area: S9.2-23
+    node: TZA-9.2.3-04 → 3.1.8
+    what: Атом про отсутствующую стадию (`stage_notes`), правило — про неприменимость параметра
+    evidence: "`03-services.md:147`; `compare.ts:115–118`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: правила о stage_notes для отсутствующей стадии нет; атом жёлтый"
+  - id: Д-035
+    sev: С
+    cls: К3
+    stage: 3
+    regions: "264"
+    area: S9.2-25
+    node: TZA-9.2.3-06
+    what: "ТЗ: при нехватке доказательств — NOT_COMPARABLE или CLARIFICATION_REQUIRED; код ставит MISSING_EVIDENCE"
+    evidence: "`compare.ts:161–167`"
+    confidence: подтв. (толкование — вер.)
+    status: closed
+    resolution: "этап 3: TZA-9.2.3-06 — partial и уточнённая приёмка: MISSING_EVIDENCE вместо NOT_COMPARABLE/CLARIFICATION; атом жёлтый"
+  - id: Д-036
+    sev: С
+    cls: К4
+    stage: 3
+    regions: 294–299, 312, 313
+    area: S9.3-05…10, 23, 24
+    node: TZA-9.3.3-01, 9.2.6-01
+    what: «Решения сохраняются после дозагрузки» обеспечивает OS-INSP-3.3.6 (перенос по отпечатку, иначе PENDING) — его нет ни в одной трассе; возврат в PENDING против «без сброса верификации» нигде не оговорён
+    evidence: "`03-services.md:184–185`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-9.2.6-01 и 9.3.3-01 + OS-INSP-3.3.6 (перенос решения по отпечатку)"
+  - id: Д-037
+    sev: С
+    cls: К7
+    stage: 2
+    regions: "330"
+    area: S9.4-05
+    node: TZA-9.4.2-05
+    what: «Без автоматической публикации» реализует 6.4.7, а оно висит на TZA-7.4-04
+    evidence: "`03-services.md:342`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-9.4.2-05 + OS-INSP-6.4.7 (без автопубликации); откат модели по вердикту критиков не реализован — атом красный"
+  - id: Д-038
+    sev: С
+    cls: К4
+    stage: 3
+    regions: "333"
+    area: S9.4-08
+    node: TZA-9.4.1-01 → 6.1.1
+    what: Черновик набора и «выпуск куратором» — правила в 6.1 нет (есть только для меток учителя 6.4.11)
+    evidence: "`03-services.md:262–270`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: правила «выпуск набора куратором» в 6.1 нет; атом жёлтый"
+  - id: Д-039
+    sev: С
+    cls: К4
+    stage: 3
+    regions: "334"
+    area: S9.4-09
+    node: TZA-9.4.1-02 → 6.1.1
+    what: «Показать источники, координаты и конфликт редакций» не закрыто; проверяется только исключение из GOLD
+    evidence: приёмка атома
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: показ источников и конфликта редакций для CLARIFICATION не проверяется; атом жёлтый"
+  - id: Д-040
+    sev: С
+    cls: К4
+    stage: 3
+    regions: "363"
+    area: S9.5-13
+    node: TZA-9.5-06 → 3.2.3
+    what: "«Только внутри объекта **и сопоставимых редакций»**: редакция потеряна в правиле, приёмке и ключе дедупликации"
+    evidence: "`suspicions.ts` `dedup_key`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: «сопоставимые редакции» потеряны в правиле 3.2.3 и ключе дедупликации; атом жёлтый"
+  - id: Д-041
+    sev: С
+    cls: К4
+    stage: 3
+    regions: "382"
+    area: S9.6-16
+    node: TZA-9.6.2-04 → 5.2.2
+    what: "ТЗ: повтор при 5xx/тайм-ауте, до 3 раз; код повторяет на любом не-2xx, в правиле нет «до 3» и исхода FAILED, тест интервалы не проверяет"
+    evidence: "`services/rin.ts:97`; `e2e.test.ts:281`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: повтор на любом не-2xx вместо 5xx/тайм-аута, нет «до 3» и FAILED; атом жёлтый"
+  - id: Д-042
+    sev: С
+    cls: К1
+    stage: 3
+    regions: "384"
+    area: S9.6-18
+    node: TZA-9.6.2-04, 7.12-04
+    what: «Повторяет отправку **с журналированием**» — ни в атоме, ни в коде (неудачная попытка не пишется в log/audit)
+    evidence: "`rin.ts:113–121`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: новый атом TZA-9.6.2-06 «повторы журналируются» без трассы — красный"
+  - id: Д-043
+    sev: С
+    cls: К7/К3
+    stage: 2
+    regions: "388"
+    area: S9.6-22
+    node: TZA-9.6.3-01 → 1.2.8
+    what: Автодозагрузка из «РиН» только уведомляет (реализует 1.2.17 `NOTIFY_ONLY`); трасса — на ручную дозагрузку с 409, приёмка «отклоняется»
+    evidence: "`services/rin-pull.ts:283–285`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-9.6.3-01 → OS-INSP-1.2.17, приёмка — «только уведомление», как в ТЗ"
+  - id: Д-044
+    sev: С
+    cls: К1
+    stage: 3
+    regions: "392"
+    area: S10-04
+    node: TZA-10-02 / DO-CHECK
+    what: Ключевые поля ТЗ в атом не попали; в `checks` нет `completeness_status`, `object_id`, `param_id`
+    evidence: "`0001_init.sql:62–66`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-10-02 — приёмка с полями ТЗ, partial: нет completeness_status, object_id, param_id; атом жёлтый; миграция — T-170"
+  - id: Д-045
+    sev: С
+    cls: К1
+    stage: 3
+    regions: "396"
+    area: S10-08
+    node: TZA-10-06
+    what: Нет `retraining_status` ни в атоме, ни в таблице
+    evidence: "`0001_init.sql:152–155`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-10-06 — приёмка с полями ТЗ, partial: нет retraining_status; атом жёлтый; миграция — T-170"
+  - id: Д-046
+    sev: С
+    cls: К1
+    stage: 3
+    regions: "397"
+    area: S10-09
+    node: TZA-10-07
+    what: Нет `resolution_status`, `resolved_by` — разрешение спора не моделируется
+    evidence: "`0001_init.sql:158–160`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-10-07 — приёмка с полями ТЗ и примечание; атом красный; миграция — T-170"
+  - id: Д-047
+    sev: С
+    cls: К7/К4
+    stage: 2
+    regions: "453"
+    area: S14-03
+    node: TZA-14.1-01 → 6.1.1
+    what: Единица разметки evidence_group ← фильтр статусов; приёмка «элемент ссылается на evidence_group» не проверяется
+    evidence: "`gold.ts:18–21`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: правила «элемент набора ссылается на evidence_group» в модели нет — этап 5
+  - id: Д-048
+    sev: С
+    cls: К3/К4
+    stage: 3
+    regions: "445"
+    area: S13-06
+    node: TZA-13.4-04 → NFR-METRICS
+    what: "`inspector_queue_size` — число файлов PENDING/PARSING в БД, а не очередь RabbitMQ; RabbitMQ не опрашивается"
+    evidence: "`app.ts:270, 284`; `deploy/gpu/prometheus.yml`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: метрика очереди RabbitMQ не снимается; атом красный"
+  - id: Д-049
+    sev: С
+    cls: К4
+    stage: 3
+    regions: "445"
+    area: S13-06
+    node: TZA-13.4-01
+    what: CPU/RAM «по каждому сервису» — только процесс API
+    evidence: "`app.ts:287–290`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: CPU/RAM только процесса API; атом красный"
+  - id: Д-050
+    sev: С
+    cls: К4
+    stage: 3
+    regions: "445"
+    area: S13-06
+    node: TZA-13.4-01/03/04/05
+    what: Единственный тест проверяет наличие `inspector_http_requests_total`; CPU/RAM, 5xx, латентность, очередь, сессии не проверяются
+    evidence: "`e2e.test.ts:474–476`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: тест метрик проверяет одну метрику; атомы красные/жёлтые"
+  - id: Д-051
+    sev: С
+    cls: К4
+    stage: 3
+    regions: "431"
+    area: S12-06
+    node: TZA-12.4-01 → 8.2.1
+    what: "«Запись со всеми полями»: тест считает записи DECISION_*, поля не проверяет"
+    evidence: "`e2e.test.ts:235–236`"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: тест журнала аудита не проверяет поля; атом жёлтый"
+  - id: Д-052
+    sev: С
+    cls: К4/К7
+    stage: 3
+    regions: "436"
+    area: S12-11
+    node: TZA-12.8-01
+    what: "«Бэкап БД **и файлового хранилища**»: бэкапится только PostgreSQL; бэкапа блобов в трассе нет"
+    evidence: "`compose.backup-s3.yml:29–30`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-12.8-01 — partial: блобы S3 не резервируются; синий → жёлтый; доработка — T-170"
+  - id: Д-053
+    sev: С
+    cls: К4
+    stage: 3
+    regions: "438"
+    area: S12-13
+    node: TZA-12.10-01 → NFR-UKEP
+    what: "«Все запросы к внешним системам — УКЭП»: покрыт только «РиН», S3 выведен белым списком"
+    evidence: "`tests/ukep-signing.test.ts:407`"
+    confidence: подтв. (S3 как «внешняя» — вер.)
+    status: closed
+    resolution: "этап 3: TZA-12.10-01 — partial: S3 без УКЭП; синий → жёлтый; решение — T-170"
+  - id: Д-054
+    sev: С
+    cls: К3/К4
+    stage: 3
+    regions: "417"
+    area: S11-10
+    node: TZA-11-08 → 2.4.7, 6.5.17
+    what: "ТЗ: «один чертёж (DWG) ≤ 30 с», правило — «один лист» растра PDF; DWG — T-103 в todo"
+    evidence: note атома
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: DWG как вход — T-103; примечание в атоме; атом красный"
+  - id: Д-055
+    sev: С
+    cls: К1
+    stage: 3
+    regions: "472"
+    area: S14-22
+    node: TZA-14.3-05
+    what: Правило совпадения находки (evidence_group, верный параметр и доказательство) потеряно; реализовано в `match_findings`
+    evidence: "`ml/eval/metrics.py:155–176`"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-14.3-05 — правило совпадения (evidence_group, параметр, доказательство) в тексте атома"
+  - id: Д-056
+    sev: Н
+    cls: К7
+    stage: 2
+    regions: "17"
+    area: S1-15
+    node: TZA-1.3-01 → NFR-API
+    what: JSON закрывает NFR-API-JSON (415 на text/plain), он не в трассе
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-1.3-01 → NFR-API-JSON (415 на text/plain)"
+  - id: Д-057
+    sev: Н
+    cls: К7
+    stage: 2
+    regions: 21, 372, 377
+    area: S1-19, S9.6-06/11
+    node: TZA-1.4-01, 9.6.1-01 → OS-INSP-1.2.1
+    what: Правило о форматах PDF/DOCX/XML к process_id/эндпоинту отношения не имеет
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-1.4-01 и 9.6.1-01 → NFR-ASYNC, правило о форматах снято"
+  - id: Д-058
+    sev: Н
+    cls: К1
+    stage: 3
+    regions: "12"
+    area: S1-10
+    node: TZA-1.2-03
+    what: «Обмен документами **и** результатами» — приём документов из «РиН» выпал
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-1.2-03 — «обмен документами и результатами», приём пакетов → OS-INSP-1.2.15"
+  - id: Д-059
+    sev: Н
+    cls: К5
+    stage: 3
+    regions: "20"
+    area: S1-18
+    node: none
+    what: «Pull-модель получения результатов» — проверяемое свойство, уместен TZA-1.4-02
+    confidence: вер.
+    status: closed
+    resolution: "этап 3: область S1-18 «Pull-модель» — атом TZA-1.4-02 вместо «требований нет»"
+  - id: Д-060
+    sev: Н
+    cls: К6
+    stage: 4
+    regions: "29"
+    area: S1-27
+    node: TZA-1.5-05 (note)
+    what: "«В прототипе — очередь в процессе» устарело: адаптер RabbitMQ есть и покрыт тестами"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 4: примечание TZA-1.5-05: RabbitMQ реализован, очередь в процессе — только dev"
+  - id: Д-061
+    sev: Н
+    cls: К6
+    stage: 4
+    regions: 31–47
+    area: S2-*
+    node: TZA-2-01 (note)
+    what: "«У 6 актов редакция не указана» — в справочнике `edition: null` у 5 (№7, 8, 9, 11, 12)"
+    confidence: подтв.
+    status: closed
+    resolution: "этап 4: примечание TZA-2-01: редакция не указана у 5 актов (№ 7, 8, 9, 11, 12)"
+  - id: Д-062
+    sev: Н
+    cls: К6
+    stage: 4
+    regions: "36"
+    area: S2-07
+    node: note области
+    what: Про №2078 — только SRC-INSP-07, без ссылки на GAP-INSP-14
+    confidence: подтв.
+    status: closed
+    resolution: "этап 4: строка ПП № 2078 — gap: GAP-INSP-14, примечание по первоисточникам"
+  - id: Д-063
+    sev: Н
+    cls: К3
+    stage: 3
+    regions: "31"
+    area: S2-02
+    node: TZA-2-01
+    what: «Разработка и эксплуатация в соответствии с НПА» подменено наличием справочника
+    confidence: вер.
+    status: closed
+    resolution: "этап 3: не менять: атом о справочнике актов — операционализация «в соответствии с НПА» для системы; разработка по НПА — не свойство кода"
+  - id: Д-064
+    sev: Н
+    cls: К7
+    stage: 2
+    regions: "52"
+    area: S2-23
+    node: model BO-INSP-5.3
+    what: Ст. 54 — приостановка работ, узел — «Выдать предписание»
+    confidence: вер.
+    status: closed
+    resolution: "этап 4: примечание S2-23: операции «приостановить работы» в модели нет, ближайшая — выдача предписания вне системы"
+  - id: Д-065
+    sev: Н
+    cls: К7/К4
+    stage: 2
+    regions: 80, 82, 84
+    area: S4-02/04/06
+    node: TZA-4-01
+    what: Приёмка «марка в поле discipline» ← правило о форматах файлов
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-4-01 → OS-INSP-2.2.21 (профильная марка) + 1.2.24 (марка из имени) + DO-FILE"
+  - id: Д-066
+    sev: Н
+    cls: К7/К4
+    stage: 2
+    regions: 54–78, 119–134
+    area: S3-*, S6-*
+    node: TZA-3-01/3-02/6-01 → 7.1.1
+    what: Разметка Матрицы разделами и источниками ← правило смены порога; тест этого не проверяет
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-3-01/3-02 → OS-INSP-2.2.21, TZA-6-01 → 2.2.4 (источники стадии) + DO-PARAM"
+  - id: Д-067
+    sev: Н
+    cls: К1
+    stage: 3
+    regions: "89"
+    area: S4-11
+    node: TZA-4-02 / 2.2.7
+    what: «ГЧ — габаритные чертежи» не отражены; классификатор отнесёт ГЧ к чертежу-источнику
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-4-02 — габаритные чертежи в тексте, partial с примечанием"
+  - id: Д-068
+    sev: Н
+    cls: К8
+    stage: 3
+    regions: "90"
+    area: S4-12
+    node: TZA-4-02 / 2.2.7
+    what: "ТЗ: расчёты в РД «как правило, не включаются», система считает расчёт источником значения"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "владелец: расчёты в РД — источник значения или нет (ТЗ «как правило, не включаются»)"
+  - id: Д-069
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: "137"
+    area: S7-03
+    node: TZA-7.1-03 → 1.4.2
+    what: «Контроль наличия документов» — статусы 1.4.1/1.4.3 не привязаны (в S9.1-07 привязаны)
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-7.1-03 → OS-INSP-1.4.1/1.4.2/1.4.3"
+  - id: Д-070
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: "145"
+    area: S7-11
+    node: TZA-7.8-01 → 7.2.1
+    what: Добавление и правка нормативов — только в коде, в правиле нет
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: добавление и правка нормативов — в правило 7.2.1"
+  - id: Д-071
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: "146"
+    area: S7-12
+    node: TZA-7.9-01 → 8.2.1
+    what: «Причина» решения — только в коде, в правиле нет
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: «причина» решения — в текст правила 8.2.1 (код и тест есть, атом зелёный)"
+  - id: Д-072
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: "149"
+    area: S7-15
+    node: TZA-7.12-04 → 5.2.2
+    what: Сбой **забора** (1.2.18) не привязан
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-7.12-04 + OS-INSP-1.2.18 (сбой забора)"
+  - id: Д-073
+    sev: Н
+    cls: К1
+    stage: 3
+    regions: "187"
+    area: S8-38
+    node: TZA-8.2-01…03
+    what: Строка «Приоритет HIGH» — в атомах приоритета нет
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: не расхождение: приоритет проверки — review_priority Матрицы (TZA-8.1-04), примеры 8.2 его не повторяют"
+  - id: Д-074
+    sev: Н
+    cls: К1
+    stage: 3
+    regions: "169"
+    area: S8-20
+    node: TZA-8.1-03
+    what: Перечень типов `number, string, boolean, coordinate, enum` не вынесен
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-8.1-03 — перечень типов данных в тексте атома"
+  - id: Д-075
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: "191"
+    area: S9.1-04
+    node: TZA-9.1.0-01 → DO-*
+    what: Идентификация стадии/шифра/раздела ← только объекты данных; правило 1.2.24 не привязано; «раздел» выпал из приёмки
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-9.1.0-01 + OS-INSP-1.2.24, «раздел» возвращён в приёмку"
+  - id: Д-076
+    sev: Н
+    cls: К7
+    stage: 2
+    regions: "198"
+    area: S9.1-11
+    node: TZA-9.1.1-01 → 2.1.1
+    what: Приёмка «OCR за интерфейсом, dev/gpu» ← правило «текстовый слой первым»
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: правила «OCR за интерфейсом, профиль dev/gpu» в модели нет — этап 5
+  - id: Д-077
+    sev: Н
+    cls: К3
+    stage: 3
+    regions: "201"
+    area: S9.1-14
+    node: TZA-9.1.1-04
+    what: «…в шифрах **и редакциях**» — редакции выпали
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-9.1.1-04 — «в шифрах и редакциях»"
+  - id: Д-078
+    sev: Н
+    cls: К1
+    stage: 3
+    regions: "202"
+    area: S9.1-15
+    node: TZA-9.1.1-02/03, 6.5.18
+    what: Исключение рукописных/размеченных **зон** из OCR-метрики — нет ни в атоме, ни в правиле
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: новый атом TZA-9.1.1-07 (зоны вне OCR-метрики) — partial: исключаются только целые страницы"
+  - id: Д-079
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: 234–239
+    area: S9.1-47…52
+    node: TZA-9.1.10-01/02/03
+    what: PARSING/VERIFYING/COMPLETED и запрет дозагрузки в PARSING — только в коде; правило 1.2.7 формально разрешает
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: PARSING/VERIFYING/COMPLETED и запрет дозагрузки в PARSING — в правила"
+  - id: Д-080
+    sev: Н
+    cls: К7
+    stage: 2
+    regions: 241, 245
+    area: S9.2-02/06
+    node: TZA-9.2.0-01 → 3.1.1
+    what: «Единица результата — доказательная группа» ← правило порядка проверок; по смыслу 3.1.15
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-9.2.0-01 → DO-CHECK + OS-INSP-3.1.15"
+  - id: Д-081
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: "258"
+    area: S9.2-19
+    node: TZA-9.2.3-01 → 3.1.1
+    what: «Сопоставимость редакций» выпала из правила
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: «сопоставимость редакций» — в правило 3.1.1"
+  - id: Д-082
+    sev: Н
+    cls: К3/К4
+    stage: 3
+    regions: 278, 279
+    area: S9.2-39/40
+    node: TZA-9.2.7-01
+    what: «…или приостановки работ» выпало; оговорка в протоколе реализована, но не в трассе
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-9.2.7-01 — «не статус нарушения и не основание для предписания или приостановки работ»"
+  - id: Д-083
+    sev: Н
+    cls: К1
+    stage: 3
+    regions: 283, 286
+    area: S9.2-44/47
+    node: TZA-9.2.7-02
+    what: Действия инспектора «определить дальнейшее действие», «уточнить данные» не разложены и не помечены
+    confidence: вер.
+    status: closed
+    resolution: "этап 3: новый атом TZA-9.2.7-04 (см. Д-027)"
+  - id: Д-084
+    sev: Н
+    cls: К6
+    stage: 4
+    regions: "284"
+    area: S9.2-45
+    node: note
+    what: Note ссылается на TZA-9.1.7-01, но атом не повешен
+    confidence: подтв.
+    status: closed
+    resolution: "этап 4: область S9.2-45: + TZA-9.1.7-01"
+  - id: Д-085
+    sev: Н
+    cls: К1
+    stage: 3
+    regions: "265"
+    area: S9.2-26
+    node: TZA-9.2.3-06
+    what: «…не являются нарушением» — нет в атоме
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-9.2.3-06 — «ни то ни другое не нарушение» в приёмке"
+  - id: Д-086
+    sev: Н
+    cls: К8
+    stage: 3
+    regions: "309"
+    area: S9.3-20
+    node: TZA-9.3.2-02
+    what: Закрытый справочник причин (4.1.23, REASON_CODES) не привязан
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-9.3.2-02 + OS-INSP-4.1.23 (справочник причин)"
+  - id: Д-087
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: "316"
+    area: S9.3-27
+    node: TZA-9.3.4-03 → 5.2.1
+    what: Версии протокола/Матрицы/модели и реестр файлов — в коде, не в правиле
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: версии и реестр в тексте правила 5.2.1 (код есть, атом зелёный)"
+  - id: Д-088
+    sev: Н
+    cls: К3
+    stage: 3
+    regions: "335"
+    area: S9.4-10
+    node: TZA-9.4.1-03
+    what: Условие финализации перенесено с «передачи наружу» на отбор в GOLD
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-9.4.1-03 — приёмка: «передача наружу — только после финализации»"
+  - id: Д-089
+    sev: Н
+    cls: К1 / К8
+    stage: 3
+    regions: "342"
+    area: S9.4-17
+    node: TZA-9.4.2-03
+    what: «Ручная донастройка» выпала; вердикт outside (gpu) при 4 правилах «done», работающих в прототипе
+    confidence: подтв. / вер.
+    status: closed
+    resolution: "этап 3: TZA-9.4.2-03 — «или ручной донастройки» в тексте; контур gpu оставлен — скрытый тест живёт на стенде"
+  - id: Д-090
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: "343"
+    area: S9.4-18
+    node: TZA-9.4.2-04 → 6.3.1
+    what: Пороги §14 не в тексте правила; «обязательная категория» → «любая»; FPR по группам считается общим
+    confidence: подтв. (FPR — вер.)
+    status: moved
+    moved_to: T-170
+    resolution: "этап 5: пороги §14 и «обязательная категория» — в текст 6.3.1; FPR по группам — этап 6"
+  - id: Д-091
+    sev: Н
+    cls: К2
+    stage: 3
+    regions: "345"
+    area: S9.4-20
+    node: TZA-9.4.2-06 → 6.4.6
+    what: «Тот же хеш весов» во фрагменте ТЗ нет
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: не расхождение: правило 6.4.6 шире ТЗ (воспроизводимость) — допустимо"
+  - id: Д-092
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: 353, 364
+    area: S9.5-03/14
+    node: TZA-7.5-02 → 3.2.2
+    what: Тест не проверяет «не попадают в GOLD»
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: тест «гипотезы не попадают в GOLD»"
+  - id: Д-093
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: "379"
+    area: S9.6-13
+    node: TZA-9.6.2-01
+    what: Тест подменяет транспорт; путь вызова проверяет `ukep-signing.test.ts:295` вне трассы
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-9.6.2-01 + NFR-UKEP (тесты подписи проверяют путь вызова)"
+  - id: Д-094
+    sev: Н
+    cls: К1
+    stage: 3
+    regions: 391–407
+    area: S10-03…19
+    node: TZA-10-01…16
+    what: "Системно: приёмка «Таблица X» — перечни ключевых полей ТЗ ничем не проверяются"
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: перечни полей §10 проверяются только наличием таблиц — тест на поля"
+  - id: Д-095
+    sev: Н
+    cls: К6
+    stage: 4
+    regions: "404"
+    area: S10-16
+    node: note области
+    what: «Отдельной таблицы нет — закрыт частично», а `monitoring_metrics` и NFR-METRICS-STORE есть, вердикт «реализовано»
+    confidence: подтв.
+    status: closed
+    resolution: "этап 4: примечание S10-16: таблица monitoring_metrics есть (NFR-METRICS-STORE)"
+  - id: Д-096
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: "443"
+    area: S13-04
+    node: TZA-13.2-01 → NFR-LOGS
+    what: Уровни логов проверяет тест, висящий на NFR-LOGRET
+    confidence: подтв.
+    status: closed
+    resolution: "этап 2: TZA-13.2-01 + NFR-LOGRET (тест уровней 401/403/429 — WARNING, 5xx — ERROR)"
+  - id: Д-097
+    sev: Н
+    cls: К6
+    stage: 4
+    regions: "450"
+    area: S13-11
+    node: TZA-13.8-01 (note)
+    what: «Хранилище — том var/blobs, при переносе в S3…» — перенос сделан (ADR-0006), сверка для S3 работает
+    confidence: подтв.
+    status: closed
+    resolution: "этап 4: примечание TZA-13.8-01: хранилище — S3, сверка хешей работает для S3"
+  - id: Д-098
+    sev: Н
+    cls: К6
+    stage: 4
+    regions: 413, 414, 419
+    area: S11-06/07/12
+    node: notes 11-04/05/10
+    what: «Итог на GPU-стенде организатора» — замер на стенде выполнен (T-159, `c3a45e5`)
+    confidence: вер.
+    status: closed
+    resolution: "не подтверждено: T-159 мерил §11 на стенде мака, итог на GPU-стенде организатора ещё впереди; в примечания добавлен факт замера на маке"
+  - id: Д-099
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: "419"
+    area: S11-12
+    node: TZA-11-10 → 6.5.11
+    what: Тест p95 в гейте условный (`skipIf(busy)`)
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: примечание: тест p95 условный (skipIf busy) — замер на стенде; атом синий верно"
+  - id: Д-100
+    sev: Н
+    cls: К6/К7
+    stage: 4
+    regions: "420"
+    area: S11-13
+    node: TZA-11-11 → NFR-LOAD-100
+    what: НФТ «done», замер 100 инспекторов не проведён (T-075 в backlog)
+    confidence: вер.
+    status: closed
+    resolution: "этап 4: примечание TZA-11-11: нагрузочный замер не проведён (T-075 в бэклоге); атом синий — код готов, замер в эксплуатационном контуре"
+  - id: Д-101
+    sev: Н
+    cls: К7/К4
+    stage: 3
+    regions: "429"
+    area: S12-04
+    node: TZA-12.2-01/02/03
+    what: 4.1.28 не про ML-инженера; права `ml.read/ml.train` не в трассе; тест NFR-ROLES проверяет только администратора
+    confidence: подтв.
+    status: moved
+    resolution: "этап 6: тест NFR-ROLES проверяет только администратора"
+    moved_to: T-170
+  - id: Д-102
+    sev: Н
+    cls: К1
+    stage: 3
+    regions: "468"
+    area: S14-18
+    node: TZA-14.3-02
+    what: Перечень ключевых полей и «после нормализации» потеряны (в S9 есть)
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-14.3-02 — перечень ключевых полей и нормализация в тексте"
+  - id: Д-103
+    sev: Н
+    cls: К1
+    stage: 3
+    regions: 470, 471
+    area: S14-20/21
+    node: TZA-14.3-04
+    what: «С полным комплектом доказательств», polygon, нормализация геометрии — потеряны
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-14.3-04 — полный комплект доказательств, polygon, нормализация геометрии в тексте"
+  - id: Д-104
+    sev: Н
+    cls: К1
+    stage: 3
+    regions: "467"
+    area: S14-17
+    node: TZA-14.3-01
+    what: Формула CA (микросреднее Левенштейна) не в атоме
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-14.3-01 — формула CA в тексте"
+  - id: Д-105
+    sev: Н
+    cls: К1
+    stage: 3
+    regions: "474"
+    area: S14-24
+    node: TZA-14.3-07
+    what: «abstention» и «на hidden test» выпали
+    confidence: подтв.
+    status: closed
+    resolution: "этап 3: TZA-14.3-07 — hidden test и coverage/abstention в тексте"
+  - id: Д-106
+    sev: Н
+    cls: К4
+    stage: 3
+    regions: "464"
+    area: S14-14
+    node: TZA-14.2-05 → 3.3.1
+    what: Тест не проверяет `dataset_version`; «каждый результат» сужен до протокола
+    confidence: подтв.
+    status: moved
+    moved_to: T-170
+    resolution: "этап 6: тест не проверяет dataset_version"
+  - id: Д-107
+    sev: Н
+    cls: К5
+    stage: 3
+    regions: "456"
+    area: S14-06
+    node: none
+    what: Запрет пилотной разметки для количественной приёмки — ограничение процедуры, а не справка
+    confidence: вер.
+    status: closed
+    resolution: "этап 3: не менять: фраза о пилотной разметке — справка организатора, к системе не требование"

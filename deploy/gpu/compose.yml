@@ -1,0 +1,542 @@
+# Профиль gpu (ADR-0001): инфраструктура ТЗ 1.5, 9.1.5, 12.11, 13.5 рядом с API и ML.
+# Образы — только по digest (стандарт «прод-образы»): ${…:?} роняет запуск, если digest не задан.
+# Сборки на хосте нет (ADR-0005): api и ml — готовые образы из реестра по sha коммита.
+# Выкатка — только после «да» владельца (CLAUDE.md, правило №2).
+name: inspector-gpu
+
+x-hardened: &hardened
+  restart: unless-stopped
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  pids_limit: 256
+  networks: [internal]
+
+# ТЗ 13.6, TZA-7.11-03: логи api и ml уходят в Logstash драйвером docker gelf.
+# Почему gelf: stdout API уже построчный JSON ТЗ 13.1 (services/audit.ts, formatLog) — отдельный агент
+# (filebeat) и общий каталог логов не нужны; UDP не блокирует API, если Logstash лежит (доступность
+# важнее полноты журнала; журнал аудита ТЗ 12.4 при этом цел — он в БД). Адрес — демон docker на хосте,
+# поэтому 127.0.0.1: порт logstash опубликован только на localhost. docker logs работает через
+# dual logging (Docker ≥ 20.10).
+x-elk-logging: &elk-logging
+  driver: gelf
+  options:
+    gelf-address: udp://127.0.0.1:12201
+    tag: "{{.Name}}"
+
+services:
+  api:
+    <<: *hardened
+    image: ${API_IMAGE:?API_IMAGE — образ API по digest}
+    environment:
+      INSPECTOR_PROFILE: gpu
+      INSPECTOR_QUEUE: amqp
+      # NFR-TLS-INTERNAL (ТЗ 1.3): внутри стенда открытого текста нет — очередь по amqps (5671), ML по https.
+      # Корень доверия — ca.crt стенда: NODE_EXTRA_CA_CERTS для amqplib и fetch, INSPECTOR_ML_CA_FILE — клиент ML.
+      # SEC-07: пароль брокера — файлом-секретом; в адресе только пользователь (не виден в docker inspect)
+      INSPECTOR_AMQP_URL: amqps://inspector@rabbitmq:5671
+      INSPECTOR_AMQP_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      INSPECTOR_AV: clamd
+      INSPECTOR_CLAMD_HOST: clamav
+      INSPECTOR_ML_URL: https://ml:8811
+      INSPECTOR_ML_CA_FILE: /run/tls/ca.crt
+      NODE_EXTRA_CA_CERTS: /run/tls/ca.crt
+      INSPECTOR_HEALTH_CA_FILE: /run/tls/ca.crt # HEALTHCHECK образа: цепочка по CA стенда
+      INSPECTOR_RIN_URL: ${RIN_URL:?RIN_URL — адрес ИАИС «РиН» (T-067)}
+      INSPECTOR_RIN_MOCK: "0"
+      HOST: 0.0.0.0
+      # NFR-TLS (ТЗ 12.3): только HTTPS, TLS 1.3 — TLS терминирует сам API (services/tls.ts)
+      INSPECTOR_TLS_CERT: /run/tls/server.crt
+      INSPECTOR_TLS_KEY: /run/tls/server.key
+      # ADR-0003 (T-107): PostgreSQL — единственное хранилище; пароль — файлом-секретом, не переменной окружения.
+      # HIGH-1: роль inspector_app — только DML в схеме inspector; схему API не меняет, а сверяет (накатывает api-migrate).
+      # M-1: TLS 1.3 до базы с проверкой сертификата сервера по ca.crt стенда и имени postgres (verify-full)
+      INSPECTOR_DATABASE_URL: postgres://inspector_app@postgres:5432/inspector
+      INSPECTOR_DATABASE_PASSWORD_FILE: /run/secrets/pg_app_password
+      INSPECTOR_DATABASE_SSL_CA_FILE: /run/tls/ca.crt
+      INSPECTOR_BLOB_DIR: /app/var/blobs
+      # NFR-IDS (ТЗ 12.9, T-138, T-090): адрес клиента — из X-Forwarded-For только от web (nginx, фиксированный адрес
+      # в сети internal); лимит запросов и детектор атак на рубеже API включены (второй рубеж за limit_req nginx)
+      INSPECTOR_TRUST_PROXY: 10.20.0.2
+      INSPECTOR_IDS: "on"
+      # Адрес ИАИС «РиН» (статусы предписаний приходят пачками) — в INSPECTOR_IDS_ALLOW вместе с loopback, когда станет
+      # известен по контракту T-067: иначе пачка статусов упрётся в лимит 20 запросов/с
+      # NFR-CRYPTO (ТЗ 12.3-01): файлы на томе api-blobs — IBE1 (AES-256-GCM с key_id); без ключа API не стартует.
+      # Открытый текст для ML — только в blob-work (tmpfs, в памяти), API проверяет это при старте.
+      INSPECTOR_BLOB_KEY_FILE: /run/secrets/blob_encryption_key
+      INSPECTOR_BLOB_WORK_DIR: /app/var/blob-work
+      # NFR-UKEP (ТЗ 12.10-01): каждый запрос к ИАИС «РиН» подписан откреплённой CMS. Сертифицированного СКЗИ и ключей УКЭП
+      # проекту не выдают (решение владельца 27.09) — по умолчанию коннектор с тестовым ключом pem, неквалифицированный,
+      # помечен в журнале и /health. Настоящий ключ: UKEP_MODE=cryptopro + INSPECTOR_UKEP_THUMBPRINT, без правки кода.
+      INSPECTOR_UKEP_MODE: ${UKEP_MODE:-pem}
+      INSPECTOR_UKEP_NONQUALIFIED: ${UKEP_NONQUALIFIED:-1}
+      INSPECTOR_UKEP_CERT_FILE: /run/secrets/ukep_cert
+      INSPECTOR_UKEP_KEY_FILE: /run/secrets/ukep_key
+    secrets: [pg_app_password, rabbitmq_password, blob_encryption_key, ukep_cert, ukep_key]
+    tmpfs: [/tmp]
+    # HIGH-4: на томе только блобы — ни базы, ни демо-пароля (демо-учёток в gpu нет); ML тома блобов не видит вовсе
+    volumes:
+      - api-blobs:/app/var/blobs
+      - blob-work:/app/var/blob-work
+      - ${TLS_DIR:?TLS_DIR — каталог с server.crt, server.key, ca.crt}:/run/tls:ro
+    networks: [internal, db]
+    # Только localhost; внешнюю публикацию решает стенд (T-060)
+    ports: ["127.0.0.1:8810:8810"]
+    logging: *elk-logging
+    # NFR-STAND: зависимые стартуют после healthy (у api, ml, web проверка — HEALTHCHECK образа)
+    depends_on:
+      postgres: { condition: service_healthy }
+      api-migrate: { condition: service_completed_successfully }
+      rabbitmq: { condition: service_healthy }
+      clamav: { condition: service_healthy }
+      ml: { condition: service_healthy }
+
+  # HIGH-1: служба миграций — тот же образ API, другая точка входа (apps/api/src/migrate.ts). Одноразовая: миграции,
+  # справочники, Матрица и — в пустую users — первый администратор из секрета (HIGH-4). Роль inspector_migrator
+  # (член inspector_owner); выход 0 — сигнал api стартовать. Сеть — только db: очередь, ML и интернет ей не нужны.
+  api-migrate:
+    <<: *hardened
+    restart: "no"
+    image: ${API_IMAGE:?API_IMAGE — образ API по digest}
+    command: ["node", "apps/api/dist/migrate.mjs"]
+    environment:
+      INSPECTOR_PROFILE: gpu
+      INSPECTOR_DATABASE_URL: postgres://inspector_migrator@postgres:5432/inspector
+      INSPECTOR_DATABASE_PASSWORD_FILE: /run/secrets/pg_migrator_password
+      INSPECTOR_DATABASE_SSL_CA_FILE: /run/tls/ca.crt
+      INSPECTOR_BOOTSTRAP_ADMIN_LOGIN: ${BOOTSTRAP_ADMIN_LOGIN:-admin}
+      INSPECTOR_BOOTSTRAP_ADMIN_PASSWORD_FILE: /run/secrets/bootstrap_admin_password
+    secrets: [pg_migrator_password, bootstrap_admin_password]
+    healthcheck: { disable: true } # одноразовая: HEALTHCHECK образа API здесь не к месту
+    tmpfs: [/tmp]
+    volumes:
+      - ${TLS_DIR:?}/ca.crt:/run/tls/ca.crt:ro # только корень доверия: ключ API службе миграций не нужен
+    networks: [db]
+    logging: *elk-logging
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  # Интерфейс инспектора (T-060): статика и прокси к API по TLS; nginx-unprivileged под uid 101, без cap_add
+  web:
+    <<: *hardened
+    image: ${WEB_IMAGE:?WEB_IMAGE — образ веба по digest}
+    user: "101:101"
+    tmpfs: [/tmp]
+    volumes:
+      - ${TLS_DIR:?TLS_DIR — каталог с server.crt, server.key, ca.crt}:/run/tls:ro
+    ports: ["127.0.0.1:8443:8443"]
+    # NFR-IDS: фиксированный адрес — ему одному API доверяет X-Forwarded-For (INSPECTOR_TRUST_PROXY)
+    networks:
+      internal: { ipv4_address: 10.20.0.2 }
+    logging: *elk-logging
+    depends_on:
+      api: { condition: service_healthy }
+
+  ml:
+    <<: *hardened
+    image: ${ML_GPU_IMAGE:?ML_GPU_IMAGE — образ ML цели gpu по digest}
+    environment:
+      INSPECTOR_PROFILE: gpu
+      # T-184/T-230: OCR сканов — PP-OCR на видеокарте + PaddleOCR-VL через vLLM; без них ML профиля gpu не стартует
+      INSPECTOR_VLM_BACKEND: openai
+      INSPECTOR_VLM_URL: ${VLM_URL:?VLM_URL — адрес vLLM (OpenAI API)}
+      INSPECTOR_VLM_READER: PaddlePaddle/PaddleOCR-VL-1.5
+      INSPECTOR_VLM_JUDGE: Qwen/Qwen3.5-9B
+      INSPECTOR_CACHE: redis
+      # NFR-TLS-INTERNAL: Redis только по TLS; redis-py берёт корень доверия из параметра адреса ssl_ca_certs
+      INSPECTOR_REDIS_URL: rediss://redis:6379/0?ssl_ca_certs=/run/tls/ca.crt
+      # NFR-TLS-INTERNAL: ML слушает HTTPS, TLS 1.3 (ml/serve.py)
+      INSPECTOR_ML_TLS_CERT: /run/tls/server.crt
+      INSPECTOR_ML_TLS_KEY: /run/tls/server.key
+      INSPECTOR_HEALTH_CA_FILE: /run/tls/ca.crt
+      # T-086: провайдер LLM — только явно. LLM-сервера в стенде нет (C4, «решение команды»): none — советник честно
+      # отвечает available=false, поиск по нормативам идёт по BM25. Появится сервер — ollama и INSPECTOR_OLLAMA_URL.
+      INSPECTOR_LLM_PROVIDER: none
+      INSPECTOR_BLOB_DIR: /app/var/blobs
+    tmpfs: [/tmp]
+    # HIGH-4, OWASP H3: ML разбирает недоверенные PDF — видит только блобы, только на чтение; базы и секретов API нет.
+    # NFR-CRYPTO: на api-blobs шифротекст, ключа у ML нет — он читает открытый текст из blob-work (tmpfs), куда API
+    # выкладывает файл перед разбором (BlobStore.localPath); путь внутри ML прежний
+    volumes:
+      - blob-work:/app/var/blobs:ro
+      - ${TLS_DIR:?}:/run/tls:ro
+    logging: *elk-logging
+    depends_on:
+      redis: { condition: service_healthy }
+    deploy:
+      resources:
+        reservations:
+          devices: [{ driver: nvidia, count: 1, capabilities: [gpu] }]
+
+  # ADR-0003 (T-107): хранилище API — PostgreSQL 18 (та же ветка, что PGlite 0.5.8 в dev — 18.3 — и сервер паритета).
+  # С 18-й версии PGDATA=/var/lib/postgresql/18/docker: том — на /var/lib/postgresql, иначе данные мимо тома.
+  # Под uid 70 (postgres в alpine): entrypoint не делает chown — cap_drop ALL не мешает; том инициализируется из образа
+  # с владельцем 70. Наружу не публикуется.
+  # HIGH-1: суперпользователь postgres — бутстрап и обслуживание, свой секрет, по сети не входит (pg_hba.conf); роли
+  #   приложения создаёт postgres/init/10-roles.sh при инициализации тома. Секреты ролей нужны только этому скрипту.
+  # M-1: ssl=on, только TLSv1.3; сертификат сервера — SAN DNS:postgres, выпущен CA стенда (ca.crt из TLS_DIR);
+  #   ключ — владелец uid 70, режим 0600 (иначе сервер не стартует). pg_hba: без TLS — reject.
+  # M-8: только сеть db (internal: true) — без маршрута наружу; COPY … TO PROGRAM с выходом в интернет некуда.
+  # M-9: журнал подключений, отключений, DDL и ошибок с оператором; не log_statement=all — там ПДн и секреты.
+  postgres:
+    <<: *hardened
+    image: ${POSTGRES_IMAGE:?POSTGRES_IMAGE — postgres по digest}
+    user: "70:70"
+    command:
+      - postgres
+      - -c
+      - listen_addresses=*
+      - -c
+      - hba_file=/etc/postgresql/pg_hba.conf
+      - -c
+      - password_encryption=scram-sha-256
+      - -c
+      - ssl=on
+      - -c
+      - ssl_cert_file=/run/pg-tls/server.crt
+      - -c
+      - ssl_key_file=/run/pg-tls/server.key
+      - -c
+      - ssl_min_protocol_version=TLSv1.3
+      - -c
+      - log_connections=on
+      - -c
+      - log_disconnections=on
+      - -c
+      - log_statement=ddl
+      - -c
+      - log_min_error_statement=error
+      - -c
+      - "log_line_prefix=%m [%p] user=%u db=%d app=%a client=%h "
+      # NFR-BACKUP (T-072): архивация WAL — строки postgres/backup.conf один в один (сверяет scripts/backup.test.mjs)
+      - -c
+      - wal_level=replica
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_command=sh /etc/postgresql/wal-archive.sh %p %f
+      - -c
+      - archive_timeout=300
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: inspector
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_superuser_password
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=peer --encoding=UTF8 --locale=C.UTF-8"
+    secrets: [pg_superuser_password, pg_migrator_password, pg_app_password]
+    tmpfs: [/tmp]
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      # NFR-BACKUP: сокет — в общем с pg-backup томе в памяти (pg-run); архив WAL — на отдельном от данных диске
+      - pg-run:/var/run/postgresql
+      - pg-wal-archive:/wal-archive
+      - ./postgres/wal-archive.sh:/etc/postgresql/wal-archive.sh:ro
+      - ${PG_TLS_DIR:?PG_TLS_DIR — каталог с server.crt и server.key сервера PostgreSQL}:/run/pg-tls:ro
+    shm_size: 256m
+    networks: [db]
+    logging: *elk-logging
+    # По TCP, а не через сокет: во время init временный сервер слушает только сокет — healthy наступает после init-скриптов.
+    # Ролью inspector_app по TLS (sslmode=prefer): совпадает с hostssl, сервер отвечает запросом пароля — pg_isready
+    # считает это «принимает соединения» и отключается; от имени postgres по сети каждые 10 с было бы два FATAL в журнале.
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "inspector_app", "-d", "inspector"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+
+  # NFR-BACKUP (T-072, ТЗ 12.8): ежедневный pg_basebackup в pg-backups и чистка старше 30 дней (postgres/pg-backup.sh).
+  # Тот же образ и uid 70, что у postgres. Входит сокетом из общего тома pg-run ролью postgres по peer (pg_hba: local
+  # replication) — ни пароля, ни сети не нужно: network_mode none. Поэтому ключи hardened выписаны явно — якорь
+  # задаёт networks, а networks и network_mode вместе compose не принимает.
+  # Отправка копий в бакет — надстройка compose.backup-s3.yml. Восстановление — учение scripts/restore-drill.sh.
+  pg-backup:
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 64
+    network_mode: none
+    image: ${POSTGRES_IMAGE:?POSTGRES_IMAGE — postgres по digest}
+    user: "70:70"
+    command: ["sh", "/etc/postgresql/pg-backup.sh", "loop"]
+    environment:
+      RETENTION_DAYS: "30"
+      BACKUP_HOUR_UTC: "1"
+    tmpfs: [/tmp]
+    volumes:
+      - pg-run:/var/run/postgresql
+      - pg-backups:/backups
+      - pg-wal-archive:/wal-archive
+      - ./postgres/pg-backup.sh:/etc/postgresql/pg-backup.sh:ro
+    logging: *elk-logging
+    healthcheck:
+      test: ["CMD", "sh", "/etc/postgresql/pg-backup.sh", "check"]
+      interval: 1h
+      timeout: 30s
+      start_period: 1h
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  rabbitmq:
+    <<: *hardened
+    read_only: false # брокер пишет в собственный каталог данных
+    image: ${RABBITMQ_IMAGE:?RABBITMQ_IMAGE — rabbitmq по digest}
+    # NFR-TLS-INTERNAL: только amqps 5671, TLS 1.3; открытый 5672 закрыт (rabbitmq/20-tls.conf)
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - ./rabbitmq/20-tls.conf:/etc/rabbitmq/conf.d/20-tls.conf:ro
+      # SEC-07: default_user/default_pass — файлом conf.d (0400, владелец uid брокера), не переменными окружения
+      - ${RABBITMQ_AUTH_CONF:?RABBITMQ_AUTH_CONF — файл conf.d с default_user и default_pass брокера}:/etc/rabbitmq/conf.d/10-auth.conf:ro
+      - ${TLS_DIR:?}:/run/tls:ro
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  redis:
+    <<: *hardened
+    image: ${REDIS_IMAGE:?REDIS_IMAGE — redis по digest}
+    # NFR-TLS-INTERNAL: открытый порт выключен (--port 0), только TLS 1.3 на 6379; клиентский сертификат не требуется
+    command:
+      - redis-server
+      - --maxmemory
+      - 2gb
+      - --maxmemory-policy
+      - allkeys-lru
+      - --save
+      - ""
+      - --port
+      - "0"
+      - --tls-port
+      - "6379"
+      - --tls-cert-file
+      - /run/tls/server.crt
+      - --tls-key-file
+      - /run/tls/server.key
+      - --tls-ca-cert-file
+      - /run/tls/ca.crt
+      - --tls-auth-clients
+      - "no"
+      - --tls-protocols
+      - TLSv1.3
+    volumes: ["${TLS_DIR:?}:/run/tls:ro"]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli --tls --cacert /run/tls/ca.crt -h redis ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  clamav:
+    <<: *hardened
+    read_only: false # базы сигнатур обновляются freshclam
+    image: ${CLAMAV_IMAGE:?CLAMAV_IMAGE — clamav по digest}
+    volumes: ["clamav-db:/var/lib/clamav"]
+    # clamdcheck.sh — штатная проверка образа (PING → PONG); первая загрузка сигнатур идёт минутами
+    healthcheck:
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 600s
+
+  prometheus:
+    <<: *hardened
+    image: ${PROMETHEUS_IMAGE:?PROMETHEUS_IMAGE — prometheus по digest}
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ./rules:/etc/prometheus/rules:ro # NFR-SLA: правила записи и алерты бюджета 99,9 % (rules/slo.yml)
+      - ${TLS_DIR:?}/ca.crt:/etc/prometheus/tls/ca.crt:ro # NFR-TLS: API снимается по https, ключ сюда не монтируется
+      - prometheus-data:/prometheus
+    depends_on: [alertmanager, blackbox-exporter]
+
+  # NFR-SLA (ТЗ 11-12, TZA-11-12): проба доступности 99,9 % — /ready API и страница web по https с проверкой CA
+  # (blackbox.yml). Только HTTP-проберы: ICMP и сырые сокеты не нужны — cap_drop ALL без исключений, uid nobody.
+  # Наружу не публикуется: снимает только Prometheus по сети internal.
+  blackbox-exporter:
+    <<: *hardened
+    image: ${BLACKBOX_IMAGE:?BLACKBOX_IMAGE — blackbox-exporter по digest}
+    user: "65534:65534"
+    command: ["--config.file=/etc/blackbox/blackbox.yml"]
+    volumes:
+      - ./blackbox.yml:/etc/blackbox/blackbox.yml:ro
+      - ${TLS_DIR:?}/ca.crt:/etc/blackbox/tls/ca.crt:ro # корень доверия стенда; ключи сюда не монтируются
+
+  # ТЗ 13.7 (T-085): доставка алертов по почте и в Telegram. Конфиг стенда и секреты — с хоста, только чтение:
+  # в репозитории — пример alertmanager/alertmanager.example.yml; токен, чат и пароль SMTP — файлами (*_file), не текстом.
+  alertmanager:
+    <<: *hardened
+    image: ${ALERTMANAGER_IMAGE:?ALERTMANAGER_IMAGE — alertmanager по digest}
+    command: ["--config.file=/etc/alertmanager/alertmanager.yml", "--storage.path=/alertmanager"]
+    volumes:
+      - ${ALERTMANAGER_CONFIG:?ALERTMANAGER_CONFIG — alertmanager.yml стенда}:/etc/alertmanager/alertmanager.yml:ro
+      - ${ALERTMANAGER_SECRETS:?ALERTMANAGER_SECRETS — каталог с tg_bot_token, tg_chat_id, smtp_password}:/run/secrets/alertmanager:ro
+      - alertmanager-data:/alertmanager
+
+  grafana:
+    <<: *hardened
+    image: ${GRAFANA_IMAGE:?GRAFANA_IMAGE — grafana по digest}
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    tmpfs: [/tmp]
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports: ["127.0.0.1:3000:3000"]
+
+  # ─────────────── ELK (ТЗ 13.6, TZA-7.11-03): централизованное хранение и поиск логов.
+  # Сроки хранения (ТЗ 12.5, 13.3): ILM elasticsearch/ilm-*.json — 90 дней INFO+, 1 год события безопасности.
+  # NFR-TLS-INTERNAL: HTTP-слой ES — по TLS; setup, Logstash и Kibana проверяют сертификат по ca.crt стенда.
+  elasticsearch:
+    <<: *hardened
+    read_only: false # ES пишет keystore в config и данные в data
+    image: ${ELASTICSEARCH_IMAGE:?ELASTICSEARCH_IMAGE — elasticsearch по digest}
+    pids_limit: 4096 # пулы потоков ES растут с числом ядер; 256 на GPU-сервере не хватит
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "true"
+      # NFR-TLS-INTERNAL: HTTP-слой ES — только TLS; сертификат стенда (SAN DNS:elasticsearch) из TLS_DIR
+      xpack.security.http.ssl.enabled: "true"
+      xpack.security.http.ssl.certificate: tls/server.crt
+      xpack.security.http.ssl.key: tls/server.key
+      xpack.security.http.ssl.certificate_authorities: tls/ca.crt
+      xpack.security.http.ssl.supported_protocols: TLSv1.3
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:?}
+      ES_JAVA_OPTS: -Xms1g -Xmx1g
+    ulimits:
+      nofile: { soft: 65536, hard: 65536 }
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+      - ${TLS_DIR:?}:/usr/share/elasticsearch/config/tls:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS --cacert config/tls/ca.crt -u \"elastic:$$ELASTIC_PASSWORD\" 'https://elasticsearch:9200/_cluster/health?wait_for_status=yellow&timeout=5s' >/dev/null"]
+      interval: 10s
+      retries: 30
+
+  # Одноразовая настройка: ILM-политики, шаблоны индексов, пароль kibana_system, писатель для Logstash.
+  # Тот же образ ES (в нём есть curl и bash) — лишнего образа нет. Идемпотентно: PUT перезаписывает.
+  elasticsearch-setup:
+    <<: *hardened
+    restart: "no"
+    image: ${ELASTICSEARCH_IMAGE:?}
+    entrypoint: ["bash", "/setup/setup.sh"]
+    environment:
+      ES_URL: https://elasticsearch:9200
+      ES_CA: /run/tls/ca.crt
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:?}
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:?}
+      LOGSTASH_WRITER_PASSWORD: ${LOGSTASH_WRITER_PASSWORD:?}
+    volumes:
+      - ./elasticsearch:/setup:ro
+      - ${TLS_DIR:?}/ca.crt:/run/tls/ca.crt:ro
+    depends_on:
+      elasticsearch: { condition: service_healthy }
+
+  logstash:
+    <<: *hardened
+    read_only: false # образ переписывает logstash.yml из переменных при старте и пишет data/
+    image: ${LOGSTASH_IMAGE:?LOGSTASH_IMAGE — logstash по digest}
+    pids_limit: 1024
+    environment:
+      LS_JAVA_OPTS: -Xms512m -Xmx512m
+      XPACK_MONITORING_ENABLED: "false"
+      ES_URL: https://elasticsearch:9200
+      ES_CA: /run/tls/ca.crt
+      LOGSTASH_WRITER_PASSWORD: ${LOGSTASH_WRITER_PASSWORD:?}
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ${TLS_DIR:?}/ca.crt:/run/tls/ca.crt:ro
+    # Приём gelf от демона docker на хосте — только localhost
+    ports: ["127.0.0.1:12201:12201/udp"]
+    depends_on:
+      elasticsearch-setup: { condition: service_completed_successfully }
+
+  kibana:
+    <<: *hardened
+    image: ${KIBANA_IMAGE:?KIBANA_IMAGE — kibana по digest}
+    pids_limit: 1024
+    environment:
+      ELASTICSEARCH_HOSTS: '["https://elasticsearch:9200"]'
+      ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES: /run/tls/ca.crt
+      ELASTICSEARCH_SSL_VERIFICATIONMODE: full
+      ELASTICSEARCH_USERNAME: kibana_system
+      ELASTICSEARCH_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:?}
+    tmpfs: [/tmp]
+    volumes:
+      - kibana-data:/usr/share/kibana/data
+      - ${TLS_DIR:?}/ca.crt:/run/tls/ca.crt:ro
+    ports: ["127.0.0.1:5601:5601"]
+    depends_on:
+      elasticsearch-setup: { condition: service_completed_successfully }
+
+networks:
+  # NFR-IDS: подсеть задана явно — адрес web (10.20.0.2) известен API заранее
+  internal:
+    ipam:
+      # ip_range — только верхняя половина: динамические адреса не займут 10.20.0.2 раньше web (web стартует последним),
+      # и чужой контейнер не станет «доверенным прокси» API (R2 T-138, E1-M3)
+      config: [{ subnet: 10.20.0.0/24, ip_range: 10.20.0.128/25 }]
+  # M-8: сеть базы без маршрута наружу — только postgres, api и api-migrate
+  db:
+    internal: true
+
+volumes:
+  api-blobs: {}
+  # NFR-CRYPTO: открытый текст файлов для ML — в памяти (tmpfs), не на диске; владелец — uid API (1000), ML (10001)
+  # читает как «прочие». Вместимость с запасом к INSPECTOR_BLOB_WORK_MAX_MB (1024 по умолчанию, вытеснение — API)
+  blob-work:
+    driver_opts: { type: tmpfs, device: tmpfs, o: "size=2g,uid=1000,gid=1000,mode=0755,noexec,nosuid,nodev" }
+  postgres-data: {}
+  # NFR-BACKUP: сокет сервера в памяти, общий для postgres и pg-backup; владелец uid 70 — как у каталога в образе
+  pg-run:
+    driver: local
+    driver_opts: { type: tmpfs, device: tmpfs, o: "uid=70,gid=70,mode=0770" }
+  # Бэкапы и архив WAL — каталоги хоста на ОТДЕЛЬНОМ от postgres-data диске (владелец uid 70, режим 0700): новый
+  # именованный том создаётся с владельцем root, а службы работают под uid 70 без cap_add — chown им недоступен
+  pg-backups:
+    driver: local
+    driver_opts: { type: none, o: bind, device: "${PG_BACKUP_DIR:?PG_BACKUP_DIR — каталог базовых бэкапов на хосте (uid 70, 0700)}" }
+  pg-wal-archive:
+    driver: local
+    driver_opts: { type: none, o: bind, device: "${PG_WAL_ARCHIVE_DIR:?PG_WAL_ARCHIVE_DIR — каталог архива WAL на хосте (uid 70, 0700)}" }
+  rabbitmq-data: {}
+  clamav-db: {}
+  prometheus-data: {}
+  alertmanager-data: {}
+  grafana-data: {}
+  elasticsearch-data: {}
+  kibana-data: {}
+
+# ADR-0003, HIGH-1, L-7: у каждой роли — свой файл на хосте (вне git); в docker inspect не виден. Compose без swarm
+# не меняет владельца файла: читающий uid — владелец, режим 0400 (см. .env.example).
+secrets:
+  # суперпользователь postgres — только сервису postgres (uid 70)
+  pg_superuser_password:
+    file: ${PG_SUPERUSER_PASSWORD_FILE:?PG_SUPERUSER_PASSWORD_FILE — пароль суперпользователя postgres}
+  # inspector_migrator — postgres (init) и api-migrate (uid 1000)
+  pg_migrator_password:
+    file: ${PG_MIGRATOR_PASSWORD_FILE:?PG_MIGRATOR_PASSWORD_FILE — пароль роли миграций inspector_migrator}
+  # inspector_app — postgres (init) и api (uid 1000)
+  pg_app_password:
+    file: ${PG_APP_PASSWORD_FILE:?PG_APP_PASSWORD_FILE — пароль роли API inspector_app}
+  # SEC-07: пароль брокера для API (тот же, что default_pass в RABBITMQ_AUTH_CONF)
+  rabbitmq_password:
+    file: ${RABBITMQ_PASSWORD_FILE:?RABBITMQ_PASSWORD_FILE — пароль пользователя inspector брокера}
+  # HIGH-4: пароль первого администратора; читается api-migrate, только пока users пуст
+  bootstrap_admin_password:
+    file: ${BOOTSTRAP_ADMIN_PASSWORD_FILE:?BOOTSTRAP_ADMIN_PASSWORD_FILE — пароль первого администратора (≥ 12 символов)}
+  # NFR-CRYPTO: ключ хранения файлов пакета на томе api-blobs (64 hex); только api (uid 1000), 0400.
+  # Потеря файла = потеря файлов пакетов на томе: хранить вместе с резервной копией секретов. Ротация — docs/security/AT-REST.md
+  blob_encryption_key:
+    file: ${BLOB_ENCRYPTION_KEY_FILE:?BLOB_ENCRYPTION_KEY_FILE — ключ AES-256 хранения файлов пакета (64 hex)}
+  # NFR-UKEP: сертификат и закрытый ключ подписи запросов к «РиН»; тестовая пара — scripts/ukep-test-key.sh
+  ukep_cert:
+    file: ${UKEP_CERT_FILE:?UKEP_CERT_FILE — сертификат подписи запросов к «РиН» (PEM; тестовый — scripts/ukep-test-key.sh)}
+  ukep_key:
+    file: ${UKEP_KEY_FILE:?UKEP_KEY_FILE — закрытый ключ подписи запросов к «РиН» (PEM)}

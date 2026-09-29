@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Надзориум · Макет аналитики</title>
+<meta name="description" content="Интерактивный макет аналитики Надзориума: портфель и объекты на вымышленных данных. Рабочие источники данных не подключены.">
+<!-- T-168. Аналитика платформы — макет на моковых данных, свёрстан языком «Чертёжный бетон»
+     (docs/scenario-map/05-дизайн-язык.md, токены — apps/web/src/styles.css). Самодостаточная страница: SVG рисует встроенный
+     скрипт, внешних запросов нет; шрифты — из /docs/assets/fonts (кладёт scripts/demo-docs.mjs).
+     Данные вымышленные и детерминированные (генератор с зерном): сводка считается из тех же рядов, что и графики.
+     Словарь метрик и будущие источники — docs/bi/README.md. -->
+<style>
+@font-face{font-family:"Geologica";src:url(../assets/fonts/geologica-cyrillic.woff2) format("woff2");font-weight:300 800;font-display:swap;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Geologica";src:url(../assets/fonts/geologica-latin.woff2) format("woff2");font-weight:300 800;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Golos Text";src:url(../assets/fonts/golos-text-var.woff2) format("woff2");font-weight:400 900;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url(../assets/fonts/jetbrains-mono-var.woff2) format("woff2");font-weight:100 800;font-display:swap}
+
+/* Токены «Чертёжного бетона» — те же, что в интерфейсе проверки (apps/web/src/styles.css). Только светлая тема. */
+:root{
+  color-scheme:light;
+  --ground:#D9DDE3; --ground-2:#CDD2D9; --surface:#F8F9FB; --surface-2:#EEF0F4; --card:#FFFFFF;
+  --line:#D5D9E0; --line-strong:#C3C8D1; --hair:0 0 0 1px rgb(17 21 29 / .06);
+  --ink:#11151D; --ink-2:#3F4656; --mute:#6B7384; --mute-g:#565E6E;  /* --mute только на surface/card; на ground и surface-2 — --mute-g */
+  --aim:#1F49F0; --aim-soft:#E3E9FE;                          /* «по плану / по проекту» — кобальт */
+  --actual:#EC6A14; --actual-soft:#FDEBDD; --actual-ink:#B84E08; --actual-ink-soft:#A04506;  /* «фактически», отставание, Δ; на мягкой заливке — #A04506 (5,41:1) */
+  --red:#D0241C; --red-soft:#FBE3E1; --red-text:#B01E17;        /* только «признано инспектором»; текст на мягкой — 5,64:1 */
+  --green:#137A55; --green-soft:#DDF1E8;                       /* «расхождения нет», в норме */
+  --amber:#E0A100; --amber-soft:#F6EDC8; --amber-ink:#7A6000;     /* 5,10:1 на мягкой заливке (DS §04) */
+  --r-tag:4px; --r-ctl:6px; --r-card:12px; --r-pop:14px; --r-frame:20px; --gap-frame:8px;
+  --shadow:0 8px 24px rgb(17 21 29 / .14);
+  --f-display:"Geologica","Golos Text",system-ui,sans-serif; --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --dur-1:90ms; --dur-2:150ms; --dur-3:220ms; --ease-out:cubic-bezier(.2,.8,.2,1); --ease-inout:cubic-bezier(.45,0,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font:14px/1.45 var(--f-body);-webkit-font-smoothing:antialiased}
+button,select,input{font:inherit;color:inherit}
+a{color:var(--aim);text-decoration:none}
+:focus-visible{outline:2px solid var(--aim);outline-offset:2px;border-radius:4px}
+h1,h2,h3{font-family:var(--f-display);letter-spacing:-.01em;text-wrap:balance;margin:0;font-variation-settings:"SHRP" 40}
+.strip .v,.facts .v,.score b,.split-l b{font-variation-settings:"SHRP" 70}
+.label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);font-weight:600}
+.kbd{font:600 11px var(--f-mono);border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:4px;padding:0 4px;color:var(--ink-2);background:var(--card);white-space:nowrap;text-transform:none;letter-spacing:0}
+
+/* ─────────────── каркас: навигация на подложке, работа во вписанной рамке */
+.shell{display:grid;grid-template-columns:72px minmax(0,1fr);padding:var(--gap-frame);gap:var(--gap-frame);min-height:100vh}
+.rail{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;position:sticky;top:var(--gap-frame);height:calc(100vh - 2 * var(--gap-frame))}
+.rail .logo{width:36px;height:36px;border-radius:10px;background:var(--ink);color:#fff;display:grid;place-items:center;margin-bottom:14px;font:700 16px var(--f-display)}
+.rail a,.rail button{width:60px;padding:7px 0 6px;border-radius:12px;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;border:0;background:none;cursor:pointer;text-align:center;line-height:1.2;transition:background var(--dur-1)}
+.rail a:hover,.rail button:hover{background:var(--ground-2);color:var(--ink)}
+.rail a[aria-current="page"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgb(17 21 29 / .08)}
+.rail svg{width:20px;height:20px}
+.rail .sp{flex:1}
+.frame{min-width:0;background:var(--surface);border-radius:var(--r-frame);box-shadow:0 0 0 1px rgb(17 21 29 / .05),0 1px 3px rgb(17 21 29 / .06);display:flex;flex-direction:column}
+.topbar{position:sticky;top:var(--gap-frame);z-index:10;background:var(--surface);border-bottom:1px solid var(--line);border-radius:var(--r-frame) var(--r-frame) 0 0;padding:8px 20px;min-height:40px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.crumbs{display:flex;gap:6px;align-items:center;color:var(--mute);font-size:13px;min-width:0;flex-wrap:wrap}
+.crumbs a{color:var(--mute)}.crumbs a:hover{color:var(--ink)}
+.crumbs b{color:var(--ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumbs .sw{display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;background:none;border-radius:var(--r-ctl);padding:3px 6px;cursor:pointer;min-width:0}
+.crumbs .sw:hover{background:var(--surface-2);border-color:var(--line)}
+.grow{flex:1}
+.mock{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;background:var(--amber-soft);color:var(--amber-ink);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.mock::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:6px;padding:2px;gap:2px}
+.seg button{border:0;background:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:550;font-size:13px;color:var(--mute-g);white-space:nowrap;transition:background var(--dur-1),color var(--dur-1)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:var(--hair),0 1px 2px rgb(17 21 29 / .08)}
+.asof{font:500 12px var(--f-mono);color:var(--mute);white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-strong);background:var(--card);padding:4px 10px;border-radius:var(--r-ctl);cursor:pointer;font-weight:550;font-size:13px;white-space:nowrap;color:var(--ink-2)}
+.btn:hover{background:var(--surface-2);color:var(--ink)}
+.ruler{border-bottom:1px solid var(--line);padding:0 20px}
+.ruler svg{display:block;width:100%;height:30px}
+.page{padding:20px 20px 32px;display:flex;flex-direction:column;gap:16px;min-width:0}
+
+/* ─────────────── карточки внутри рамки: светлее рамки, отделены светлотой и волосяной линией */
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}
+.s3{grid-column:span 3}.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}.s12{grid-column:span 12}
+.card{background:var(--card);border-radius:var(--r-card);box-shadow:var(--hair);padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.ch{display:flex;align-items:center;gap:8px;min-height:24px;flex-wrap:wrap}
+.ch h2{font:650 14px var(--f-display)}
+.ch .u{font-size:12px;color:var(--mute)}
+.ch .snap{font:500 11px var(--f-mono);color:var(--ink-2);background:var(--surface-2);border-radius:var(--r-tag);padding:1px 6px}
+.more{margin-left:auto;position:relative}
+.more>button{width:26px;height:26px;border-radius:var(--r-ctl);border:0;background:none;color:var(--mute);cursor:pointer;display:grid;place-items:center}
+.more>button:hover,.more>button[aria-expanded="true"]{background:var(--surface-2);color:var(--ink)}
+.pop{position:absolute;right:0;top:32px;z-index:20;width:340px;max-width:80vw;background:var(--card);border-radius:var(--r-pop);box-shadow:var(--hair),var(--shadow);padding:12px 14px;font:13px/1.5 var(--f-body);color:var(--ink-2);display:flex;flex-direction:column;gap:4px;text-transform:none;letter-spacing:0}
+.pop[hidden]{display:none}
+.pop .label{margin-top:6px}.pop .label:first-child{margin-top:0}
+.pop code{font:500 12px var(--f-mono);color:var(--ink)}
+@media (prefers-reduced-motion:no-preference){.pop{transition:opacity var(--dur-2) var(--ease-out),translate var(--dur-2) var(--ease-out)}@starting-style{.pop{opacity:0;translate:0 -4px}}}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px}
+.legend i.ln{height:3px;width:16px;border-radius:2px}
+.legend i.dash{height:0;width:16px;border-top:2px dashed;background:none!important;border-radius:0}
+.legend i.hatch{background:repeating-linear-gradient(135deg,var(--actual) 0 2px,var(--actual-soft) 2px 4px)!important}
+.chart{width:100%}
+.chart svg{display:block;overflow:visible}
+.chart text{font:11px var(--f-mono);fill:var(--mute)}
+
+/* сводка: одно предложение + полоса показателей в одной карточке, а не шесть плиток */
+.brief{gap:14px;padding:16px 20px 18px}
+.brief p{margin:0;font:500 20px/1.4 var(--f-display);letter-spacing:-.01em;max-width:76ch;text-wrap:pretty}
+.brief p em{font-style:normal;color:var(--mute)}
+.brief p b{font-weight:650}
+.brief p .late{color:var(--actual-ink);font-weight:650}
+.brief p a{color:inherit;text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:3px}
+.strip{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border-top:1px solid var(--line);margin:0 -20px -18px}
+.strip>div{padding:12px 16px 14px 20px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.strip>div+div{border-left:1px solid var(--line)}
+.strip .v{font:650 28px/1.05 var(--f-display);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.strip .v small{font:600 14px var(--f-display);color:var(--mute);margin-left:3px;letter-spacing:0}
+.strip .l{font-size:13px;color:var(--ink-2);font-weight:550}
+.strip .row{display:flex;align-items:flex-end;justify-content:space-between;gap:6px}
+.strip .sub{font-size:12px;color:var(--mute)}
+.delta{display:inline-flex;align-items:center;gap:2px;font:600 12px var(--f-mono);border-radius:var(--r-tag);padding:1px 5px;white-space:nowrap}
+.delta.up{background:var(--green-soft);color:var(--green)}.delta.dn{background:var(--actual-soft);color:var(--actual-ink-soft)}.delta.nt{background:var(--surface-2);color:var(--ink-2)}
+
+/* пилюли состояния: точка + слово, как в интерфейсе проверки */
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:650;white-space:nowrap;line-height:1.5}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.good{background:var(--green-soft);color:var(--green)}
+.pill.warn{background:var(--amber-soft);color:var(--amber-ink)}
+.pill.crit{background:var(--red-soft);color:var(--red-text)}
+.pill.late{background:var(--actual-soft);color:var(--actual-ink-soft)}
+.pill.none{background:var(--surface-2);color:var(--ink-2)}
+.pill.none::before{background:none;box-shadow:inset 0 0 0 1.5px currentColor}
+.pill.dot{padding:2px 5px}
+
+/* фильтры-чипы */
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:3px 10px 3px 9px;font-size:13px;font-weight:550;color:var(--ink-2);cursor:pointer;transition:background var(--dur-1),border-color var(--dur-1),color var(--dur-1)}
+.chip:hover{border-color:var(--line-strong)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip .n{font:600 11px var(--f-mono);opacity:.8}
+.chip i{width:7px;height:7px;border-radius:50%;display:inline-block}
+
+/* состояние портфеля */
+.split{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px}
+.split i{display:block;height:100%}
+.split-l{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.split-l div{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.split-l b{font:650 28px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.openc{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-2);border-top:1px solid var(--line);padding-top:10px}
+.openc b{font:650 13px var(--f-mono);color:var(--red-text)}
+.watch{display:flex;flex-direction:column;margin:0 -16px -16px}
+.watch a{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:0 16px;height:40px;border-top:1px solid var(--line);color:var(--ink);transition:background var(--dur-1)}
+.watch a:hover{background:var(--surface)}
+.watch a:last-child{border-radius:0 0 var(--r-card) var(--r-card)}
+.watch .nm{font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.watch .why{font:500 12px var(--f-mono);color:var(--actual-ink);white-space:nowrap}
+
+/* полосы */
+.hb{display:flex;flex-direction:column;gap:10px}
+.hb .r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;font-size:13px}
+.hb .t{color:var(--ink-2)}
+.hb .n{font:600 12px var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.hb .b{grid-column:1/-1;height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden}
+.hb .b i{display:block;height:100%;background:var(--ink-2);border-radius:0 3px 3px 0}
+
+/* ИД по разделам: принято — графит, на проверке — кобальт, не представлено — оранжевая штриховка */
+.stack{display:flex;flex-direction:column;gap:11px}
+.stack .r{display:grid;grid-template-columns:44px minmax(0,1fr) 104px;gap:12px;align-items:center}
+.stack .t{font:600 12px var(--f-mono);color:var(--ink-2)}
+.stack .bar{display:flex;height:12px;gap:2px}
+.stack .bar i{display:block;height:100%}
+.stack .bar i:first-child{border-radius:3px 0 0 3px}.stack .bar i:last-child{border-radius:0 3px 3px 0}
+.stack .bar .a{background:var(--ink-2)}.stack .bar .p{background:var(--aim)}
+.stack .bar .m{background:repeating-linear-gradient(135deg,var(--actual) 0 3px,var(--actual-soft) 3px 6px)}
+.stack .n{font:600 12px var(--f-mono);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stack .n em{font-style:normal;color:var(--actual-ink)}
+
+/* таблицы */
+.tw{overflow-x:auto;margin:0 -16px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;font-weight:550;color:var(--mute);font-size:12px;padding:6px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:0 12px;height:40px;border-bottom:1px solid var(--line);vertical-align:middle}
+th:first-child,td:first-child{padding-left:16px}th:last-child,td:last-child{padding-right:16px}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:0}
+.heat td{height:30px;padding:2px;border:0}
+.heat td.h{font:600 12px var(--f-mono);text-align:center;border-radius:var(--r-tag);min-width:44px}
+.heat td.h.lo{box-shadow:inset 0 0 0 1.5px var(--actual),inset 0 0 0 3px var(--card),inset 0 0 0 4px var(--actual);color:var(--actual-ink)!important;font-weight:700}
+.heat td.o{font-size:13px;font-weight:550;white-space:nowrap;max-width:210px;overflow:hidden;text-overflow:ellipsis;padding-right:12px;padding-left:16px}
+.heat td.o a{color:inherit}.heat td.o a:hover{text-decoration:underline}
+.heat th{text-align:center;border:0;padding:2px 2px 6px;font:600 11px var(--f-mono);color:var(--ink-2)}
+.heat th:first-child{text-align:left;padding-left:16px;font:550 12px var(--f-body);color:var(--mute)}
+.ramp{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute);flex-wrap:wrap}
+.ramp i{display:block;width:110px;height:6px;border-radius:3px;background:linear-gradient(90deg,#EEF0F4,#1C212B)}
+.ramp .lo{display:inline-block;width:14px;height:12px;border-radius:3px;box-shadow:inset 0 0 0 1.5px var(--actual),inset 0 0 0 3px var(--card),inset 0 0 0 4px var(--actual)}
+
+/* список портфеля, сгруппированный по состоянию */
+.gh{display:flex;align-items:center;gap:10px;padding:14px 0 6px}
+.gh button{border:0;background:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:2px 4px 2px 0;border-radius:var(--r-ctl)}
+.gh button svg{color:var(--mute);transition:rotate var(--dur-2) var(--ease-out)}
+.gh button[aria-expanded="false"] svg{rotate:-90deg}
+.gh .count{background:var(--surface-2);color:var(--ink-2);border-radius:999px;padding:0 7px;font:600 12px var(--f-mono)}
+.pt{table-layout:fixed;min-width:1040px}
+.pt td{overflow:hidden;text-overflow:ellipsis}
+.pt .two>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pt tbody tr{cursor:pointer}
+.pt tbody tr:hover td{background:var(--surface)}
+.pt .nm{font-weight:600}
+.pt .ad{font-size:12px;color:var(--mute)}
+.pt th button{all:unset;cursor:pointer;display:inline-flex;gap:4px;align-items:center}
+.pt th button:hover{color:var(--ink)}
+.pt th button:focus-visible{outline:2px solid var(--aim);outline-offset:2px;border-radius:3px}
+.pt th[aria-sort] button{color:var(--ink)}
+.two{display:flex;flex-direction:column;line-height:1.3;padding:5px 0}
+.mbar{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.mbar span{width:64px;height:4px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.mbar span i{display:block;height:100%;background:var(--ink-2)}
+.mbar b{font:600 12px var(--f-mono);width:40px;text-align:right}
+.late-t{font:600 12px var(--f-mono);color:var(--actual-ink)}
+.ok-t{font:600 12px var(--f-mono);color:var(--green)}
+
+/* объект */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px 24px;padding:18px 20px}
+.hero h1{font:650 28px/1.15 var(--f-display);letter-spacing:-.015em;margin-top:6px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--ink-2);margin-top:8px;align-items:center}
+.hero .meta span{white-space:nowrap}
+.tag{font:600 11px var(--f-mono);background:var(--ink);color:#fff;border-radius:var(--r-tag);padding:1px 6px;letter-spacing:0}
+.tag.soft{background:var(--surface-2);color:var(--ink-2)}
+.score{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.score b{font:650 40px/1 var(--f-display);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.score b small{font:600 16px var(--f-display);color:var(--mute);letter-spacing:0;margin-left:4px}
+.stages{grid-column:1/-1;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.stages div{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--mute);line-height:1.25}
+.stages i{height:4px;border-radius:2px;background:var(--surface-2)}
+.stages .done i{background:var(--ink-2)}
+.stages .now i{background:linear-gradient(90deg,var(--ink-2) var(--p),var(--surface-2) var(--p))}
+.stages .now{color:var(--ink);font-weight:600}
+.facts{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);margin:0 -20px -18px}
+.facts>div{padding:12px 16px 14px 20px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.facts>div+div{border-left:1px solid var(--line)}
+.facts .v{font:650 28px/1.1 var(--f-display);font-variant-numeric:tabular-nums}
+.facts .v small{font:600 13px var(--f-display);color:var(--mute);margin-left:4px}
+.facts .l{font-size:13px;color:var(--ink-2);font-weight:550}
+.facts .sub{font-size:12px;color:var(--mute)}
+.comp{display:flex;flex-direction:column;gap:10px}
+.comp .r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;font-size:13px}
+.comp .r span:first-child{color:var(--ink-2)}
+.comp .r em{font:600 12px var(--f-mono);font-style:normal}
+.comp .r .b{grid-column:1/-1;height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden}
+.comp .r .b i{display:block;height:100%;border-radius:0 3px 3px 0}
+.formula{font:500 12px var(--f-mono);color:var(--mute);border-top:1px solid var(--line);padding-top:10px}
+.m023 td.v{font:500 13px var(--f-mono);white-space:nowrap}
+.m023 td.bad span{display:inline-block;padding:1px 6px;border-radius:var(--r-tag);color:var(--actual-ink);font-weight:700;box-shadow:inset 0 0 0 1.5px var(--actual),inset 0 0 0 3px var(--card),inset 0 0 0 4px var(--actual)}
+.m023 td.miss{color:var(--mute);font-size:13px}
+.feed{display:flex;flex-direction:column;margin:0 -16px -16px}
+.feed div{display:grid;grid-template-columns:80px minmax(0,1fr);gap:10px;padding:9px 16px;border-top:1px solid var(--line)}
+.feed time{font:500 12px var(--f-mono);color:var(--mute);padding-top:1px}
+.feed p{margin:0;font-size:13px}
+.feed p span{display:block;font-size:12px;color:var(--mute)}
+.empty{color:var(--mute);padding:20px 0;text-align:center;font-size:13px}
+.sech{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:8px}
+.sech h2{font:650 16px var(--f-display)}
+.sech p{margin:0;color:var(--mute);font-size:13px}
+.foot-note{color:var(--mute);font-size:12px;margin:4px 0 0;max-width:110ch}
+
+/* палитра ⌘K: матовая подложка — единственное стекло в интерфейсе */
+.scrim{position:fixed;inset:0;z-index:40;background:rgb(17 21 29 / .18);display:grid;justify-items:center;align-items:start;padding-top:12vh}
+.scrim[hidden]{display:none}
+.palette{width:min(640px,calc(100vw - 32px));background:rgb(248 249 251 / .92);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);border-radius:var(--r-pop);box-shadow:var(--hair),var(--shadow);overflow:hidden}
+.palette input{width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:14px 16px;font-size:16px;outline:none}
+.palette ul{list-style:none;margin:0;padding:6px;max-height:50vh;overflow:auto}
+.palette li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:0 10px;height:40px;border-radius:6px;cursor:pointer;font-size:14px}
+.palette li[aria-selected="true"]{background:var(--card);box-shadow:var(--hair)}
+.palette li .k{font-size:12px;color:var(--mute);white-space:nowrap}
+.palette li .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.palette .hint{display:flex;gap:14px;flex-wrap:wrap;padding:8px 16px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)}
+@media (prefers-reduced-motion:no-preference){.scrim{transition:opacity var(--dur-2)}.palette{transition:scale var(--dur-2) var(--ease-out),opacity var(--dur-2)}@starting-style{.scrim{opacity:0}.palette{scale:.98;opacity:0}}}
+
+.tip{position:fixed;z-index:60;pointer-events:none;background:var(--ink);color:#fff;border-radius:10px;padding:8px 10px;font-size:13px;line-height:1.5;box-shadow:var(--shadow);max-width:320px}
+.tip .h{font:600 11px var(--f-mono);color:#AFC0FF;margin-bottom:3px}
+.tip .l{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.tip .l span{display:inline-flex;align-items:center;gap:6px}
+.tip .l i{width:9px;height:9px;border-radius:2px;display:inline-block}
+.tip .l b{font:600 12px var(--f-mono)}
+
+.page{view-transition-name:page}
+::view-transition-old(page),::view-transition-new(page){animation-duration:var(--dur-3);animation-timing-function:var(--ease-inout)}
+@media (prefers-reduced-motion:reduce){::view-transition-old(page),::view-transition-new(page){animation-duration:var(--dur-1)}}
+
+@media (max-width:1280px){.strip{grid-template-columns:repeat(3,minmax(0,1fr))}.strip>div:nth-child(4){border-left:0}.strip>div:nth-child(n+4){border-top:1px solid var(--line)}}
+@media (max-width:1180px){.s3,.s4,.s5,.s7{grid-column:span 6}.s8{grid-column:span 12}}
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr);padding:0;gap:0}
+  .rail{position:static;height:auto;flex-direction:row;padding:6px 12px;gap:2px;overflow-x:auto}
+  .rail .logo{margin:0 8px 0 0;flex:none}.rail .sp{display:none}
+  .frame{border-radius:0}.topbar{position:static;border-radius:0;padding:8px 16px}
+  .ruler{padding:0 16px}.page{padding:16px 16px 28px}
+  .s3,.s4,.s5,.s6,.s7{grid-column:span 12}
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}.facts>div:nth-child(3){border-left:0}.facts>div:nth-child(n+3){border-top:1px solid var(--line)}
+  .hero{grid-template-columns:minmax(0,1fr)}.score{align-items:flex-start}
+}
+@media (max-width:560px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}.strip>div{border-left:0!important;border-top:1px solid var(--line)}.brief p{font-size:16px}.hero h1{font-size:20px}.stack .r{grid-template-columns:40px minmax(0,1fr) 88px}.stages{grid-template-columns:repeat(3,minmax(0,1fr))}.facts{grid-template-columns:minmax(0,1fr)}.facts>div{border-left:0!important}}
+/* Documentation metadata does not participate in BI routing or shortcuts. */
+.service-skip{position:fixed;top:-100px;left:16px;z-index:100;background:#fff;padding:10px 16px;border-radius:8px;color:#245bd1}
+.service-skip:focus{top:12px}
+.service-meta{display:flex;flex-wrap:wrap;gap:6px 16px;padding:12px 20px;border-bottom:1px solid var(--line);font-size:12px;line-height:1.6;color:var(--ink-2);background:var(--surface-2)}
+.service-meta a{text-decoration:underline;text-underline-offset:3px}
+@media(max-width:860px){.service-meta{padding:12px 16px}}
+/* Decorative annual ruler loses legibility on a narrow screen. */
+@media(max-width:560px){.ruler{display:none}}
+@media print{.service-skip{display:none}}
+
+.docs-service-nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 24px;margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid #e1e6ef;font:14px/1.5 "Golos Text",system-ui,sans-serif}
+.docs-service-nav .docs-service-brand{font-weight:700;font-size:16px;color:#16202f;text-decoration:none}
+.docs-service-nav .docs-service-brand span{font-size:12px;font-weight:400;color:#647184;margin-left:8px}
+.docs-service-nav .docs-service-links{display:flex;flex-wrap:wrap;gap:8px 18px}
+.docs-service-nav .docs-service-links a{color:#245bd1;text-underline-offset:3px}
+.docs-service-meta{margin:12px 0 0;padding:9px 12px;border-radius:8px;background:#f4f6fa;color:#425063;font:12px/1.6 "Golos Text",system-ui,sans-serif;overflow-wrap:anywhere}
+.docs-service-meta strong{color:#16202f;font-weight:600}
+.docs-service-skip{position:absolute;top:-100px;left:16px;z-index:20;padding:10px 14px;border-radius:8px;background:#fff;color:#245bd1;font:14px/1.5 system-ui,sans-serif}
+.docs-service-skip:focus{top:8px}
+.docs-service-nav a:focus-visible,.docs-service-skip:focus-visible{outline:3px solid #245bd1;outline-offset:3px}
+@media(max-width:560px){.docs-service-nav{gap:8px;margin-bottom:12px}.docs-service-nav .docs-service-brand span{display:block;margin-left:0}.docs-service-meta{font-size:12px}}
+@media print{.docs-service-nav,.docs-service-skip{display:none}.docs-service-meta{background:transparent;border:1px solid #e1e6ef}}
+
+.docs-service-nav{margin:0;padding:14px 20px;background:#fff;border-bottom:1px solid #e1e6ef}
+@media(max-width:560px){.docs-service-nav{padding:12px 16px}}
+</style>
+</head>
+<body>
+<a class="docs-service-skip" href="#view">К макету аналитики</a>
+<div class="docs-service-nav"><a class="docs-service-brand" href="../guide/index.html">Надзориум <span>База знаний</span></a><nav class="docs-service-links" aria-label="База знаний"><a href="../guide/index.html">Руководство</a><a href="../index.html">Все материалы</a><a href="../gera/TRACE-MAP.html">Trace Map</a><a href="/">В приложение ↗</a></nav></div>
+<div class="shell">
+  <nav class="rail" aria-label="Разделы">
+    <div class="logo" aria-hidden="true">Н</div>
+    <a href="#portfolio" data-route="portfolio"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>Портфель</a>
+    <a href="#object" data-route="object"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 17V7.5L9.5 4 15 7.5V17M2.5 17h15M7.5 9.5h4M7.5 12.5h4"/></svg>Объект</a>
+    <button type="button" data-open-palette title="Найти объект или команду (⌘K)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="9" r="5"/><path d="M13 13l3.5 3.5"/></svg>Поиск</button>
+    <span class="sp"></span>
+    <a href="/" title="Интерфейс проверки"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 10.5l3.5 3.5L16 5.5"/></svg>Проверки</a>
+    <a href="../index.html" title="Материалы демо-стенда"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M5 3h7l3 3v11H5zM12 3v3h3M7.5 10h5M7.5 13h5"/></svg>Материалы</a>
+  </nav>
+  <div class="frame">
+    <header class="topbar">
+      <div class="crumbs" id="crumbs"></div>
+      <span class="grow"></span>
+      <span class="mock" title="Объекты, организации и цифры вымышлены">Макет · данные вымышленные</span>
+      <div class="seg" role="group" aria-label="Период" id="period">
+        <button type="button" data-p="7d">7 дней</button><button type="button" data-p="30d">30 дней</button><button type="button" data-p="q">Квартал</button><button type="button" data-p="y">Год</button>
+      </div>
+      <span class="asof">28.09.2026 · 09:00 МСК</span>
+    </header>
+    <div class="service-meta" aria-label="Сведения о макете"><span><strong>Демонстрационный макет</strong> · объекты, организации и показатели вымышлены</span><span>Рабочие источники данных не подключены</span><span>Учебный срез: <time datetime="2026-09-28T09:00:00+03:00">28.09.2026, 09:00 МСК</time></span><a href="../guide/release.html">Версии и актуальность материалов</a></div>
+    <div class="ruler" id="ruler" aria-hidden="true"></div>
+    <main class="page" id="view" tabindex="-1"></main>
+  </div>
+</div>
+<div class="scrim" id="scrim" hidden>
+  <div class="palette" role="dialog" aria-modal="true" aria-label="Поиск по аналитике">
+    <input id="pq" type="text" placeholder="Объект, адрес, девелопер или команда…" autocomplete="off" aria-controls="pl">
+    <ul id="pl" role="listbox"></ul>
+    <div class="hint"><span><span class="kbd">↑</span> <span class="kbd">↓</span> выбрать</span><span><span class="kbd">Enter</span> открыть</span><span><span class="kbd">Esc</span> закрыть</span><span><span class="kbd">G</span> <span class="kbd">P</span> портфель</span><span><span class="kbd">J</span> <span class="kbd">K</span> соседний объект</span></div>
+  </div>
+</div>
+<div class="tip" id="tip" role="tooltip" hidden></div>
+
+<script>
+"use strict";
+// ─────────────── основа
+const NOW = new Date(2026, 8, 28, 9, 0);
+const LAUNCH = new Date(2026, 2, 16);           // вымышленная дата внедрения платформы в портфеле
+const C = { ink: "#11151D", ink2: "#3F4656", mute: "#6B7384", line: "#E6E9EE", axis: "#C3C8D1", card: "#FFFFFF", aim: "#1F49F0", actual: "#EC6A14", actualInk: "#B84E08", red: "#D0241C", green: "#137A55", amber: "#E0A100" };
+const MON = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+const DAY = 864e5;
+const MANUAL_H = 14.6, PLATFORM_H = 3.4, RATE = 2900;   // трудоёмкость пакета вручную и с платформой, ставка ₽/ч — гипотезы макета
+const fmt = (n, d = 0) => Number(n).toLocaleString("ru-RU", { minimumFractionDigits: d, maximumFractionDigits: d });
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const dd = (d) => String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0");
+const ddy = (d) => dd(d) + "." + d.getFullYear();
+const my = (d) => MON[d.getMonth()] + " " + d.getFullYear();
+const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
+function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng(seed) { let s = seed >>> 0 || 1; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; }; }
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const S = (x) => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };  // S-кривая освоения
+function invS(y) { let a = 0, b = 1; for (let i = 0; i < 40; i++) { const m = (a + b) / 2; if (S(m) < y) a = m; else b = m; } return (a + b) / 2; }
+function mix(a, b, t) { const p = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)); const A = p(a), B = p(b); return "#" + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, "0")).join(""); }
+
+// ─────────────── периоды
+const PERIODS = {
+  "7d": { label: "7 дней", gen: "7 дней", n: 7, unit: "day", prev: "к пред. 7 дням", bucket: "день" },
+  "30d": { label: "30 дней", gen: "30 дней", n: 30, unit: "day", prev: "к пред. 30 дням", bucket: "день" },
+  q: { label: "Квартал", gen: "квартал", n: 13, unit: "week", prev: "к пред. кварталу", bucket: "неделю" },
+  y: { label: "Год", gen: "год", n: 12, unit: "month", prev: "к пред. году", bucket: "месяц" },
+};
+function buckets(pk, count) {
+  const p = PERIODS[pk], out = [];
+  for (let i = count - 1; i >= 0; i--) {
+    let start, end;
+    if (p.unit === "day") { end = new Date(NOW); end.setDate(end.getDate() - i); start = new Date(end); start.setHours(0, 0); }
+    else if (p.unit === "week") { end = new Date(NOW); end.setDate(end.getDate() - 7 * i); start = new Date(end); start.setDate(start.getDate() - 6); start.setHours(0, 0); }
+    else { start = new Date(NOW.getFullYear(), NOW.getMonth() - i, 1); end = i === 0 ? new Date(NOW) : new Date(NOW.getFullYear(), NOW.getMonth() - i + 1, 0, 23); }
+    const days = Math.max(1, Math.round((end - start) / DAY));
+    const label = p.unit === "month" ? MON[start.getMonth()] + (start.getMonth() === 0 ? " " + String(start.getFullYear()).slice(2) : "") : dd(p.unit === "week" ? start : end);
+    const full = p.unit === "day" ? ddy(end) : p.unit === "week" ? dd(start) + " – " + ddy(end) : my(start) + (i === 0 ? " (по " + dd(NOW) + ")" : "");
+    // доля корзины после внедрения: март 2026 засчитывается не целиком, а с 16-го
+    const live = end < LAUNCH ? 0 : start >= LAUNCH ? 1 : (end - LAUNCH) / (end - start);
+    out.push({ start, end, days, label, full, live, pre: live === 0 });
+  }
+  return out;
+}
+const preCount = (B) => { let n = 0; while (n < B.length && B[n].pre) n++; return n; };
+// освоение: доля объектов портфеля, подключённых к платформе; через ~5 месяцев после внедрения — все
+function adoption(d) { if (d < LAUNCH) return 0; return Math.min(1, 0.32 + ((d - LAUNCH) / (30 * DAY)) * 0.13); }
+
+// ─────────────── объекты портфеля (вымышленные)
+const SECTIONS = ["АР", "КР", "ОВиК", "ВК", "ЭОМ", "СС", "ПОС", "ГПН"];
+const SECTION_NAMES = { АР: "Архитектурные решения", КР: "Конструктивные решения", ОВиК: "Отопление и вентиляция", ВК: "Водопровод и канализация", ЭОМ: "Электроснабжение", СС: "Сети связи", ПОС: "Организация строительства", ГПН: "Пожарная безопасность" };
+const STAGES = ["Подготовка", "Котлован и фундамент", "Каркас", "Фасад и кровля", "Инженерные системы", "Отделка и сдача"];
+const STAGE_AT = [0, 8, 25, 55, 75, 90, 101];
+const RAW = [
+  // id, название, адрес, девелопер, генподрядчик, класс ФПО, этажей, тыс. м², СМР %, полнота ИД %, открытых замечаний, критичных, прогноз сдвига ЗОС (дн), сверка М-023 %
+  ["SEV-2", "«Северный квартал», корп. 2", "Москва, САО", "ГК «Горизонт»", "СУ-17", "Ф1.3", 25, 38.4, 64, 91, 18, 1, 0, 100],
+  ["RP-1", "«Речной порт», корп. 1", "Москва, ЗАО", "«Меридиан Девелопмент»", "«СтройАльянс»", "Ф1.3", 32, 51.2, 41, 84, 34, 2, 7, 100],
+  ["LR-4", "«Липовая роща», дом 4", "Москва, ЮЗАО", "ГК «Горизонт»", "СУ-17", "Ф1.3", 17, 22.9, 86, 88, 21, 1, 0, 100],
+  ["NM-7", "«Новые Мневники», корп. 7", "Москва, СЗАО", "«Капитал Строй»", "«Монолит-М»", "Ф1.3", 28, 44.0, 58, 63, 71, 6, 38, 86],
+  ["SP-B", "«Сокольники Парк», корп. Б", "Москва, ВАО", "«Меридиан Девелопмент»", "«СтройАльянс»", "Ф1.3", 21, 29.5, 22, 79, 29, 2, 12, 100],
+  ["KOM-S", "Школа на 1 100 мест", "Новая Москва, Коммунарка", "«Городской заказчик»", "«ИнжСтройГрупп»", "Ф4.1", 4, 18.7, 81, 72, 44, 3, 18, 86],
+  ["MYT-P", "Поликлиника на 750 посещений", "Мытищи", "«Городской заказчик»", "«Вектор-Строй»", "Ф3.4", 5, 12.3, 55, 69, 52, 4, 24, 71],
+  ["MF-5", "«Митино Форест», корп. 5", "Москва, СЗАО", "«Капитал Строй»", "«Монолит-М»", "Ф1.3", 19, 26.1, 97, 95, 9, 0, 0, 100],
+  ["KB-1", "«Кленовый бульвар», корп. 1", "Москва, ЮАО", "ГК «Горизонт»", "«ИнжСтройГрупп»", "Ф1.3", 24, 33.8, 37, 86, 26, 1, 4, 100],
+  ["HIM-D", "Детский сад на 350 мест", "Химки", "«Городской заказчик»", "«Вектор-Строй»", "Ф1.1", 3, 5.6, 74, 54, 88, 8, 52, 57],
+  ["TS-3", "«Тимирязевский сад», корп. 3", "Москва, САО", "«Меридиан Девелопмент»", "СУ-17", "Ф1.3", 14, 17.2, 15, 81, 31, 2, 9, 100],
+  ["LC-V", "Логистический центр «Восток»", "Ногинск", "«Промпарк Восток»", "«Вектор-Строй»", "Ф5.2", 2, 64.0, 61, 77, 47, 3, 14, 86],
+];
+// Индекс здоровья 0–100: полнота ИД 30 % · замечания 30 % · сроки 25 % · сверка ПД ↔ РД ↔ ИД 15 %
+function healthParts(o) {
+  return [
+    { name: "Полнота ИД", w: 0.30, v: o.idFull },
+    { name: "Открытые и критичные замечания", w: 0.30, v: Math.round(100 - Math.min(100, o.crit * 8 + o.open * 0.6)) },
+    { name: "Срок сдачи (прогноз ЗОС)", w: 0.25, v: Math.round(100 - Math.min(100, o.delay * 1.5)) },
+    { name: "Сверка ПД ↔ РД ↔ ИД (М-023)", w: 0.15, v: o.m023 },
+  ];
+}
+const OBJECTS = RAW.map((r) => {
+  const [id, name, addr, dev, gp, kind, floors, area, smr, idFull, open, crit, delay, m023] = r;
+  const o = { id, name, addr, dev, gp, kind, floors, area, smr, idFull, open, crit, delay, m023 };
+  o.health = Math.round(healthParts(o).reduce((s, p) => s + p.w * p.v, 0));
+  o.state = o.health >= 75 ? "good" : o.health >= 55 ? "warn" : "crit";
+  o.stage = STAGE_AT.findIndex((t, i) => smr >= t && smr < STAGE_AT[i + 1]);
+  o.stageP = Math.round(((smr - STAGE_AT[o.stage]) / (STAGE_AT[o.stage + 1] - STAGE_AT[o.stage])) * 100);
+  // график СМР: длительность от этажности; «сейчас» по плану впереди факта на величину отставания
+  o.months = Math.round(14 + floors * 0.6);
+  o.planNow = Math.min(99, smr + delay * 0.35);
+  const frac = invS(o.planNow / 100);
+  o.start = new Date(NOW.getFullYear(), NOW.getMonth() - Math.round(frac * o.months), 1);
+  o.zosPlan = new Date(o.start.getFullYear(), o.start.getMonth() + o.months + 1, 0);
+  o.zosForecast = new Date(+o.zosPlan + delay * DAY);
+  // полнота ИД по разделам: доля принятого от требуемого на сегодня (100 % — норма); остальное — на проверке или не представлено
+  const r2 = rng(hash(id + "sec"));
+  o.sec = SECTIONS.map((s) => {
+    const acc = clamp(Math.round(idFull + (r2() - 0.5) * 18 - (s === "ГПН" ? 12 : 0) + (s === "ПОС" ? 6 : 0)), 22, 100);
+    const rev = Math.min(100 - acc, Math.round((100 - acc) * (0.3 + r2() * 0.3)));
+    return { acc, rev, miss: 100 - acc - rev };
+  });
+  return o;
+});
+const STATE = { good: "В норме", warn: "Внимание", crit: "Срок под угрозой" };
+const TONE = { good: "good", warn: "warn", crit: "late", late: "late", none: "none", red: "crit" };  // красный — только «признано инспектором»
+const pill = (st, text) => `<span class="pill ${TONE[st]}${text === "" ? " dot" : ""}">${esc(text ?? STATE[st])}</span>`;
+
+// ─────────────── данные портфеля по периоду: 2n корзин, первая половина — прошлый период для сравнения
+function portfolioData(pk) {
+  const p = PERIODS[pk], B = buckets(pk, p.n * 2), r = rng(hash("pf" + pk));
+  const rows = B.map((b) => {
+    const from = new Date(Math.max(+b.start, +LAUNCH)), mid = new Date((+from + +b.end) / 2), a = b.pre ? 0 : adoption(mid);
+    const wd = p.unit === "day" && [0, 6].includes(b.end.getDay()) ? 0.3 : 1;
+    const packs = Math.round(b.days * b.live * 13.6 * a * wd * (0.82 + r() * 0.36));
+    const pr = clamp((mid - LAUNCH) / (200 * DAY), 0, 1);           // обучение: доля принятых растёт, срок падает
+    const acc = Math.round(packs * (0.52 + 0.16 * pr + (r() - 0.5) * 0.06));
+    const rej = Math.round(packs * Math.max(0.02, 0.1 - 0.05 * pr + (r() - 0.5) * 0.02));
+    const rew = Math.max(0, packs - acc - rej);
+    const found = Math.round(packs * (4.6 - 1.2 * pr) * (0.9 + r() * 0.2));
+    const fixed = Math.round(found * (0.7 + 0.2 * pr) * (0.9 + r() * 0.15));
+    const files = Math.round(packs * 37 * (0.9 + r() * 0.2));
+    return { b, packs, acc, rew, rej, found, fixed, files, pages: Math.round(files * 6.3),
+      cycle: packs ? +(7.8 - 4.6 * pr + (r() - 0.5) * 0.9).toFixed(1) : null,
+      agree: packs ? +(76 + 11 * pr + (r() - 0.5) * 3).toFixed(1) : null,
+      avail: b.pre ? null : +(99.55 + r() * 0.45).toFixed(2) };
+  });
+  return { prev: rows.slice(0, p.n), cur: rows.slice(p.n) };
+}
+const sum = (a, k) => a.reduce((s, x) => s + (x[k] || 0), 0);
+const wavg = (a, k, w) => { let s = 0, n = 0; for (const x of a) if (x[k] != null) { s += x[k] * x[w]; n += x[w]; } return n ? s / n : null; };
+function delta(cur, prev, { better = "up", pct = true, unit = "", digits } = {}) {
+  if (prev == null || prev === 0 || cur == null) return `<span class="delta nt">нет базы</span>`;
+  const d = pct ? ((cur - prev) / prev) * 100 : cur - prev;
+  if (Math.abs(d) < (pct ? 0.5 : 0.05)) return `<span class="delta nt">без изменений</span>`;
+  const good = better === "up" ? d > 0 : d < 0;
+  return `<span class="delta ${good ? "up" : "dn"}">${d > 0 ? "↑ +" : "↓ −"}${fmt(Math.abs(d), digits ?? (pct ? 0 : 1))}${pct ? " %" : unit}</span>`;
+}
+
+// ─────────────── подсказка
+const tip = document.getElementById("tip");
+function showTip(html, x, y) {
+  tip.innerHTML = html; tip.hidden = false;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let left = x + 14, top = y + 14;
+  if (left + w > innerWidth - 8) left = x - w - 14;
+  if (top + h > innerHeight - 8) top = y - h - 14;
+  tip.style.left = Math.max(8, left) + "px"; tip.style.top = Math.max(8, top) + "px";
+}
+const hideTip = () => { tip.hidden = true; };
+const tipLine = (color, name, val) => `<div class="l"><span>${color ? `<i style="background:${color}"></i>` : ""}${esc(name)}</span><b>${esc(val)}</b></div>`;
+document.addEventListener("pointermove", (e) => {
+  const t = e.target.closest?.("[data-tip]");
+  if (t) { const [h, ...lines] = t.dataset.tip.split("|"); showTip(`<div class="h">${esc(h)}</div>` + lines.map((l) => `<div>${esc(l)}</div>`).join(""), e.clientX, e.clientY); }
+  else if (!e.target.closest?.(".hit,.col")) hideTip();
+});
+
+// ─────────────── графики: одна шкала, подписи из токенов, тонкие линии, наведение по умолчанию
+let svgSeq = 0;
+function niceMax(v) { if (v <= 0) return 1; const p = 10 ** Math.floor(Math.log10(v)); const m = v / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p; }
+const yfmt = (v) => (Math.abs(v) >= 10000 ? fmt(v / 1000) + " тыс." : fmt(v, v % 1 && Math.abs(v) < 10 ? 1 : v % 1 ? 2 : 0));
+function axes({ W, H, L, R, T, Bm, yMin, yMax, labels, x, fy, preW }) {
+  const ih = H - T - Bm, y = (v) => T + ih - ((v - yMin) / (yMax - yMin)) * ih;
+  let s = "";
+  // зона до внедрения: штриховка и подпись — пустые столбцы не выглядят провалом
+  if (preW > 0) {
+    const id = "pre" + ++svgSeq;
+    s += `<defs><pattern id="${id}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#F8F9FB"/><line x1="0" y1="0" x2="0" y2="6" stroke="#E1E4EA" stroke-width="2"/></pattern></defs><rect x="${L}" y="${T}" width="${preW}" height="${ih}" fill="url(#${id})"/>`;
+    if (preW > 90) s += `<text x="${L + preW / 2}" y="${T + ih / 2}" text-anchor="middle" style="fill:${C.ink2}">до внедрения</text>`;
+  }
+  for (let k = 0; k <= 4; k++) {
+    const v = yMin + ((yMax - yMin) * k) / 4, yy = y(v);
+    s += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="${k ? C.line : C.axis}" stroke-width="1"/>`;
+    s += `<text x="${L - 8}" y="${yy + 3.5}" text-anchor="end">${esc((fy || yfmt)(v))}</text>`;
+  }
+  const n = labels.length, iw = W - L - R, step = Math.max(1, Math.ceil(n / Math.max(1, Math.floor(iw / 64))));
+  for (let i = 0; i < n; i++) if ((n - 1 - i) % step === 0) s += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle">${esc(labels[i])}</text>`;
+  return { s, y };
+}
+function lineChart(el, o) {
+  const W = Math.max(260, el.clientWidth), H = o.height || 200, L = o.padL || 44, R = 14, T = o.marks ? 22 : 12, Bm = 24;
+  const n = o.labels.length, iw = W - L - R, x = (i) => L + (n === 1 ? iw / 2 : (i * iw) / (n - 1));
+  const vals = o.series.flatMap((s) => s.values).filter((v) => v != null);
+  const yMin = o.yMin ?? 0, yMax = o.yMax ?? niceMax(Math.max(...vals, o.target?.value || 0, yMin + 1));
+  const preW = o.pre ? (o.pre >= n ? iw : (x(o.pre - 1) + x(o.pre)) / 2 - L) : 0;
+  const ax = axes({ W, H, L, R, T, Bm, yMin, yMax, labels: o.labels, x, fy: o.fy, preW });
+  let s = ax.s;
+  if (o.target) {
+    const ty = ax.y(o.target.value);
+    s += `<line x1="${L}" x2="${W - R}" y1="${ty}" y2="${ty}" stroke="${C.aim}" stroke-width="1.5" stroke-dasharray="5 4"/><text x="${W - R}" y="${ty - 6}" text-anchor="end" style="fill:${C.aim};font-weight:600">${esc(o.target.label)}</text>`;
+  }
+  (o.marks || []).forEach((m) => {
+    const mx = x(m.i);
+    s += `<line x1="${mx}" x2="${mx}" y1="${T - 4}" y2="${H - Bm}" stroke="${m.color}" stroke-width="1.2"${m.dash ? ' stroke-dasharray="3 3"' : ""}/><text x="${mx + (m.anchor === "end" ? -4 : 4)}" y="${m.low ? H - Bm - 6 : T - 10}" text-anchor="${m.anchor || "start"}" style="fill:${m.color};font-weight:600">${esc(m.label)}</text>`;
+  });
+  o.series.forEach((ser, si) => {
+    let d = "", area = "", seg = [];
+    const flushArea = () => { if (o.area && si === 0 && seg.length > 1) area += `M${x(seg[0])},${ax.y(yMin)}` + seg.map((i) => `L${x(i)},${ax.y(ser.values[i])}`).join("") + `L${x(seg[seg.length - 1])},${ax.y(yMin)}Z`; seg = []; };
+    ser.values.forEach((v, i) => {
+      if (v == null) { flushArea(); return; }
+      d += (i === 0 || ser.values[i - 1] == null ? "M" : "L") + x(i) + "," + ax.y(v);
+      seg.push(i);
+    });
+    flushArea();
+    if (area) s += `<path d="${area}" fill="${ser.color}" fill-opacity=".08"/>`;
+    s += `<path d="${d}" fill="none" stroke="${ser.color}" stroke-width="${ser.w || 2}" stroke-linejoin="round" stroke-linecap="round"${ser.dash ? ' stroke-dasharray="6 4"' : ""}/>`;
+    let li = ser.values.length - 1; while (li >= 0 && ser.values[li] == null) li--;
+    if (li >= 0 && !ser.dash) s += `<circle cx="${x(li)}" cy="${ax.y(ser.values[li])}" r="4" fill="${ser.color}" stroke="${C.card}" stroke-width="2"/>`;
+  });
+  s += `<g class="hov" style="display:none"><line y1="${T}" y2="${H - Bm}" stroke="${C.mute}" stroke-width="1" stroke-dasharray="2 3"/>${o.series.map((ser) => `<circle r="4" fill="${ser.color}" stroke="${C.card}" stroke-width="2"/>`).join("")}</g>`;
+  s += `<rect x="${L}" y="${T}" width="${iw}" height="${H - T - Bm}" fill="transparent" class="hit"/>`;
+  el.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria || "")}">${s}</svg>`;
+  const svg = el.firstChild, hov = svg.querySelector(".hov"), hit = svg.querySelector(".hit");
+  hit.addEventListener("pointermove", (e) => {
+    const bx = svg.getBoundingClientRect(), px = e.clientX - bx.left;
+    const i = clamp(Math.round(((px - L) / iw) * (n - 1)), 0, n - 1);
+    hov.style.display = ""; hov.querySelector("line").setAttribute("x1", x(i)); hov.querySelector("line").setAttribute("x2", x(i));
+    hov.querySelectorAll("circle").forEach((c, si) => { const v = o.series[si].values[i]; c.style.display = v == null ? "none" : ""; if (v != null) { c.setAttribute("cx", x(i)); c.setAttribute("cy", ax.y(v)); } });
+    const pre = o.pre && i < o.pre;
+    showTip(`<div class="h">${esc(o.full ? o.full[i] : o.labels[i])}</div>` + (pre ? `<div>до внедрения платформы — данных нет</div>` : o.series.map((ser) => tipLine(ser.color, ser.name, ser.values[i] == null ? "нет данных" : (o.fv || yfmt)(ser.values[i]) + (o.unit ? " " + o.unit : ""))).join("")), e.clientX, e.clientY);
+  });
+  hit.addEventListener("pointerleave", () => { hov.style.display = "none"; hideTip(); });
+}
+function barChart(el, o) {
+  const W = Math.max(260, el.clientWidth), H = o.height || 200, L = o.padL || 44, R = 8, T = 12, Bm = 24;
+  const n = o.labels.length, iw = W - L - R, cw = iw / n, x = (i) => L + (i + 0.5) * cw, bw = Math.max(2, Math.min(28, cw * 0.62));
+  const tot = o.labels.map((_, i) => o.stacks.reduce((s, st) => s + (st.values[i] || 0), 0));
+  const yMax = o.yMax ?? niceMax(Math.max(...tot, 1));
+  const ax = axes({ W, H, L, R, T, Bm, yMin: 0, yMax, labels: o.labels, x, preW: (o.pre || 0) * cw, fy: o.fy });
+  let s = ax.s;
+  for (let i = 0; i < n; i++) {
+    let base = 0;
+    const top = o.stacks.reduce((t, st, si) => (st.values[i] ? si : t), -1);
+    o.stacks.forEach((st, si) => {
+      const v = st.values[i]; if (!v) return;
+      const y0 = ax.y(base), y1 = ax.y(base + v), gap = base > 0 ? 2 : 0; base += v;
+      const h = Math.max(0, y0 - y1 - gap);
+      if (h <= 0) return;
+      const r = Math.min(3, bw / 4, h);
+      // закруглён только верх столбца, к базовой линии — прямой край; между сегментами — зазор 2 px
+      s += si === top
+        ? `<path d="M${x(i) - bw / 2},${y1 + h}V${y1 + r}q0,-${r} ${r},-${r}H${x(i) + bw / 2 - r}q${r},0 ${r},${r}V${y1 + h}Z" fill="${st.color}"/>`
+        : `<rect x="${x(i) - bw / 2}" y="${y1}" width="${bw}" height="${h}" fill="${st.color}"/>`;
+    });
+    s += `<rect x="${L + i * cw}" y="${T}" width="${cw}" height="${H - T - Bm}" fill="transparent" data-i="${i}" class="col"/>`;
+  }
+  el.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria || "")}">${s}</svg>`;
+  el.querySelectorAll(".col").forEach((c) => {
+    c.addEventListener("pointermove", (e) => { const i = +c.dataset.i; c.setAttribute("fill", "rgba(17,21,29,.04)");
+      const pre = o.pre && i < o.pre;
+      showTip(`<div class="h">${esc(o.full ? o.full[i] : o.labels[i])}</div>` + (pre ? `<div>до внедрения платформы — данных нет</div>` : (o.stacks.length > 1 ? tipLine("", "Всего", fmt(tot[i]) + (o.unit ? " " + o.unit : "")) : "") + o.stacks.map((st) => tipLine(st.color, st.name, fmt(st.values[i] || 0) + (o.unit ? " " + o.unit : ""))).join("")), e.clientX, e.clientY); });
+    c.addEventListener("pointerleave", () => { c.setAttribute("fill", "transparent"); hideTip(); });
+  });
+}
+function spark(vals, color, w = 88, h = 26) {
+  const nn = vals.filter((x) => x != null);
+  if (nn.length < 2) return "";
+  const mn = Math.min(...nn), mx = Math.max(...nn), sp = mx - mn || 1, n = vals.length;
+  const X = (i) => 2 + (i * (w - 4)) / (n - 1), Y = (x) => h - 3 - ((x - mn) / sp) * (h - 6);
+  let d = ""; vals.forEach((x, i) => { if (x == null) return; d += (i && vals[i - 1] != null ? "L" : "M") + X(i).toFixed(1) + "," + Y(x).toFixed(1); });
+  let li = n - 1; while (vals[li] == null) li--;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true" style="flex:none"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/><circle cx="${X(li)}" cy="${Y(vals[li])}" r="2.5" fill="${color}"/></svg>`;
+}
+const legend = (items) => `<div class="legend">${items.map(([c, t, kind]) => `<span><i class="${kind || ""}" style="${kind === "dash" ? "border-color:" + c : "background:" + c}"></i>${esc(t)}</span>`).join("")}</div>`;
+let popSeq = 0;
+function more(src) {
+  const id = "pop" + ++popSeq;
+  return `<div class="more"><button type="button" aria-expanded="false" aria-controls="${id}" aria-label="Как считается и откуда данные"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.2v3.8" stroke-linecap="round"/><circle cx="8" cy="5" r=".6" fill="currentColor"/></svg></button><div class="pop" id="${id}" role="note" hidden><span class="label">Как считается</span>${src[0]}<span class="label">Источник при подключении</span>${esc(src[1])}</div></div>`;
+}
+function card({ cls = "", title, unit, snap, src, body }) {
+  return `<section class="card ${cls}"><div class="ch"><h2>${esc(title)}</h2>${unit ? `<span class="u">${esc(unit)}</span>` : ""}${snap ? `<span class="snap">срез на ${dd(NOW)}</span>` : ""}${src ? more([esc(src[0]), src[1]]) : ""}</div>${body}</section>`;
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest(".more>button");
+  document.querySelectorAll(".more>button[aria-expanded='true']").forEach((x) => { if (x !== b) { x.setAttribute("aria-expanded", "false"); x.nextElementSibling.hidden = true; } });
+  if (b) { const open = b.getAttribute("aria-expanded") !== "true"; b.setAttribute("aria-expanded", String(open)); b.nextElementSibling.hidden = !open; }
+});
+
+// ─────────────── линейка периода (как в консолях наблюдаемости)
+function drawRuler(pk) {
+  const el = document.getElementById("ruler"), W = Math.max(300, el.clientWidth - 40), H = 30;
+  const t0 = new Date(NOW.getFullYear() - 1, NOW.getMonth() + 1, 1), t1 = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 1);
+  const X = (d) => clamp(((d - t0) / (t1 - t0)) * W, 0, W);
+  const p = PERIODS[pk], from = buckets(pk, p.n)[0].start;
+  let s = `<rect x="${X(from)}" y="5" width="${Math.max(4, X(NOW) - X(from))}" height="${H - 10}" rx="4" fill="${C.ink}" fill-opacity=".07" stroke="${C.ink2}" stroke-width="1"/>`;
+  for (let m = 0; m <= 12; m++) {
+    const d = new Date(t0.getFullYear(), t0.getMonth() + m, 1), xx = X(d);
+    s += `<line x1="${xx}" x2="${xx}" y1="${H - 8}" y2="${H - 3}" stroke="${C.axis}" stroke-width="1"/>`;
+    if (m < 12) s += `<text x="${xx + 5}" y="${H - 11}" style="font:11px var(--f-mono);fill:${C.mute}">${MON[d.getMonth()]}${d.getMonth() === 0 ? " " + d.getFullYear() : ""}</text>`;
+  }
+  const lx = X(LAUNCH);
+  s += `<line x1="${lx}" x2="${lx}" y1="3" y2="${H - 3}" stroke="${C.green}" stroke-width="2"/><text x="${lx + 5}" y="11" style="font:600 11px var(--f-mono);fill:${C.green}">внедрение ${dd(LAUNCH)}</text>`;
+  s += `<circle cx="${X(NOW)}" cy="${H / 2}" r="3.5" fill="${C.ink}"/>`;
+  el.innerHTML = `<svg viewBox="-20 0 ${W + 40} ${H}" preserveAspectRatio="none" style="height:${H}px">${s}</svg>`;
+}
+
+// ─────────────── ПОРТФЕЛЬ
+const DISCREPANCIES = [
+  ["Не представлен акт освидетельствования скрытых работ", 0.21],
+  ["Исполнительная схема расходится с РД", 0.16],
+  ["Нет сертификата или паспорта на материал, либо срок истёк", 0.14],
+  ["Подпись без усиленной электронной подписи", 0.11],
+  ["Параметр расходится между ПД, РД и ИД", 0.09],
+  ["Не представлен протокол испытаний", 0.08],
+  ["Документ в устаревшей редакции РД", 0.06],
+];
+let sortKey = "health", sortDir = 1, stateFilter = "all";
+const collapsed = new Set();
+function renderPortfolio(pk) {
+  const p = PERIODS[pk], { cur, prev } = portfolioData(pk);
+  const B = cur.map((r) => r.b), pre = preCount(B);
+  const labels = B.map((b) => b.label), full = B.map((b) => b.full);
+  const packs = sum(cur, "packs"), packsP = sum(prev, "packs"), found = sum(cur, "found"), foundP = sum(prev, "found");
+  const cyc = wavg(cur, "cycle", "packs"), cycP = wavg(prev, "cycle", "packs");
+  const agree = wavg(cur, "agree", "packs"), agreeP = wavg(prev, "agree", "packs");
+  const rate = packs ? found / packs : null, rateP = packsP ? foundP / packsP : null;
+  const hours = packs * (MANUAL_H - PLATFORM_H), hoursP = packsP * (MANUAL_H - PLATFORM_H), crit = Math.round(found * 0.052);
+  const cnt = { good: 0, warn: 0, crit: 0 }; OBJECTS.forEach((o) => cnt[o.state]++);
+  const risk = OBJECTS.filter((o) => o.state === "crit"), openCrit = OBJECTS.reduce((s, o) => s + o.crit, 0);
+  const base = (x) => (packsP ? x : `<span class="delta nt">база с ${dd(LAUNCH)}</span>`);
+  const kpi = (l, v, unit, d, sub, sp) => `<div><span class="l">${l}</span><span class="v">${v}${unit ? `<small>${unit}</small>` : ""}</span><div class="row"><div>${d}<div class="sub">${sub}</div></div>${sp ? spark(sp, C.ink2) : ""}</div></div>`;
+  const brief = packs
+    ? `За ${p.gen} проверено <b>${fmt(packs)} ${plural(packs, "пакет", "пакета", "пакетов")}</b> исполнительной документации. Средний срок проверки — <b>${fmt(cyc, 1)} ч</b> <em>против ~11 календарных дней до платформы</em>. Срок сдачи под угрозой у <span class="late">${risk.length} ${plural(risk.length, "объекта", "объектов", "объектов")} из ${OBJECTS.length}</span>: ${risk.map((o) => `<a href="#object-${o.id}">${esc(o.name)}</a>`).join(" и ")}.`
+    : `Платформа внедрена ${ddy(LAUNCH)} — в выбранном периоде данных ещё нет.`;
+  const method = more([`<code>Высвобождено = пакеты × (${fmt(MANUAL_H, 1)} ч вручную − ${fmt(PLATFORM_H, 1)} ч с платформой)</code>, в рублях — по ставке ${fmt(RATE)} ₽/ч. Срок проверки — среднее по пакетам от загрузки до решения инспектора; до платформы ~11 календарных дней (9 рабочих). Совпадение — доля решений инспектора без правок рекомендации. Трудоёмкость и ставка — гипотезы макета, их заменит замер у заказчика.`, "Проверки и журнал аудита API; нормы трудоёмкости и ставка — от заказчика."]);
+
+  const h = `<section class="card brief">
+    <div class="ch"><span class="label">Сводка портфеля · ${esc(p.label.toLowerCase())}</span>${method}</div>
+    <p>${brief}</p>
+    <div class="strip">
+      ${kpi("Объектов под контролем", OBJECTS.length, "", `<span class="delta nt">все подключены</span>`, `${fmt(OBJECTS.reduce((s, x) => s + x.area, 0), 1)} тыс. м²`, null)}
+      ${kpi("Пакетов проверено", fmt(packs), "", base(delta(packs, packsP)), p.prev, cur.map((r) => (r.b.pre ? null : r.packs)))}
+      ${kpi("Срок проверки", cyc == null ? "—" : fmt(cyc, 1), "ч", base(delta(cyc, cycP, { better: "down" })), "среднее · цель 4 ч", cur.map((r) => r.cycle))}
+      ${kpi("Расхождений на пакет", rate == null ? "—" : fmt(rate, 1), "", base(delta(rate, rateP, { better: "down" })), `всего ${fmt(found)} · критичных ${fmt(crit)}`, cur.map((r) => (r.packs ? r.found / r.packs : null)))}
+      ${kpi("Совпадение с рекомендацией", agree == null ? "—" : fmt(agree, 1), "%", base(delta(agree, agreeP, { pct: false, unit: " п.п." })), "решений инспектора без правок", cur.map((r) => r.agree))}
+      ${kpi("Высвобождено", fmt(hours), "ч", base(delta(hours, hoursP)), `≈ ${fmt((hours * RATE) / 1e6, 1)} млн ₽ · методика в ⓘ`, null)}
+    </div>
+  </section>
+  <div class="grid">
+  ${card({ cls: "s8", title: "Пакеты по итогам проверки", unit: "шт. за " + p.bucket, src: ["Пакет — комплект исполнительной документации, загруженный подрядчиком. Итог — решение инспектора после разбора: принят, возвращён на доработку, отклонён.", "Таблица проверок API: статус и дата решения; агрегат по дню на стороне витрины."],
+    body: legend([[C.green, "Принят"], [C.amber, "На доработку"], [C.red, "Отклонён"]]) + `<div class="chart" data-chart="packs"></div>` })}
+  ${card({ cls: "s4", title: "Объекты по состоянию", snap: true, src: ["Индекс здоровья 0–100: полнота ИД 30 %, открытые и критичные замечания 30 %, прогноз срока ЗОС 25 %, сверка ПД ↔ РД ↔ ИД 15 %. В норме — от 75, внимание — 55–74, срок под угрозой — ниже 55.", "Реестр объектов (T-166) + агрегаты замечаний и сверки М-023; прогноз ЗОС — из графика производства работ заказчика."],
+    body: `<div class="split">${["good", "warn", "crit"].map((k) => `<i style="flex:${cnt[k]};background:${{ good: C.green, warn: C.amber, crit: C.actual }[k]}"></i>`).join("")}</div>
+    <div class="split-l">${["good", "warn", "crit"].map((k) => `<div><b>${cnt[k]}</b>${pill(k)}</div>`).join("")}</div>
+    <div class="openc"><span>Открытых критичных для ЗОС по портфелю</span><b>${openCrit}</b></div>
+    <div class="watch">${OBJECTS.filter((o) => o.state !== "good").sort((a, b) => a.health - b.health).map((o) => `<a href="#object-${o.id}"><span class="nm">${esc(o.name)}</span><span class="why">${o.delay ? "ЗОС +" + o.delay + " дн." : ""}</span>${pill(o.state, String(o.health))}</a>`).join("")}</div>` })}
+  </div>
+  <div class="grid">
+  ${card({ cls: "s6", title: "Срок проверки пакета", unit: "часы, среднее", src: ["От загрузки пакета до решения инспектора, среднее по пакетам за корзину. Цель — не дольше 4 ч. До платформы — около 11 календарных дней (9 рабочих) по данным заказчика.", "События загрузки и решения по проверке в журнале аудита API."],
+    body: legend([[C.ink2, "Средний срок", "ln"], [C.aim, "Цель — 4 ч", "dash"]]) + `<div class="chart" data-chart="cycle"></div>` })}
+  ${card({ cls: "s6", title: "Расхождения: признано и устранено", unit: "шт. за " + p.bucket, src: ["Признано — расхождения, которые инспектор признал после разбора. Устранено — закрытые после исправления подрядчиком.", "Таблица замечаний: статус и дата закрытия."],
+    body: legend([[C.actual, "Признано", "ln"], [C.green, "Устранено", "ln"]]) + `<div class="chart" data-chart="issues"></div>` })}
+  </div>
+  <div class="grid">
+  ${card({ cls: "s8", title: "Полнота исполнительной документации", unit: "% принятого от требуемого на сегодня", snap: true, src: ["Доля документов, которые положены на текущем этапе работ и уже приняты; 100 % — всё положенное на сегодня на месте. ГПН — заключение надзора МЧС и документы пожарной безопасности.", "Перечень обязательной ИД по этапу (Приказ Минстроя № 344/пр) против принятых документов объекта."],
+    body: `<div class="ramp"><span>меньше</span><i></i><span>100 %</span><span style="margin-left:12px;display:inline-flex;gap:6px;align-items:center"><span class="lo"></span>ниже 60 % — отстаёт</span></div><div class="tw"><table class="heat"><thead><tr><th>Объект</th>${SECTIONS.map((s) => `<th title="${esc(SECTION_NAMES[s])}">${s}</th>`).join("")}</tr></thead><tbody>${OBJECTS.map((o) => `<tr><td class="o"><a href="#object-${o.id}">${esc(o.name)}</a></td>${o.sec.map((v, i) => { const t = clamp((v.acc - 30) / 70, 0, 1), lo = v.acc < 60; return `<td class="h${lo ? " lo" : ""}" style="background:${lo ? "#FFFFFF" : mix("#EEF0F4", "#1C212B", t)};color:${t > 0.5 ? "#fff" : C.ink}" data-tip="${esc(o.name)}|${esc(SECTION_NAMES[SECTIONS[i]])}|Принято ${v.acc} %, на проверке ${v.rev} %, не представлено ${v.miss} %">${v.acc}</td>`; }).join("")}</tr>`).join("")}</tbody></table></div>` })}
+  ${card({ cls: "s4", title: "Частые расхождения", unit: "шт. за период", src: ["Признанные инспектором расхождения по типу правила, семь самых частых.", "Замечания с кодом правила из каталога ГЕРЫ (docs/gera/inspector/03-services.md)."],
+    body: `<div class="hb">${DISCREPANCIES.map(([t, w]) => { const v = Math.round(found * w); return `<div class="r"><span class="t">${esc(t)}</span><span class="n">${fmt(v)}</span><span class="b"><i style="width:${(w / DISCREPANCIES[0][1]) * 100}%"></i></span></div>`; }).join("")}</div>` })}
+  </div>
+  <section class="card" style="padding-bottom:6px">
+    <div class="ch"><h2>Объекты портфеля</h2><span class="snap">срез на ${dd(NOW)}</span><span class="u">нажмите строку, чтобы открыть объект</span></div>
+    <div class="filters" role="group" aria-label="Фильтр по состоянию">
+      ${[["all", "Все", OBJECTS.length, null], ["crit", STATE.crit, cnt.crit, C.actual], ["warn", STATE.warn, cnt.warn, C.amber], ["good", STATE.good, cnt.good, C.green]].map(([k, t, n, c]) => `<button type="button" class="chip" data-filter="${k}" aria-pressed="${stateFilter === k}">${c ? `<i style="background:${c}"></i>` : ""}${esc(t)}<span class="n">${n}</span></button>`).join("")}
+    </div>
+    <div id="pt"></div>
+  </section>
+  <div class="sech"><h2>Работа платформы</h2><p>Нагрузка и доступность — то, что смотрят в консоли наблюдаемости</p></div>
+  <div class="grid">
+  ${card({ cls: "s4", title: "Файлы разобраны", unit: "шт. за " + p.bucket, src: ["Файлы пакетов, прошедшие приём, антивирусную проверку и разбор.", "Метрики API: счётчик разобранных файлов."], body: `<div class="chart" data-chart="files"></div>` })}
+  ${card({ cls: "s4", title: "Страниц распознано", unit: "стр. за " + p.bucket, src: ["Страницы PDF и сканов, прочитанные по текстовому слою или распознанные.", "Метрики ML-контура: счётчик страниц по способу разбора."], body: `<div class="chart" data-chart="pages"></div>` })}
+  ${card({ cls: "s4", title: "Доступность стенда", unit: "% времени", src: ["Доля минут, когда проверка здоровья отвечала 200. Цель — 99,5 %.", "Внешний пинг /health или blackbox-экспортёр Prometheus."], body: legend([[C.green, "Доступность", "ln"], [C.aim, "Цель — 99,5 %", "dash"]]) + `<div class="chart" data-chart="avail"></div>` })}
+  </div>
+  <p class="foot-note">Макет. Объекты, организации и цифры вымышлены и получены генератором; сводка посчитана из тех же рядов, что и графики. Кнопка ⓘ у карточки показывает, как считается показатель и откуда его возьмём при подключении.</p>`;
+  document.getElementById("view").innerHTML = h;
+  fillPortfolioTable();
+  document.querySelectorAll("[data-filter]").forEach((b) => b.addEventListener("click", () => { stateFilter = b.dataset.filter; document.querySelectorAll("[data-filter]").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); fillPortfolioTable(); }));
+  const nz = (k) => cur.map((r) => (r.b.pre ? null : r[k]));
+  CHARTS = {
+    packs: (el) => barChart(el, { labels, full, pre, unit: "шт.", height: 262, aria: "Пакеты по итогам проверки", stacks: [
+      { name: "Принят", color: C.green, values: cur.map((r) => r.acc) }, { name: "На доработку", color: C.amber, values: cur.map((r) => r.rew) }, { name: "Отклонён", color: C.red, values: cur.map((r) => r.rej) }] }),
+    cycle: (el) => lineChart(el, { labels, full, pre, unit: "ч", area: true, target: { value: 4, label: "цель 4 ч" }, yMax: 10, fv: (v) => fmt(v, 1), aria: "Срок проверки пакета", series: [{ name: "Средний срок", color: C.ink2, values: cur.map((r) => r.cycle) }] }),
+    issues: (el) => lineChart(el, { labels, full, pre, unit: "шт.", aria: "Расхождения", fv: (v) => fmt(v), series: [{ name: "Признано", color: C.actual, values: nz("found") }, { name: "Устранено", color: C.green, values: nz("fixed") }] }),
+    files: (el) => barChart(el, { labels, full, pre, unit: "шт.", height: 160, aria: "Файлы разобраны", stacks: [{ name: "Файлы", color: C.ink2, values: cur.map((r) => r.files) }] }),
+    pages: (el) => lineChart(el, { labels, full, pre, unit: "стр.", area: true, height: 160, fv: (v) => fmt(v), aria: "Страниц распознано", series: [{ name: "Страницы", color: C.ink2, values: nz("pages") }] }),
+    avail: (el) => lineChart(el, { labels, full, pre, unit: "%", height: 160, yMin: 99, yMax: 100, fy: (v) => fmt(v, 2), fv: (v) => fmt(v, 2), target: { value: 99.5, label: "цель 99,5 %" }, aria: "Доступность стенда", series: [{ name: "Доступность", color: C.green, values: cur.map((r) => r.avail) }] }),
+  };
+}
+function trendOpen(o, B) {
+  const n = B.length, r = rng(hash(o.id + "open" + n)), slope = o.state === "good" ? 0.6 : o.state === "warn" ? 0.15 : -0.4;
+  return B.map((b, i) => (b.pre ? null : i === n - 1 ? o.open : Math.max(0, Math.round(o.open * (1 + (slope * (n - 1 - i)) / n) * (0.92 + r() * 0.16)))));
+}
+const WEEKS12 = Array.from({ length: 12 }, (_, i) => ({ pre: false, i }));
+function fillPortfolioTable(focusKey) {
+  const key = { name: (o) => o.name, gp: (o) => o.gp, stage: (o) => o.stage, smr: (o) => o.smr, idFull: (o) => o.idFull, open: (o) => o.open, delay: (o) => o.delay, health: (o) => o.health }[sortKey];
+  const sorted = [...OBJECTS].sort((a, b) => { const x = key(a), y = key(b); return (typeof x === "string" ? x.localeCompare(y, "ru") : x - y) * sortDir; });
+  const cols = [["name", "Объект"], ["gp", "Генподрядчик"], ["stage", "Этап"], ["smr", "СМР", 1], ["idFull", "Полнота ИД", 1], ["open", "Замечания", 1], ["delay", "Сдвиг ЗОС", 1], ["", "Замечания, 12 нед."], ["health", "Здоровье", 1]];
+  const head = `<thead><tr>${cols.map(([k, t, n]) => `<th class="${n ? "num" : ""}" ${k === sortKey ? `aria-sort="${sortDir > 0 ? "ascending" : "descending"}"` : ""}>${k ? `<button type="button" data-sort="${k}">${t}${k === sortKey ? (sortDir > 0 ? " ↑" : " ↓") : ""}</button>` : t}</th>`).join("")}</tr></thead>`;
+  const row = (o) => `<tr data-go="${o.id}" tabindex="0">
+    <td><div class="two"><span class="nm">${esc(o.name)}</span><span class="ad">${esc(o.addr)} · ${esc(o.dev)}</span></div></td>
+    <td style="white-space:nowrap">${esc(o.gp)}</td>
+    <td style="white-space:nowrap">${esc(STAGES[o.stage])}</td>
+    <td class="num"><div class="mbar"><span><i style="width:${o.smr}%"></i></span><b>${o.smr} %</b></div></td>
+    <td class="num"><div class="mbar"><span><i style="width:${o.idFull}%"></i></span><b>${o.idFull} %</b></div></td>
+    <td class="num" style="white-space:nowrap">${o.open}<span class="ad"> · крит. ${o.crit}</span></td>
+    <td class="num"><div class="two">${o.delay ? `<span class="late-t">+${o.delay} дн.</span>` : `<span class="ok-t">в срок</span>`}<span class="ad">ЗОС ${my(o.zosForecast)}</span></div></td>
+    <td>${spark(trendOpen(o, WEEKS12), o.state === "crit" ? C.actual : C.ink2)}</td>
+    <td class="num">${pill(o.state, o.health + " · " + STATE[o.state])}</td></tr>`;
+  // группировка по состоянию; сортировка действует внутри групп
+  const groups = ["crit", "warn", "good"].filter((g) => stateFilter === "all" || stateFilter === g);
+  document.getElementById("pt").innerHTML = groups.map((g) => {
+    const rows = sorted.filter((o) => o.state === g), open = !collapsed.has(g);
+    return `<div class="gh"><button type="button" data-group="${g}" aria-expanded="${open}"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>${pill(g)}</button><span class="count">${rows.length}</span></div>${open ? `<div class="tw"><table class="pt"><colgroup>${[25, 12, 13, 9, 9, 8, 9, 7, 13].map((w) => `<col style="width:${w}%">`).join("")}</colgroup>${head}<tbody>${rows.map(row).join("")}</tbody></table></div>` : ""}`;
+  }).join("");
+  document.querySelectorAll("#pt tbody tr").forEach((tr) => {
+    const go = () => { location.hash = "object-" + tr.dataset.go; };
+    tr.addEventListener("click", go); tr.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
+  });
+  document.querySelectorAll("#pt [data-sort]").forEach((b) => b.addEventListener("click", () => { const k = b.dataset.sort; sortDir = sortKey === k ? -sortDir : ["health", "name", "gp", "stage"].includes(k) ? 1 : -1; sortKey = k; fillPortfolioTable(k); }));
+  document.querySelectorAll("#pt [data-group]").forEach((b) => b.addEventListener("click", () => { const g = b.dataset.group; collapsed.has(g) ? collapsed.delete(g) : collapsed.add(g); fillPortfolioTable(); document.querySelector(`#pt [data-group="${g}"]`)?.focus(); }));
+  if (focusKey) document.querySelector(`#pt [data-sort="${focusKey}"]`)?.focus();
+}
+
+// ─────────────── ОБЪЕКТ
+const CRIT_TPL = [
+  ["КР", "Не представлен акт освидетельствования скрытых работ на армирование плиты перекрытия", "СП 70.13330.2012"],
+  ["ГПН", "Огнезащита металлоконструкций: не представлен протокол испытаний", "СП 2.13130.2020"],
+  ["ЭОМ", "Не представлен протокол замеров сопротивления изоляции кабельных линий", "ПУЭ, гл. 1.8"],
+  ["ОВиК", "Противопожарные клапаны: не представлены паспорта изготовителя", "СП 7.13130.2013"],
+  ["АР", "Отметка кровли в исполнительной схеме расходится с РД на 0,9 м", "ГОСТ Р 51872-2019"],
+  ["ВК", "Не представлен акт гидравлических испытаний стояков В1", "СП 73.13330.2016"],
+  ["КР", "Сертификат на арматуру А500С: срок действия истёк до даты поставки", "ГОСТ 34028-2016"],
+  ["ПОС", "Общий журнал работ подписан без усиленной электронной подписи", "Приказ Минстроя № 1026/пр"],
+  ["ГПН", "Класс функциональной пожарной опасности в РД расходится с ПД", "123-ФЗ, ст. 32"],
+];
+const FEED_TPL = [
+  ["Загружен пакет «Акты скрытых работ, секция {s}»", "{n} файлов", "Генподрядчик"],
+  ["Пакет разобран: {k} кандидатов в расхождения, одно критичное", "разбор занял {m} мин", "Платформа"],
+  ["Инспектор признал {k2} расхождений из {k}", "остальные сняты с причиной", "Стройконтроль заказчика"],
+  ["Устранено: исполнительная схема армирования, {f} этаж", "принято со второй подачи", "Генподрядчик"],
+  ["Подготовлен черновик предписания со сроком 5 рабочих дней", "раздел {sec}", "Стройконтроль заказчика"],
+  ["Сверка М-023 пересчитана по новой редакции РД", "ПД ↔ РД ↔ ИД", "Платформа"],
+  ["Загружено заключение лаборатории о прочности бетона", "{n2} протоколов", "Лаборатория"],
+];
+function m023Rows(o) {
+  const deg = o.kind === "Ф5.2" ? "III" : o.floors >= 6 ? "I" : "II";
+  const hgt = o.floors <= 2 ? o.floors * 6.2 : (o.floors - 1) * 3.0 + 1.2;
+  const rows = [
+    ["Класс функциональной пожарной опасности", o.kind],
+    ["Степень огнестойкости", deg],
+    ["Класс конструктивной пожарной опасности", "С0"],
+    ["Пожарно-техническая высота, м", fmt(hgt, 1)],
+    ["Этажность", String(o.floors)],
+    ["Площадь здания, тыс. м²", fmt(o.area, 1)],
+    ["Класс пожарной опасности конструкций", "К0"],
+  ].map(([p, v]) => ({ p, pd: v, rd: v, id: v, st: "good" }));
+  const k = Math.round(((100 - o.m023) / 100) * 7);
+  if (k >= 1) { rows[1].id = null; rows[1].st = "none"; }
+  if (k >= 2) { rows[3].rd = fmt(hgt + 0.9, 1); rows[3].bad = true; rows[3].st = "late"; }
+  if (k >= 3) { rows[2].rd = "С1"; rows[2].bad = true; rows[2].st = "late"; }
+  return rows;
+}
+function renderObject(pk, id) {
+  const o = OBJECTS.find((x) => x.id === id) || OBJECTS[0];
+  const p = PERIODS[pk], B = buckets(pk, p.n), pre = preCount(B), r = rng(hash(o.id + pk));
+  const labels = B.map((b) => b.label), full = B.map((b) => b.full);
+  const open = trendOpen(o, B);
+  const critS = open.map((v, i) => (v == null ? null : i === p.n - 1 ? o.crit : Math.min(v, Math.max(0, Math.round(v * (o.crit / Math.max(1, o.open)) * (0.7 + r() * 0.6))))));
+  const parts = healthParts(o);
+  const secW = SECTIONS.map((s, i) => 100 - o.sec[i].acc + 6 + r() * 10), secT = secW.reduce((a, b) => a + b, 0);
+  const secOpen = secW.map((w) => Math.floor((o.open * w) / secT));
+  for (let i = 0, rest = o.open - secOpen.reduce((a, b) => a + b, 0); rest > 0; i = (i + 1) % 8, rest--) secOpen[i]++;
+  // критичные расхождения: просрочено — те, у кого прошло больше 10 дней; плитка считается из этого же списка
+  const lateN = Math.min(o.crit, Math.round(o.crit * 0.6 + o.delay / 15));
+  const crits = Array.from({ length: o.crit }, (_, i) => {
+    const [sec, text, norm] = CRIT_TPL[(hash(o.id) + i * 2) % CRIT_TPL.length];
+    const age = i < lateN ? 11 + Math.floor(r() * 18) : 1 + Math.floor(r() * 8);
+    const found = new Date(+NOW - age * DAY), due = new Date(+found + 10 * DAY);
+    return { sec, text, norm, found, due, age, left: Math.round((due - NOW) / DAY), who: ["Генподрядчик", "Субподрядчик по " + sec, "Проектировщик"][i % 3] };
+  }).sort((a, b) => a.left - b.left);
+  const overdue = crits.filter((c) => c.left < 0).length;
+  const fixDays = 2.6 + (100 - o.health) / 12;
+  const hiddenTotal = Math.round(o.area * 9 + o.floors * 4), hiddenOk = Math.round(hiddenTotal * (o.idFull / 100) * 0.97);
+  // СМР: план по S-кривой от начала до ЗОС, факт — до сегодня; отметки «сегодня», ЗОС по плану и по прогнозу
+  const months = [], planS = [], factS = [];
+  const endShow = new Date(Math.max(+o.zosForecast, +NOW));
+  for (let d = new Date(o.start); d <= endShow; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)) {
+    months.push(d);
+    const f = (d - o.start) / (o.zosPlan - o.start);
+    planS.push(+(100 * S(f)).toFixed(1));
+    factS.push(d <= NOW ? +((o.smr * S(f)) / (o.planNow / 100)).toFixed(1) : null);
+  }
+  const mIdx = (d) => months.findIndex((m) => m.getFullYear() === d.getFullYear() && m.getMonth() === d.getMonth());
+  const marks = [{ i: mIdx(NOW), label: "сегодня", color: C.ink2, dash: true }];
+  if (o.delay) { marks.push({ i: mIdx(o.zosPlan), label: "ЗОС план", color: C.aim, anchor: "end" }, { i: mIdx(o.zosForecast), label: "прогноз ЗОС", color: C.actualInk, anchor: "end", low: true }); }
+  else marks.push({ i: mIdx(o.zosPlan), label: "ЗОС", color: C.aim, anchor: "end" });
+  const smrLabels = months.map((d) => MON[d.getMonth()] + " " + String(d.getFullYear()).slice(2));
+  const m023 = m023Rows(o);
+  const feed = []; let t = +NOW - 40 * 60e3;
+  for (let i = 0; i < 7; i++) {
+    const [a, b, who] = FEED_TPL[(hash(o.id) + i) % FEED_TPL.length];
+    const k = 6 + Math.floor(r() * 12);
+    const sub = (s) => s.replace("{s}", 1 + Math.floor(r() * 4)).replace("{n}", 40 + Math.floor(r() * 220)).replace("{k2}", k - 2).replace("{k}", k).replace("{m}", 6 + Math.floor(r() * 30)).replace("{f}", 2 + Math.floor(r() * Math.max(1, o.floors - 2))).replace("{sec}", SECTIONS[Math.floor(r() * 8)]).replace("{n2}", 3 + Math.floor(r() * 9));
+    feed.push({ t: new Date(t), a: sub(a), b: sub(b), who });
+    t -= (2 + r() * 9) * 3600e3;
+  }
+  const idx = OBJECTS.indexOf(o);
+
+  const h = `<section class="card hero">
+    <div>
+      <span class="label">Объект ${idx + 1} из ${OBJECTS.length} · <span class="kbd">J</span> <span class="kbd">K</span> соседний</span>
+      <h1>${esc(o.name)}</h1>
+      <div class="meta"><span>${esc(o.addr)}</span><span>Девелопер ${esc(o.dev)}</span><span>Генподрядчик ${esc(o.gp)}</span><span><span class="tag soft">${esc(o.kind)}</span> ${o.floors} эт. · ${fmt(o.area, 1)} тыс. м²</span><span class="tag soft">${esc(o.id)}</span></div>
+    </div>
+    <div class="score"><span class="label">Индекс здоровья</span><b>${o.health}<small>/100</small></b>${pill(o.state)}</div>
+    <div class="stages">${STAGES.map((s, i) => `<div class="${i < o.stage ? "done" : i === o.stage ? "now" : ""}" ${i === o.stage ? `style="--p:${o.stageP}%"` : ""}><i></i>${esc(s)}${i === o.stage ? ` · СМР ${o.smr} %` : ""}</div>`).join("")}</div>
+    <div class="facts">
+      <div><span class="l">ЗОС по плану${o.delay ? " → прогноз" : ""}</span><span class="v">${my(o.zosPlan)}${o.delay ? `<small>→ ${my(o.zosForecast)}</small>` : ""}</span><span class="sub">${o.delay ? `<span class="late-t">сдвиг +${o.delay} дн.</span>` : `<span class="ok-t">в срок</span>`}</span></div>
+      <div><span class="l">Открытые замечания</span><span class="v">${o.open}</span><span class="sub">критичных для ЗОС ${o.crit}</span></div>
+      <div><span class="l">Критичные просрочены</span><span class="v" style="${overdue ? "color:var(--actual-ink)" : ""}">${overdue}<small>из ${o.crit}</small></span><span class="sub">${overdue ? "нужна эскалация генподрядчику" : "просрочек нет"}</span></div>
+      <div><span class="l">Акты скрытых работ</span><span class="v">${fmt(hiddenOk)}<small>из ${fmt(hiddenTotal)}</small></span><span class="sub">устранение замечаний сейчас ~${fmt(fixDays, 1)} дн.</span></div>
+    </div>
+  </section>
+  <div class="grid">
+  ${card({ cls: "s4", title: "Из чего сложился индекс", snap: true, src: ["Взвешенная сумма четырёх составляющих, каждая 0–100. В норме — от 75, внимание — 55–74, срок под угрозой — ниже 55. Веса — предложение BI, утверждает заказчик.", "Витрина объекта: агрегаты ИД, замечаний, сверки и график ЗОС."],
+    body: `<div class="comp">${parts.map((q) => `<div class="r"><span>${esc(q.name)} · ${Math.round(q.w * 100)} %</span><em>${q.v}</em><span class="b"><i style="width:${q.v}%;background:${q.v >= 75 ? C.ink2 : q.v >= 55 ? C.amber : C.actual}"></i></span></div>`).join("")}</div><div class="formula">${parts.map((q) => `${fmt(q.w, 2)}×${q.v}`).join(" + ")} = ${o.health}</div>` })}
+  ${card({ cls: "s5", title: "Открытые замечания", unit: "шт. на конец " + (p.unit === "day" ? "дня" : p.unit === "week" ? "недели" : "месяца"), src: ["Замечания, признанные инспектором и ещё не закрытые, на конец каждой корзины периода.", "Таблица замечаний объекта: снимок статусов на дату."],
+    body: `<div class="chart" data-chart="open"></div>` })}
+  ${card({ cls: "s3", title: "Из них критичные", unit: "шт.", src: ["Открытые расхождения, без устранения которых объект не получит ЗОС. Отдельный график со своей шкалой — чтобы малые числа не терялись.", "Таблица замечаний объекта, критичность из каталога правил."],
+    body: `<div class="chart" data-chart="crit"></div>` })}
+  </div>
+  <div class="grid">
+  ${card({ cls: "s6", title: "Исполнительная документация по разделам", unit: "% от требуемого на сегодня", snap: true, src: ["То же определение, что на тепловой карте портфеля: 100 % — всё положенное на текущем этапе. Графит — принято, кобальт — загружено и ждёт проверки, оранжевая штриховка — не представлено.", "Перечень обязательной ИД по этапу против документов объекта и их статусов."],
+    body: legend([[C.ink2, "Принято"], [C.aim, "На проверке"], [C.actual, "Не представлено", "hatch"]]) + `<div class="stack">${SECTIONS.map((s, i) => { const v = o.sec[i]; return `<div class="r" data-tip="${esc(SECTION_NAMES[s])}|Принято ${v.acc} %|На проверке ${v.rev} %|Не представлено ${v.miss} %"><span class="t">${s}</span><span class="bar"><i class="a" style="flex:${v.acc}"></i>${v.rev ? `<i class="p" style="flex:${v.rev}"></i>` : ""}${v.miss ? `<i class="m" style="flex:${v.miss}"></i>` : ""}</span><span class="n">${v.acc} %${v.miss ? ` <em>−${v.miss}</em>` : ""}</span></div>`; }).join("")}</div>` })}
+  ${card({ cls: "s6", title: "Готовность СМР", unit: "%, весь срок строительства", src: ["План — S-кривая освоения от начала работ до ЗОС по графику. Факт — выполнение по актам КС-2. Отметки: сегодня, ЗОС по плану и по прогнозу.", "График производства работ и акты КС-2 заказчика (внешняя система, интеграция не заведена)."],
+    body: legend([[C.aim, "План", "dash"], [C.actual, "Факт", "ln"]]) + `<div class="chart" data-chart="smr"></div>` })}
+  </div>
+  <div class="grid">
+  ${card({ cls: "s7", title: "Сверка М-023: ПД ↔ РД ↔ ИД", snap: true, src: ["Параметры пожарной безопасности в проектной (ПД), рабочей (РД) и исполнительной (ИД) документации. ПД — пояснительная записка, РД — «Общие данные» АР/КР, ИД — заключение ГПН (МЧС). Если документа нет в комплекте — так и пишем, а не пропускаем.", "Результаты сверки М-023 по объекту (T-165)."],
+    body: `<div class="tw"><table class="m023"><thead><tr><th>Параметр</th><th><span class="tag">ПД</span></th><th><span class="tag">РД</span></th><th><span class="tag">ИД</span></th><th>Итог</th></tr></thead><tbody>${m023.map((x) => `<tr><td>${esc(x.p)}</td><td class="v">${esc(x.pd)}</td><td class="v ${x.bad ? "bad" : ""}">${x.bad ? `<span>${esc(x.rd)}</span>` : esc(x.rd)}</td>${x.id == null ? `<td class="miss">не представлено</td>` : `<td class="v">${esc(x.id)}</td>`}<td>${pill(x.st, x.st === "good" ? "Расхождения нет" : x.st === "late" ? "Расхождение" : "Нет в комплекте")}</td></tr>`).join("")}</tbody></table></div>` })}
+  ${card({ cls: "s5", title: "Журнал объекта", src: ["Последние события: загрузки, разборы, решения, черновики предписаний.", "Журнал аудита API по проверкам объекта."],
+    body: `<div class="feed">${feed.map((f) => `<div><time>${dd(f.t)} ${String(f.t.getHours()).padStart(2, "0")}:${String(f.t.getMinutes()).padStart(2, "0")}</time><p>${esc(f.a)}<span>${esc(f.who)} · ${esc(f.b)}</span></p></div>`).join("")}</div>` })}
+  </div>
+  ${card({ title: "Расхождения, критичные для ЗОС", unit: o.crit ? `${o.crit} открыто · просрочено ${overdue}` : "", snap: true, src: ["Признанные инспектором расхождения, без устранения которых объект не получит ЗОС. Срок устранения — 10 дней с признания.", "Таблица замечаний объекта, критичность — из каталога правил."],
+    body: crits.length ? `<div class="tw"><table><thead><tr><th>Раздел</th><th>Расхождение</th><th>Основание</th><th class="num">Признано</th><th class="num">Срок</th><th>Ответственный</th><th>Состояние</th></tr></thead><tbody>${crits.map((c) => `<tr><td><span class="tag soft">${esc(c.sec)}</span></td><td>${esc(c.text)}</td><td style="white-space:nowrap;color:var(--mute);font-size:13px">${esc(c.norm)}</td><td class="num">${dd(c.found)}</td><td class="num">${dd(c.due)}</td><td style="white-space:nowrap">${esc(c.who)}</td><td>${c.left < 0 ? pill("late", "Просрочено " + -c.left + " дн.") : pill("none", "Осталось " + c.left + " дн.")}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">Критичных расхождений нет. Появятся здесь, как только инспектор признает первое.</div>` })}
+  <p class="foot-note">Макет. Объект, организации, замечания и события вымышлены. Реальные объекты из бакета («Полярная 17», «Лосевская 3А», «Алтуфьевское 79Б») появятся здесь после подключения к реестру объектов (T-166).</p>`;
+  document.getElementById("view").innerHTML = h;
+  CHARTS = {
+    open: (el) => lineChart(el, { labels, full, pre, unit: "шт.", area: true, height: 220, fv: (v) => fmt(v), aria: "Открытые замечания", series: [{ name: "Открытые", color: C.ink2, values: open }] }),
+    crit: (el) => barChart(el, { labels, full, pre, unit: "шт.", height: 220, padL: 30, yMax: Math.max(4, niceMax(Math.max(...critS.filter((v) => v != null), 1))), aria: "Критичные замечания", stacks: [{ name: "Критичные", color: C.red, values: critS.map((v) => v || 0) }] }),
+    smr: (el) => lineChart(el, { labels: smrLabels, full: months.map(my), unit: "%", yMax: 100, height: 250, marks, fv: (v) => fmt(v, 1), aria: "Готовность СМР", series: [{ name: "План", color: C.aim, values: planS, dash: true, w: 1.5 }, { name: "Факт", color: C.actual, values: factS }] }),
+  };
+}
+
+// ─────────────── палитра ⌘K
+const scrim = document.getElementById("scrim"), pq = document.getElementById("pq"), pl = document.getElementById("pl");
+let pItems = [], pSel = 0, lastFocus = null;
+function paletteItems(q) {
+  const cmds = [
+    { k: "Раздел", t: "Портфель объектов", go: "#portfolio", kb: "G P" },
+    ...Object.entries(PERIODS).map(([k, v]) => ({ k: "Период", t: v.label, run: () => setPeriod(k) })),
+  ];
+  const objs = OBJECTS.map((o) => ({ t: `${o.name} — ${o.addr}`, sub: o.dev, go: "#object-" + o.id, st: o.state }));
+  const all = [...objs, ...cmds], s = q.trim().toLowerCase();
+  return s ? all.filter((x) => (x.t + " " + (x.sub || "") + " " + (x.k || "") + " " + (x.st ? STATE[x.st] : "")).toLowerCase().includes(s)) : all;
+}
+function drawPalette() {
+  pItems = paletteItems(pq.value); pSel = clamp(pSel, 0, Math.max(0, pItems.length - 1));
+  pl.innerHTML = pItems.length ? pItems.map((x, i) => `<li role="option" aria-selected="${i === pSel}" data-i="${i}">${x.st ? pill(x.st, "") : `<span class="k">${esc(x.k)}</span>`}<span class="t">${esc(x.t)}</span>${x.kb ? `<span class="kbd">${esc(x.kb)}</span>` : `<span class="k">${esc(x.sub || "")}</span>`}</li>`).join("") : `<li aria-disabled="true"><span></span><span class="t" style="color:var(--mute)">Ничего не нашлось. Ищите по названию, адресу или девелоперу.</span><span></span></li>`;
+  pl.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
+}
+function openPalette() { lastFocus = document.activeElement; scrim.hidden = false; pq.value = ""; pSel = 0; drawPalette(); pq.focus(); }
+function closePalette() { scrim.hidden = true; lastFocus?.focus?.(); }
+function runItem(x) { if (!x) return; scrim.hidden = true; if (x.go) location.hash = x.go.slice(1); if (x.run) x.run(); }
+pq.addEventListener("input", () => { pSel = 0; drawPalette(); });
+pq.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown") { pSel++; drawPalette(); e.preventDefault(); }
+  else if (e.key === "ArrowUp") { pSel--; drawPalette(); e.preventDefault(); }
+  else if (e.key === "Enter") { runItem(pItems[pSel]); e.preventDefault(); }
+  else if (e.key === "Escape") closePalette();
+  else if (e.key === "Tab") e.preventDefault();   // фокус остаётся в палитре
+});
+pl.addEventListener("click", (e) => { const li = e.target.closest("li[data-i]"); if (li) runItem(pItems[+li.dataset.i]); });
+scrim.addEventListener("click", (e) => { if (e.target === scrim) closePalette(); });
+document.addEventListener("click", (e) => { if (e.target.closest("[data-open-palette]")) openPalette(); });
+
+// клавиши — по KeyboardEvent.code: одинаково в ЙЦУКЕН и QWERTY
+let gPending = 0;
+document.addEventListener("keydown", (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.code === "KeyK") { e.preventDefault(); scrim.hidden ? openPalette() : closePalette(); return; }
+  if (!scrim.hidden || e.metaKey || e.ctrlKey || e.altKey || /INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName || "")) return;
+  if (e.code === "Escape") { document.querySelectorAll(".more>button[aria-expanded='true']").forEach((x) => { x.setAttribute("aria-expanded", "false"); x.nextElementSibling.hidden = true; }); return; }
+  if (e.code === "Slash") { e.preventDefault(); openPalette(); return; }
+  if (Date.now() - gPending < 1200) {
+    gPending = 0;
+    if (e.code === "KeyP") { location.hash = "portfolio"; return; }
+    if (e.code === "KeyO") { location.hash = "object-" + curObject(); return; }
+  }
+  if (e.code === "KeyG") { gPending = Date.now(); return; }
+  if (location.hash.startsWith("#object") && (e.code === "KeyJ" || e.code === "KeyK")) {
+    const i = OBJECTS.findIndex((o) => o.id === curObject());
+    location.hash = "object-" + OBJECTS[(i + (e.code === "KeyJ" ? 1 : -1) + OBJECTS.length) % OBJECTS.length].id;
+  }
+});
+
+// ─────────────── маршрутизация и перерисовка
+let CHARTS = {};
+let period = "30d";
+try { period = localStorage.getItem("bi-period") || period; } catch (_) {}
+if (!PERIODS[period]) period = "30d";
+let lastObject = OBJECTS[0].id;
+function curObject() { const h = location.hash.slice(1); const id = h.startsWith("object-") ? h.slice(7) : lastObject; return OBJECTS.some((o) => o.id === id) ? id : lastObject; }
+function setPeriod(k) { period = k; try { localStorage.setItem("bi-period", k); } catch (_) {} transition(render); }
+document.querySelectorAll("#period button").forEach((b) => b.addEventListener("click", () => setPeriod(b.dataset.p)));
+function drawCharts() { svgSeq = 0; document.querySelectorAll("[data-chart]").forEach((el) => CHARTS[el.dataset.chart]?.(el)); drawRuler(period); }
+function transition(fn) { hideTip(); if (document.startViewTransition) document.startViewTransition(fn); else fn(); }
+function render() {
+  popSeq = 0;
+  const isObj = location.hash.startsWith("#object");
+  const id = curObject();
+  // неизвестный код объекта в адресе — поправить адрес, а не молча показывать другой объект под чужой ссылкой
+  if (isObj && location.hash !== "#object-" + id) history.replaceState(null, "", "#object-" + id);
+  if (isObj) lastObject = id;
+  document.querySelectorAll("#period button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.p === period)));
+  document.querySelectorAll("[data-route]").forEach((a) => (a.dataset.route === (isObj ? "object" : "portfolio") ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
+  document.querySelector('[data-route="object"]').href = "#object-" + id;
+  const o = OBJECTS.find((x) => x.id === id);
+  document.getElementById("crumbs").innerHTML = isObj
+    ? `<span>Аналитика</span><span>/</span><a href="#portfolio">Портфель</a><span>/</span><button type="button" class="sw" data-open-palette title="Сменить объект (⌘K)"><b>${esc(o.name)}</b><svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>`
+    : `<span>Аналитика</span><span>/</span><b>Портфель</b><button type="button" class="btn" data-open-palette style="margin-left:10px">Найти объект <span class="kbd">⌘K</span></button>`;
+  if (isObj) renderObject(period, id); else renderPortfolio(period);
+  document.title = (isObj ? o.name : "Портфель") + " · Надзориум · Аналитика";
+  drawCharts();
+}
+addEventListener("hashchange", () => transition(() => { render(); scrollTo(0, 0); }));
+let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(drawCharts, 120); });
+render();
+</script>
+</body>
+</html>

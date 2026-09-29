@@ -1,0 +1,116 @@
+# NFR-SLA (ТЗ 11-12, TZA-11-12): доступность 99,9 % круглосуточно — правила записи и алерты по сгоранию бюджета.
+# Числа — из apps/api/src/domain/slo.ts (SLO_TARGET, BURN_ALERTS): scripts/slo.test.mjs сверяет их с этим файлом,
+# расхождение роняет гейт. Проверка правил — promtool test rules rules/slo.test.yml (тот же образ Prometheus).
+#
+# Два показателя (SLI):
+#   availability — доля успешных проб blackbox (/ready API и страница web), sli="availability";
+#   api_errors   — доля ответов 5xx API среди всех запросов, sli="api_errors".
+# Алерты — multiwindow, multi-burn-rate (Google SRE Workbook, «Alerting on SLOs»): длинное окно ловит устойчивое
+# сгорание, короткое (1/12 длинного) гасит алерт сразу после восстановления.
+# Бюджет 30 дней = (1 − 0,999) × 30 сут = 2592 с ≈ 43,2 мин недоступности.
+groups:
+  - name: slo-availability-records
+    rules:
+      - record: slo:probe_success:ratio_rate5m
+        expr: avg_over_time(probe_success{job="blackbox"}[5m])
+        labels: { sli: availability }
+      - record: slo:probe_success:ratio_rate30m
+        expr: avg_over_time(probe_success{job="blackbox"}[30m])
+        labels: { sli: availability }
+      - record: slo:probe_success:ratio_rate1h
+        expr: avg_over_time(probe_success{job="blackbox"}[1h])
+        labels: { sli: availability }
+      - record: slo:probe_success:ratio_rate6h
+        expr: avg_over_time(probe_success{job="blackbox"}[6h])
+        labels: { sli: availability }
+      - record: slo:probe_success:ratio_rate1d
+        expr: avg_over_time(probe_success{job="blackbox"}[1d])
+        labels: { sli: availability }
+      - record: slo:probe_success:ratio_rate30d
+        expr: avg_over_time(probe_success{job="blackbox"}[30d])
+        labels: { sli: availability }
+
+  - name: slo-api-errors-records
+    rules:
+      # rate/rate = increase/increase за окно; сброс счётчика при рестарте API rate учитывает сам
+      - record: slo:api_errors:ratio_rate5m
+        expr: rate(inspector_http_errors_5xx_total{job="inspector-api"}[5m]) / rate(inspector_http_requests_total{job="inspector-api"}[5m])
+        labels: { sli: api_errors }
+      - record: slo:api_errors:ratio_rate30m
+        expr: rate(inspector_http_errors_5xx_total{job="inspector-api"}[30m]) / rate(inspector_http_requests_total{job="inspector-api"}[30m])
+        labels: { sli: api_errors }
+      - record: slo:api_errors:ratio_rate1h
+        expr: rate(inspector_http_errors_5xx_total{job="inspector-api"}[1h]) / rate(inspector_http_requests_total{job="inspector-api"}[1h])
+        labels: { sli: api_errors }
+      - record: slo:api_errors:ratio_rate6h
+        expr: rate(inspector_http_errors_5xx_total{job="inspector-api"}[6h]) / rate(inspector_http_requests_total{job="inspector-api"}[6h])
+        labels: { sli: api_errors }
+      - record: slo:api_errors:ratio_rate1d
+        expr: rate(inspector_http_errors_5xx_total{job="inspector-api"}[1d]) / rate(inspector_http_requests_total{job="inspector-api"}[1d])
+        labels: { sli: api_errors }
+      - record: slo:api_errors:ratio_rate30d
+        expr: rate(inspector_http_errors_5xx_total{job="inspector-api"}[30d]) / rate(inspector_http_requests_total{job="inspector-api"}[30d])
+        labels: { sli: api_errors }
+
+  - name: slo-alerts
+    rules:
+      # ×14,4 за 1 ч и за 5 мин: 2 % месячного бюджета за час — будить дежурного
+      - alert: InspectorSloBurnFast
+        expr: |
+          (
+            (1 - slo:probe_success:ratio_rate1h) > (14.4 * (1 - 0.999))
+            and
+            (1 - slo:probe_success:ratio_rate5m) > (14.4 * (1 - 0.999))
+          )
+          or
+          (
+            slo:api_errors:ratio_rate1h > (14.4 * (1 - 0.999))
+            and
+            slo:api_errors:ratio_rate5m > (14.4 * (1 - 0.999))
+          )
+        for: 2m
+        labels: { severity: page, slo: availability-99.9 }
+        annotations:
+          summary: "Бюджет доступности 99,9 % сгорает в 14,4 раза быстрее допустимого ({{ $labels.sli }}, {{ $labels.instance }})"
+          description: "За час и за последние 5 минут доля отказов выше 1,44 %. Так месячный бюджет (43 мин) кончится за двое суток. Проверьте /ready: какая зависимость отказала — база или ML."
+
+      # ×6 за 6 ч и за 30 мин: 5 % бюджета за 6 часов — заявка в рабочее время
+      - alert: InspectorSloBurnSlow
+        expr: |
+          (
+            (1 - slo:probe_success:ratio_rate6h) > (6 * (1 - 0.999))
+            and
+            (1 - slo:probe_success:ratio_rate30m) > (6 * (1 - 0.999))
+          )
+          or
+          (
+            slo:api_errors:ratio_rate6h > (6 * (1 - 0.999))
+            and
+            slo:api_errors:ratio_rate30m > (6 * (1 - 0.999))
+          )
+        for: 15m
+        labels: { severity: ticket, slo: availability-99.9 }
+        annotations:
+          summary: "Бюджет доступности 99,9 % сгорает в 6 раз быстрее допустимого ({{ $labels.sli }}, {{ $labels.instance }})"
+          description: "За 6 часов и за последние 30 минут доля отказов выше 0,6 %. Месячный бюджет кончится за 5 суток — нужна заявка на разбор."
+
+      # Скользящие 30 дней ниже цели: обязательство ТЗ 11-12 нарушено
+      - alert: InspectorSloBudgetExhausted
+        expr: |
+          slo:probe_success:ratio_rate30d < 0.999
+          or
+          (1 - slo:api_errors:ratio_rate30d) < 0.999
+        for: 15m
+        labels: { severity: ticket, slo: availability-99.9 }
+        annotations:
+          summary: "Бюджет ошибок 99,9 % за 30 дней исчерпан ({{ $labels.sli }}, {{ $labels.instance }})"
+          description: "Доступность за скользящие 30 дней ниже 99,9 % (больше 43 минут отказов). Отчёт: node scripts/availability-report.mjs."
+
+      # Проба не проходит 2 минуты подряд: сервис лежит сейчас, не дожидаясь окон бюджета
+      - alert: InspectorProbeDown
+        expr: probe_success{job="blackbox"} == 0
+        for: 2m
+        labels: { severity: page, slo: availability-99.9 }
+        annotations:
+          summary: "Проба доступности не проходит 2 минуты: {{ $labels.instance }}"
+          description: "blackbox-exporter не получает ответ 200. Для /ready тело ответа 503 называет отказавшую зависимость: db или ml."

@@ -1,0 +1,93 @@
+{
+ "object": {
+  "object_id": "OBJ-SKL-5",
+  "name": "СИНТЕТИКА · Складской корпус № 5",
+  "address": "ВЫМЫШЛЕННЫЙ АДРЕС · г. Москва, ул. Вымышленная Складская, 5",
+  "customer": "ООО «Логистика-Тест»",
+  "contractor": "ООО «СкладСтрой-Тест»",
+  "permit_number": "77-000-0004-2025",
+  "profile": {
+   "synthetic": true,
+   "residential": false,
+   "underground": false,
+   "gas": false,
+   "demolition": false
+  }
+ },
+ "files": [
+  {
+   "file_id": "SKL-PD-PZ-1",
+   "file_name": "SKL-PD-PZ-1.pdf",
+   "sha256": "bfba550f6ce001f3518b494b6d1ed040fc3da71c759d9ddb02605cd1e14d4cdc",
+   "doc_stage": "PD",
+   "discipline": "ПЗ",
+   "document_code": "СК5-П-ПЗ",
+   "revision": "1",
+   "approval_status": "APPROVED",
+   "approval_date": "2025-02-10",
+   "sheet_page_range": "1-3",
+   "predecessor_id": null,
+   "signature_status": "SCAN_SIGNED"
+  },
+  {
+   "file_id": "SKL-RD-AR-1",
+   "file_name": "SKL-RD-AR-1.xlsx",
+   "sha256": "ecf2c5680cf605b14a1ce988446619fcfdeae10e8502d26d209aa86ea5407fc6",
+   "doc_stage": "RD",
+   "discipline": "АР",
+   "document_code": "СК5-Р-АР",
+   "revision": "1",
+   "approval_status": "FOR_CONSTRUCTION",
+   "approval_date": "2025-04-01",
+   "sheet_page_range": "1",
+   "predecessor_id": null,
+   "signature_status": "SCAN_SIGNED"
+  },
+  {
+   "file_id": "SKL-ID-TP-1",
+   "file_name": "SKL-ID-TP-1.png",
+   "sha256": "be1a602410bdee8c8ae400d99fa2d99e5172af1bff558795c815e0b47d91201e",
+   "doc_stage": "ID",
+   "discipline": "ПЗ",
+   "document_code": "СК5-ИД-ТП",
+   "revision": "1",
+   "approval_status": "APPROVED",
+   "approval_date": "2026-01-20",
+   "sheet_page_range": "1",
+   "predecessor_id": null,
+   "signature_status": "SCAN_SIGNED"
+  },
+  {
+   "file_id": "SKL-ID-OZHR-1",
+   "file_name": "SKL-ID-OZHR-1.pdf",
+   "sha256": "c2f73f08c18cbc19a416e1ddd56dac550174f52bb41677a4e5f0d2aba816d0d1",
+   "doc_stage": "ID",
+   "discipline": "КЖ",
+   "document_code": "СК5-ИД-ОЖР",
+   "revision": "1",
+   "approval_status": "APPROVED",
+   "approval_date": "2025-12-01",
+   "sheet_page_range": "1-3",
+   "predecessor_id": null,
+   "signature_status": "SCAN_SIGNED",
+   "part_of": null,
+   "part_index": 1
+  },
+  {
+   "file_id": "SKL-ID-OZHR-1-P2",
+   "file_name": "SKL-ID-OZHR-1-P2.pdf",
+   "sha256": "53f517a0c54fa9a29a4e5316a34a010a6cf914ef8facc9ed1729ebf0aa7604d6",
+   "doc_stage": "ID",
+   "discipline": "КЖ",
+   "document_code": "СК5-ИД-ОЖР",
+   "revision": "1",
+   "approval_status": "APPROVED",
+   "approval_date": "2025-12-01",
+   "sheet_page_range": "1-3",
+   "predecessor_id": null,
+   "signature_status": "SCAN_SIGNED",
+   "part_of": "SKL-ID-OZHR-1",
+   "part_index": 2
+  }
+ ]
+}

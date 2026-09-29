@@ -1,0 +1,46 @@
+# nadzorium-gpu.almazrobots.ru (T-185): полноценный стенд на GPU-сервере 158.255.3.179. Caddy — сервис caddy в
+# deploy/gpu-stand/compose.yml (сеть хоста, 80/443), сертификат Let's Encrypt — том caddy-data.
+# Два замка, как у демо (deploy/demo/Caddyfile.nadzorium): пароль прокси (basic auth, логин owner) и логин приложения.
+# /api/* и /health — без пароля прокси: пароль прокси и Bearer-токен приложения делят заголовок Authorization,
+# а API без входа ничего не отдаёт (401). Хеш пароля — /opt/stand-gpu/caddy/users.caddy (не в git), bcrypt cost 10:
+# пароль случайный (~119 бит), а cost 14 давал ~1 с CPU на каждую неверную попытку — DoS 32 ядер (OWASP-0193).
+# Админ-API Caddy — только unix-сокет в tmpfs контейнера: ML живёт в сети хоста и достаёт до 127.0.0.1:2019, откуда
+# конфигурацию можно подменить, сняв basic auth (OWASP-0192). Перечитать конфиг:
+#   docker exec nadzorium-gpu-caddy-1 caddy reload --config /etc/caddy/Caddyfile --address unix//tmp/caddy-admin.sock
+{
+	email almaz.qxp@gmail.com
+	admin unix//tmp/caddy-admin.sock
+}
+
+(stand_headers) {
+	header {
+		X-Robots-Tag "noindex, nofollow"
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		-Server
+	}
+}
+
+nadzorium-gpu.almazrobots.ru {
+	encode zstd gzip
+	request_body {
+		max_size 300MB
+	}
+	import stand_headers
+	# ответы-ошибки самого Caddy (401 basic auth, 502) идут мимо header выше — без HSTS и с Server (OWASP-0194)
+	handle_errors {
+		import stand_headers
+	}
+	@locked not path /api/* /health
+	basic_auth @locked bcrypt "Nadzorium GPU" {
+		import /etc/caddy/users.caddy
+	}
+	reverse_proxy https://127.0.0.1:46443 {
+		transport http {
+			tls_trusted_ca_certs /etc/caddy/stand-ca.crt
+			tls_server_name web
+			read_timeout 60m
+			write_timeout 60m
+		}
+	}
+}

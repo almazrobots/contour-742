@@ -1,0 +1,33 @@
+{
+  "_about": "Допуски понижающего слоя геометрии и кросс-проверок (T-194, ADR-0010 п. 5: данные, а не код). ver04 — VER-04 каталога TO-BE: scale_spread_pct — наибольший разброс масштаба по размерным линиям листа, % (как OS-INSP-2.4.6: 2 %); residual_mm — наибольший остаток регистрации листа в системе осей здания, мм; null — оператору система осей не нужна (длина и площадь меряются на листе). ver06 — VER-06: значения двух источников согласны, если |a − b| ≤ max(abs, pct % от большего); abs в единицах упоминания (мм, м², шт). xdisc — CMP-30/31: tol — допуски внутренней согласованности по виду проверки; residual_mm — остаток регистрации, при котором планы разных разделов ещё накладываются; damper_radius_mm — радиус поиска клапана у пересечения трассы с противопожарной стеной. Начальные значения — инженерная оценка по ГОСТ 21.101 и точности векторного слоя; уточняются на отложенном наборе T-195, не на генераторе разработки.",
+  "ver04": {
+    "default": { "residual_mm": null, "scale_spread_pct": 2 },
+    "ops": {
+      "CMP-12": { "residual_mm": null, "scale_spread_pct": 2 },
+      "CMP-13": { "residual_mm": null, "scale_spread_pct": 2 },
+      "CMP-14": { "residual_mm": 50, "scale_spread_pct": 2 },
+      "CMP-15": { "residual_mm": 50, "scale_spread_pct": 2 },
+      "CMP-16": { "residual_mm": 50, "scale_spread_pct": 2 },
+      "CMP-19": { "residual_mm": null, "scale_spread_pct": 2 }
+    }
+  },
+  "ver06": {
+    "length": { "abs": 20, "pct": 2 },
+    "area": { "abs": 0.1, "pct": 2 },
+    "position": { "abs": 50, "pct": 0 },
+    "shape": { "abs": 0, "pct": 0 },
+    "relation": { "abs": 0, "pct": 0 },
+    "topology": { "abs": 0, "pct": 0 },
+    "count": { "abs": 0, "pct": 0 }
+  },
+  "xdisc": {
+    "tol": {
+      "spec_count": { "abs": 0, "pct": 0 },
+      "tep_explication": { "abs": 0.1, "pct": 0.5 },
+      "explication_total": { "abs": 0.05, "pct": 0 },
+      "opening_width": { "abs": 20, "pct": 2 }
+    },
+    "residual_mm": 50,
+    "damper_radius_mm": 1000
+  }
+}

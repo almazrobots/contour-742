@@ -1,0 +1,89 @@
+{
+ "object": {
+  "object_id": "OBJ-SCH-8",
+  "name": "СИНТЕТИКА · Школа на 550 мест",
+  "address": "ВЫМЫШЛЕННЫЙ АДРЕС · г. Москва, ул. Вымышленная Лесная, 8",
+  "customer": "ГКУ «Заказчик-Тест»",
+  "contractor": "ООО «ШколСтрой-Тест»",
+  "permit_number": "77-000-0002-2025",
+  "profile": {
+   "synthetic": true,
+   "residential": false,
+   "underground": false,
+   "gas": false,
+   "demolition": false
+  }
+ },
+ "files": [
+  {
+   "file_id": "SCH-PD-PZ-1",
+   "file_name": "SCH-PD-PZ-1.pdf",
+   "sha256": "01ec771e209d0cfd7cf95952ba8b1a49660b6c2a58a486d98dff693553f8c978",
+   "doc_stage": "PD",
+   "discipline": "ПЗ",
+   "document_code": "ШК8-П-ПЗ",
+   "revision": "1",
+   "approval_status": "APPROVED",
+   "approval_date": "2025-02-01",
+   "sheet_page_range": "1-3",
+   "predecessor_id": null,
+   "signature_status": "SCAN_SIGNED"
+  },
+  {
+   "file_id": "SCH-RD-AR-1",
+   "file_name": "SCH-RD-AR-1.pdf",
+   "sha256": "cdc3e9f07cebf15c75048fcbc5f4493470656f67d21ced3aa3f7bd35396c63cd",
+   "doc_stage": "RD",
+   "discipline": "АР",
+   "document_code": "ШК8-Р-АР",
+   "revision": "1",
+   "approval_status": "APPROVED",
+   "approval_date": "2025-05-12",
+   "sheet_page_range": "1-3",
+   "predecessor_id": null,
+   "signature_status": "SCAN_SIGNED"
+  },
+  {
+   "file_id": "SCH-RD-AR-2",
+   "file_name": "SCH-RD-AR-2.pdf",
+   "sha256": "c91fe218a58aad3870e02ec8b16b13f460cc75a7fe8cf86864a95dff408442d1",
+   "doc_stage": "RD",
+   "discipline": "АР",
+   "document_code": "ШК8-Р-АР",
+   "revision": "2",
+   "approval_status": "APPROVED",
+   "approval_date": "2025-05-20",
+   "sheet_page_range": "1-3",
+   "predecessor_id": null,
+   "signature_status": "SCAN_SIGNED"
+  },
+  {
+   "file_id": "SCH-RD-KZH-1",
+   "file_name": "SCH-RD-KZH-1.pdf",
+   "sha256": "107e0ed85fc57b98fd4f1ee3fb1a993fb67988a654fadb129b6ac6cdf33e8fd5",
+   "doc_stage": "RD",
+   "discipline": "КЖ",
+   "document_code": "ШК8-Р-КЖ",
+   "revision": "1",
+   "approval_status": "FOR_CONSTRUCTION",
+   "approval_date": "2025-05-20",
+   "sheet_page_range": "1-3",
+   "predecessor_id": null,
+   "signature_status": "SCAN_SIGNED"
+  },
+  {
+   "file_id": "SCH-RD-EM-1",
+   "file_name": "SCH-RD-EM-1.docx",
+   "sha256": "6c300f0e045fd921096e6223da1091a4dec4a1df3f1f9a0fffd49084d024ed64",
+   "doc_stage": "RD",
+   "discipline": "ЭОМ",
+   "document_code": "ШК8-Р-ЭМ",
+   "revision": "1",
+   "approval_status": "FOR_CONSTRUCTION",
+   "approval_date": "2025-05-20",
+   "sheet_page_range": "1",
+   "predecessor_id": null,
+   "signature_status": "UKEP"
+  }
+ ]
+}
